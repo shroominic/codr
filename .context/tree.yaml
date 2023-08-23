@@ -1,0 +1,211 @@
+name: .
+nodes:
+- name: .context
+  nodes: []
+  sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- name: codeio
+  nodes:
+  - name: codeio/tree.py
+    sha256: 530c8c88a6c74d51dc255439f2253ea64d31021160fa135780773a9bda5443b0
+    summary: "The codebase contains a set of classes and functions for managing a\
+      \ codebase tree. The tree consists of nodes, which can be either files or directories.\
+      \ Each node has a name, a SHA256 hash value, and an optional embedding. \n\n\
+      The `CodeBaseFile` class represents a file in the codebase tree. It has additional\
+      \ attributes such as a summary, which is a description of the file's content,\
+      \ and a `refresh` method that checks if the file has been modified and updates\
+      \ its attributes accordingly.\n\nThe `CodeBaseTree` class represents a directory\
+      \ in the codebase tree. It contains a list of nodes, which can be either `CodeBaseFile`\
+      \ or `CodeBaseTree` instances. The `load` method loads the tree from a YAML\
+      \ file, and the `from_path` method constructs a new tree from a given path by\
+      \ recursively traversing the directory and creating nodes for each file or subdirectory.\
+      \ The `refresh` method checks if any of the nodes in the tree have been modified\
+      \ and updates them accordingly.\n\nThe `is_ignored_by_gitignore` function checks\
+      \ if a given file path matches any of the patterns in a `.gitignore` file.\n\
+      \nOverall, the codebase provides a way to represent and manage a codebase tree,\
+      \ including files and directories, with methods for loading, refreshing, and\
+      \ serializing the tree to a YAML file. The `CodeBaseFile` class also provides\
+      \ a way to summarize the content of a file."
+  - name: codeio/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    summary: The file contains code that performs a specific task. The exact task
+      is not mentioned in the file content. The code is organized in a way that allows
+      for easy readability and maintainability. It is written in a programming language
+      and may include functions, variables, and control structures. The file may also
+      import or include other files or libraries. Overall, the file is a part of a
+      larger codebase and serves a specific purpose within that context.
+  - name: codeio/codebase.py
+    sha256: 7411aa7a2ac66d44bce869dfc7d2246e6de323dedd337961476fa5e7dfdbd68b
+    summary: This file contains a class called `CodeBase` that represents a codebase.
+      It provides various methods for interacting with the codebase, such as running
+      bash commands, reading and modifying files, checking file existence, validating
+      file paths, and showing the codebase tree. The class uses asyncio to handle
+      asynchronous operations and makes use of the `CodeBaseTree` class from the `codeio.tree`
+      module.
+  sha256: 0962f25865d46bfe015f17baae27995877ad7e6bead84209307e7e035c119427
+- name: .pre-commit-config.yaml
+  sha256: dd2b6f65facfd866feab5e84a35b293fb11dec8c0eafdd304e78434fbebca955
+  summary: The file is a configuration file that defines a list of repositories containing
+    pre-commit hooks for code quality checks. Each repository is specified with its
+    URL and revision. Each repository has a list of hooks, each identified by an ID.
+    Some hooks have additional arguments and dependencies specified.
+- name: pyproject.toml
+  sha256: 57cb930eb2a794820f7d8aee5288fd4af5fd12cbb1d116a122aadb9d02f4004c
+  summary: The file is a configuration file for the project "neuralcodr". It defines
+    the project name, version, authors, and description. It also specifies the dependencies
+    and dev dependencies required for the project. Additionally, it sets some formatting
+    rules for the code using tools like isort and black.
+- name: chain
+  nodes:
+  - name: chain/chains.py
+    sha256: fa0d1d0989abd4d8df055f50cd6901e29398d228d76a8a03ec8dea6b2bbbb8fc
+    summary: 'The codebase consists of a few functions that are used to solve a task.
+      The `solve_task` function is the main entry point and it takes a task description
+      and some extra information as input. It then generates a code summary and a
+      task summary, computes changes based on the codebase and the information, and
+      applies the changes to the codebase if there are any.
+
+
+      There are also functions for additional questions, summarizing a file''s content,
+      searching for important files in the codebase, and generating summaries for
+      the codebase and the task.
+
+
+      The `summarize_file` function takes a file''s content as input and returns a
+      summarized description of the file.
+
+
+      The `search_important_files` function takes the codebase and a task description
+      as input and returns a list of important files in the codebase that are relevant
+      to the task.
+
+
+      The `generate_code_summary` function takes the codebase and a task description
+      as input and returns a summary of the codebase, describing the technologies
+      and frameworks used and the general structure of the codebase.
+
+
+      The `generate_task_summary` function takes the task description, the codebase,
+      and the code summary as input and returns a summary of the task, describing
+      the goal, the context, and the expected output.
+
+
+      The `compute_changes` function takes the codebase and a context dictionary as
+      input and returns a dictionary of changes to be applied to the codebase.
+
+
+      The `apply_changes` function takes the codebase and the changes dictionary as
+      input and applies the changes to the codebase.
+
+
+      The code ends with a main block that demonstrates the usage of the `summarize_file`
+      function by printing the summarized description of a file''s content.'
+  - name: chain/shortcuts.py
+    sha256: 1c574a046df21e3905598dc3f8df9abacb68ddffed52c96fe2ec4a636f0563dd
+    summary: The file contains utility functions for interacting with a chatbot powered
+      by OpenAI's GPT models. It provides functions for sending messages to the chatbot,
+      parsing the output, and handling errors. The file also includes functions for
+      retrieving code responses and file paths from the chatbot. Additionally, there
+      are functions for formatting code and a main function that demonstrates the
+      usage of the other functions.
+  - name: chain/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    summary: The file contains code that performs a specific task. It likely includes
+      functions, variables, or classes that are related to that task. The code may
+      involve input/output operations, calculations, or manipulation of data. It could
+      also include comments or documentation to explain the purpose of the code or
+      how it works. Overall, the file is a self-contained unit of code that contributes
+      to the larger codebase.
+  - name: chain/parser.py
+    sha256: 4be538aaf602056b086bc69b69b736fcfbe6417f444230898b605ed505e0291e
+    summary: "The file contains three classes: `CodeBlockOutputParser`, `FilePathsOutputParser`,\
+      \ and `QuestionsOutputParser`. \nThese classes are used for parsing specific\
+      \ types of output from a program. \n`CodeBlockOutputParser` is responsible for\
+      \ extracting code blocks from a given text. \n`FilePathsOutputParser` is responsible\
+      \ for parsing a JSON object that contains file paths and the changes to be made\
+      \ to those files. \n`QuestionsOutputParser` is responsible for parsing a list\
+      \ of questions from a given text."
+  - name: chain/templates.py
+    sha256: 2802c3face46f674cff38a4a2fe0be12c063f7221ecb8561cd743cd1b5a3c2d7
+    summary: 'The file contains a set of templates for different prompts used in the
+      codebase. These prompts are used to interact with the developer and gather information
+      about the codebase and tasks.
+
+
+      Each template is a string that can be filled with specific information using
+      the `from_template` method. The filled template can then be displayed to the
+      developer as a prompt.
+
+
+      The templates include prompts for:
+
+      - Listing important files in the codebase.
+
+      - Summarizing the repository, including its name, description, keywords, codebase
+      structure, and relevant files.
+
+      - Summarizing an issue, including its title, description, and implementation
+      steps.
+
+      - Preparing for changes, including the repository codebase, repository and issue
+      summaries, and asking for the files that need to be changed or created.
+
+      - Implementing a new file, including the repository and issue summaries, and
+      asking for the content of the new file.
+
+      - Changing an existing file, including the repository and issue summaries, and
+      asking for detailed instructions and a list of changes.
+
+
+      The templates are designed to guide the developer through the process of understanding
+      the codebase, identifying relevant files, and implementing changes to solve
+      the given task.'
+  - name: chain/utils.py
+    sha256: 05e3fe188f1636df58759166555494fb0fe373ecba09f751a699ace82abedfae
+    summary: "The file contains two functions: \"raiser\" and \"count_tokens\". \n\
+      \nThe \"raiser\" function takes an argument 'e' which can be either an Exception\
+      \ or a string. It raises the given exception if 'e' is an instance of Exception,\
+      \ otherwise it raises a new Exception with 'e' as the error message.\n\nThe\
+      \ \"count_tokens\" function takes a string 'text' as input and returns the number\
+      \ of tokens in the given text. It does this by using the \"encoding_for_model\"\
+      \ function from the \"tiktoken\" module to encode the text using the \"gpt-4\"\
+      \ model, and then returns the length of the encoded tokens.\n\nBoth functions\
+      \ have type annotations indicating the types of their arguments and return values.\
+      \ The \"raiser\" function is annotated to return NoReturn, which means it does\
+      \ not have a normal return value and will always raise an exception. The \"\
+      count_tokens\" function is annotated to return an integer.\n\nThe file imports\
+      \ the \"NoReturn\" type from the \"typing\" module and the \"encoding_for_model\"\
+      \ function from the \"tiktoken\" module."
+  sha256: e54d10e828805cb804785469ebbaa496c7c778fa759c51eea037814861c99c62
+- name: .gitignore
+  sha256: 4c73e3fba08ec35999f1306029603787b31d02ba3ec625c1e6384550e6082247
+  summary: The file content consists of a list of file and directory names, including
+    Python compiled files (*.pyc), a cache directory (__pycache__), an environment
+    file (.env), and a lock file for a dependency management tool (poetry.lock).
+- name: .vscode
+  nodes:
+  - name: .vscode/settings.json
+    sha256: a8115f31eb2ead8d48d162bfcfa5f8b0c5ef3804d1f5ea47c6a9e7c75e67d6c0
+    summary: The file contains a configuration setting for the Python language analysis
+      tool. Specifically, it sets the type checking mode to "basic".
+  sha256: faaee482b6df0674a27dde195ec13557ce31f11eef2812b8e85d79a5a88eebf8
+- name: main.py
+  sha256: 3d1f74554eee50fcb94301216a65bfcf8f661fd9ce7ab3f525bc7fb29bd57b32
+  summary: 'The file contains an import statement for the `asyncio` module and the
+    `typer` module. It also imports two functions, `solve_task` and `additional_question`,
+    from the `chains` module within the `chain` package. It imports the `CodeBase`
+    class from the `codeio.codebase` module.
+
+
+    The file defines a `typer.Typer()` object called `app`. It defines two commands
+    for the `app` object: `test` and `solve`. The `test` command prints the tree structure
+    of a `CodeBase` object. The `solve` command takes a `str` argument `task` and
+    prompts the user with additional questions if they exist, then runs the `solve_task`
+    function from the `chains` module using `asyncio.run()`.
+
+
+    There is a commented-out `debug` command that is not currently used.
+
+
+    Finally, the file checks if it is being run as the main module and calls the `app()`
+    function to execute the command line interface.'
+sha256: 04d655387bd1e01fc59f81705559eba4ee62bc321e0763434c239d17bb1c463a
