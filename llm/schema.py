@@ -1,5 +1,6 @@
 from typing import Union
 from pydantic import BaseModel, Field
+from pathlib import Path
 
 
 class Task(BaseModel):
@@ -11,12 +12,17 @@ class Task(BaseModel):
 
 
 class File(BaseModel):
-    path: str = Field(..., description="Relative File Path")
+    relative_path: str = Field(..., description="Relative File Path")
 
 
 class PlannedFileChange(File):
     method: str = Field(..., description="StringEnum (create, modify, delete)")
     description: str = Field(..., description="AbstractDescription (what to change)")
+    
+    @property
+    def content(self):
+        from codeio.codebase import CodeBase
+        return CodeBase().read_file(Path(self.relative_path))
 
 
 class PlannedFileChanges(BaseModel):

@@ -10,13 +10,13 @@ app = typer.Typer()
 
 @app.command()
 def solve():
-    task = Task(
-        # TODO: auto create name from description
-        name=typer.prompt("Task name: "),
-        description=typer.prompt("Task description: "),
-    )
+    # task = Task(
+    #     # TODO: auto create name from description
+    #     name=typer.prompt("Task name"),
+    #     description=typer.prompt("Task description"),
+    # )
     # extra_info = (q := ask_additional_question(task)) and typer.prompt(q)
-
+    task = Task(name="rm_templates", description="Remove the templates.py file in the llm dir from the codebase.")
     asyncio.run(solve_task(task))
 
 
