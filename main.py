@@ -3,6 +3,7 @@ import typer
 # from llm.chains import ask_additional_question
 from llm.scripts import solve_task
 from llm.schema import Task
+from llm.chains import summarize_task_to_name
 
 
 app = typer.Typer()
@@ -10,13 +11,13 @@ app = typer.Typer()
 
 @app.command()
 def solve():
-    # task = Task(
-    #     # TODO: auto create name from description
-    #     name=typer.prompt("Task name"),
-    #     description=typer.prompt("Task description"),
-    # )
-    # extra_info = (q := ask_additional_question(task)) and typer.prompt(q)
-    task = Task(name="rm_templates", description="Remove the templates.py file in the llm dir from the codebase.")
+    task_description = typer.prompt("Task description")
+    task_name = summarize_task_to_name(task_description)
+    print("Task name:", task_name)
+    task = Task(
+        name=task_name,
+        description=task_description,
+    )
     asyncio.run(solve_task(task))
 
 

@@ -21,6 +21,17 @@ def ask_additional_question(task: Task) -> str | None:
     )
 
 
+def summarize_task_to_name(task_description: str) -> str:
+    """
+    TASK:
+    {task_description}
+
+    Summarize the task in less than 5 words to create a name for it.
+    Only reply with this name.
+    """
+    return funcchain()
+
+
 async def summarize_file(content: str) -> str:
     """
     FILE CONTENT:
@@ -64,7 +75,7 @@ async def improve_task_description(task: Task, extra_info: str, tree: CodeBaseTr
 
     TASK:
     {task}
-    
+
     ADDITIONAL INFO:
     {extra_info}
 
@@ -174,9 +185,8 @@ class FileModifications(ParserBaseModel):
     changes: list[tuple[int, str, str]]
 
     @staticmethod
-    def format_instructions() -> str: 
-        return (
-            """
+    def format_instructions() -> str:
+        return """
             Create list called "changes",
             containing smaller lists: [line_number, action, "new code"].
             Action can be one of the following:
@@ -199,7 +209,6 @@ class FileModifications(ParserBaseModel):
             }}
             ```
             """
-        )
 
 
 async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> FileModifications:
