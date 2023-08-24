@@ -7,11 +7,10 @@ from typing import TypeVar
 from pydantic import BaseModel
 from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
 from langchain.chat_models.base import BaseChatModel
-from langchain.output_parsers import BooleanOutputParser, PydanticOutputParser, CommaSeparatedListOutputParser
+from langchain.output_parsers import BooleanOutputParser, PydanticOutputParser
 from langchain.prompts import (
     ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
 )
 from langchain.schema import (
     BaseMessage,
@@ -22,7 +21,7 @@ from langchain.schema import (
 
 from llm.templates import solve_task_system_instruction
 from funcchain.utils import count_tokens, retry
-from funcchain.parser import CodeBlock, ParserBaseModel
+from funcchain.parser import ParserBaseModel
 
 
 load_dotenv()
@@ -128,10 +127,13 @@ def funcchain(
             if base_tokens + content_tokens > max_tokens:
                 input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
-    
-    if format_instructions := parser.get_format_instructions():
-        instruction += "\n\n" + "{format_instructions}"
-        input_kwargs["format_instructions"] = format_instructions
+
+    try:
+        if format_instructions := parser.get_format_instructions():
+            instruction += "\n\n" + "{format_instructions}"
+            input_kwargs["format_instructions"] = format_instructions
+    except NotImplementedError:
+        pass
     
     prompt = ChatPromptTemplate.from_messages(
         [system]
@@ -176,9 +178,12 @@ async def afuncchain(
                 input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
     
-    if format_instructions := parser.get_format_instructions():
-        instruction += "\n\n" + "{format_instructions}"
-        input_kwargs["format_instructions"] = format_instructions
+    try:
+        if format_instructions := parser.get_format_instructions():
+            instruction += "\n\n" + "{format_instructions}"
+            input_kwargs["format_instructions"] = format_instructions
+    except NotImplementedError:
+        pass
 
     prompt = ChatPromptTemplate.from_messages(
         [system]
