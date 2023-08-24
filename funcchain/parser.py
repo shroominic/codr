@@ -28,8 +28,6 @@ class LambdaOutputParser(BaseOutputParser[T]):
 
 
 class ParserBaseModel(BaseModel):
-    format_instructions: str = PYDANTIC_FORMAT_INSTRUCTIONS
-
     @classmethod
     def output_parser(cls) -> BaseOutputParser[Self]:  # type: ignore
         return CustomPydanticOutputParser(pydantic_object=cls)
@@ -43,6 +41,10 @@ class ParserBaseModel(BaseModel):
             json_str = match.group()
         json_object = json.loads(json_str, strict=False)
         return cls.parse_obj(json_object)
+
+    @staticmethod
+    def format_instructions() -> str: 
+        return PYDANTIC_FORMAT_INSTRUCTIONS
 
 
 P = TypeVar("P", bound=ParserBaseModel)
@@ -66,7 +68,7 @@ class CustomPydanticOutputParser(BaseOutputParser[P]):
         if "type" in reduced_schema:
             del reduced_schema["type"]
 
-        return self.pydantic_object.format_instructions.format(
+        return self.pydantic_object.format_instructions().format(
             schema=json.dumps(reduced_schema),
         )
 
@@ -86,8 +88,10 @@ class CodeBlock(ParserBaseModel):
             if (match := re.match(r"```(?P<language>\w+)\n(?P<code>.*?)```", text, re.DOTALL))
             else raiser(OutputParserException("Invalid codeblock"))
         )
-
-    format_instructions: str = "\nAnswer with a codeblock."
+    
+    @staticmethod
+    def format_instructions() -> str:
+        return "\nAnswer with a codeblock."
 
     def __str__(self) -> str:
         return self.code

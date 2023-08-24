@@ -86,7 +86,8 @@ async def plan_file_changes(task: Task, tree: CodeBaseTree) -> PlannedFileChange
     Which of these files from the tree need to be modified to solve the task?
     Answer with a list of file changes inside a JSON array.
     Each file change consists of a path, method and description.
-    The path is a relative path to the root of the codebase.
+    The path is a relative path, make sure the path is
+    correct and the file exists in the codebase.
     The method is one of "create", "modify" or "delete".
     The description is a compressed summary of knowledge describing what to change.
     """
@@ -155,7 +156,7 @@ async def llm_format(file: str):
 async def create_file(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBlock:
     """
     FILE:
-    {change.path}
+    {change.relative_path}
 
     CODEBASE:
     {tree}
@@ -170,34 +171,38 @@ async def create_file(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBloc
 
 
 class FileModifications(ParserBaseModel):
-    changes: list[tuple[int, str, str]] = Field(..., description="List of changes to make")
+    changes: list[tuple[int, str, str]]
 
-    format_instructions = """
-        Create list called "changes",
-        containing smaller lists: [line_number, action, "new code"].
-        Action can be one of the following:
-        - add: insert new code at line number and shift following lines down
-        - overwrite: replace line number with new code
-        - delete: remove code at line number
-        
-        Format these changes as json codeblock:
-        
-        ```json
-        {{
-            // (line_number, 'action', 'new code')
-            "changes": [
-                [0, "add", "import example"],
-                [4, "overwrite", "def foo():"],
-                [5, "add", "    print(\"hello world\")"],
-                [6, "delete", "    print(\"bar\")"]
-                // ... and so on
-            ]
-        }}
-        ```
-        """
+    @staticmethod
+    def format_instructions() -> str: 
+        return (
+            """
+            Create list called "changes",
+            containing smaller lists: [line_number, action, "new code"].
+            Action can be one of the following:
+            - add: insert new code at line number and shift following lines down
+            - overwrite: replace line number with new code
+            - delete: remove code at line number
+            
+            Format these changes as json codeblock:
+            
+            ```json
+            {{
+                // (line_number, 'action', 'new code')
+                "changes": [
+                    [0, "add", "import example"],
+                    [4, "overwrite", "def foo():"],
+                    [5, "add", "    print(\"hello world\")"],
+                    [6, "delete", "    print(\"bar\")"]
+                    // ... and so on
+                ]
+            }}
+            ```
+            """
+        )
 
 
-async def modify_file(change: PlannedFileChange, tree: CodeBaseTree) -> FileModifications:
+async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> FileModifications:
     """
     CODEBASE:
     {tree}
@@ -206,13 +211,16 @@ async def modify_file(change: PlannedFileChange, tree: CodeBaseTree) -> FileModi
     {task}
 
     PLAN:
-    {change.description}
+    {change_description}
 
     FILE:
-    {file_content}
+    {change_content}
 
     Modify this file using the plan as part of solving the main task.
     Instead of rewriting the whole file, create a list of changes to make.
     Reply with a json codeblock containing the list of changes.
     """
-    return await afuncchain()
+    return await afuncchain(
+        change_description=change.description,
+        change_content=change.content,
+    )
