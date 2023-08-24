@@ -134,14 +134,5 @@ class CodeBase:
         if "Switched to a new branch" not in checkout_result:
             raise Exception(f"Failed to checkout to new branch: {checkout_result}")
 
-        # if there are stashed changes, apply stash to new branch
-        stash_list = await self.bash_str("git stash list")
-        if stash_list.strip():
-            apply_result = await self.bash_str("git stash apply")
-            if "Applied" not in apply_result:
-                raise Exception(f"Failed to apply stashed changes: {apply_result}")
-
-            # commit stash to local branch
-            commit_result = await self.bash_str(f"git commit -m 'Applied stashed changes to {task_name}'")
-            if "[new branch]" not in commit_result:
-                raise Exception(f"Failed to commit stashed changes: {commit_result}")
+        # apply stash to new branch
+        apply_result = await self.bash_str("git stash apply")
