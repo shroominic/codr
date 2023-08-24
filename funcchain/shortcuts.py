@@ -49,19 +49,24 @@ def _get_llm(model: str) -> BaseChatModel:
             verbose=verbose,
             request_timeout=60 * 5,
             openai_api_key=getenv("OPENAI_API_KEY", ""),
+            temperature=0.01,
         )
     raise ValueError(f"Unknown model: {model}")
 
+
+def _get_parent_frame() -> inspect.FrameInfo: 
+    return inspect.getouterframes(inspect.currentframe())[4]
 
 def _from_docstring() -> str:
     """
     Get the docstring of the parent caller function.
     """
-    return (
-        (caller_frame := inspect.getouterframes(inspect.currentframe())[3])
+    doc_str = (
+        (caller_frame := _get_parent_frame())
         .frame.f_globals[caller_frame.function]
         .__doc__
     )
+    return "\n".join([line.lstrip() for line in doc_str.split("\n")])
 
 
 def _parser_from_type() -> BaseOutputParser:
@@ -69,7 +74,7 @@ def _parser_from_type() -> BaseOutputParser:
     Get the parser from the type annotation of the parent caller function.
     """
     output_type = (
-        (caller_frame := inspect.getouterframes(inspect.currentframe())[3])
+        (caller_frame := _get_parent_frame())
         .frame.f_globals[caller_frame.function]
         .__annotations__["return"]
     )
@@ -89,13 +94,13 @@ def _kwargs_from_parent() -> dict[str, str]:
     """
     Get the kwargs from the parent function.
     """
-    return inspect.getouterframes(inspect.currentframe())[3].frame.f_locals
+    return _get_parent_frame().frame.f_locals
 
 
 @retry(3)
 def funcchain(
-    instruction: HumanMessagePromptTemplate | str | None = None,
-    system: SystemMessage | SystemMessagePromptTemplate = solve_task_system_instruction,
+    instruction: str | None = None,
+    system: SystemMessage = solve_task_system_instruction,
     parser: BaseOutputParser[T] | None = None,
     context: list[BaseMessage] = [],
     model: str = "gpt-4",
@@ -113,13 +118,7 @@ def funcchain(
     if not parser:
         parser = _parser_from_type()
 
-    base_tokens = count_tokens(
-        instruction
-        if isinstance(instruction, str)
-        else str(instruction.prompt) + str(system.prompt)
-        if isinstance(system, SystemMessagePromptTemplate)
-        else system.content
-    )
+    base_tokens = count_tokens(instruction + str(system.content))
     print("BaseTokens: ", base_tokens)
 
     for k, v in input_kwargs.copy().items():
@@ -129,9 +128,11 @@ def funcchain(
             if base_tokens + content_tokens > max_tokens:
                 input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
-
-    print("InputKwargs: ", input_kwargs)
-
+    
+    if format_instructions := parser.get_format_instructions():
+        instruction += "\n\n" + "{format_instructions}"
+        input_kwargs["format_instructions"] = format_instructions
+    
     prompt = ChatPromptTemplate.from_messages(
         [system]
         + context
@@ -146,8 +147,8 @@ def funcchain(
 
 @retry(3)
 async def afuncchain(
-    instruction: HumanMessagePromptTemplate | str | None = None,
-    system: SystemMessage | SystemMessagePromptTemplate = solve_task_system_instruction,
+    instruction: str | None = None,
+    system: SystemMessage = solve_task_system_instruction,
     parser: BaseOutputParser[T] | None = None,
     context: list[BaseMessage] = [],
     model: str = "gpt-4",
@@ -158,20 +159,13 @@ async def afuncchain(
     """
     Get response from chatgpt for provided instructions.
     """
+    input_kwargs.update(_kwargs_from_parent())
     if not instruction:
         instruction = _from_docstring()
-    if not input_kwargs:
-        input_kwargs = _kwargs_from_parent()
     if not parser:
         parser = _parser_from_type()
 
-    base_tokens = count_tokens(
-        instruction
-        if isinstance(instruction, str)
-        else str(instruction.prompt) + str(system.prompt)
-        if isinstance(system, SystemMessagePromptTemplate)
-        else system.content
-    )
+    base_tokens = count_tokens(instruction + str(system.content))
     print("BaseTokens: ", base_tokens)
 
     for k, v in input_kwargs.copy().items():
@@ -181,8 +175,10 @@ async def afuncchain(
             if base_tokens + content_tokens > max_tokens:
                 input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
-
-    print("InputKwargs: ", input_kwargs)
+    
+    if format_instructions := parser.get_format_instructions():
+        instruction += "\n\n" + "{format_instructions}"
+        input_kwargs["format_instructions"] = format_instructions
 
     prompt = ChatPromptTemplate.from_messages(
         [system]
