@@ -8,10 +8,13 @@ from pathlib import Path
 from pydantic import BaseModel
 
 
-def is_ignored_by_gitignore(file_path, gitignore_path=".gitignore") -> bool:
+def is_ignored_by_gitignore(file_path: str, gitignore_path: str = ".gitignore") -> bool:
     """
-    Checks if the given file path is ignored by the patterns in .gitignore.
+    Checks if the given file path is ignored by the patterns in .gitignore or starts with a dot.
     """
+    if os.path.basename(file_path).startswith('.'):
+        return True
+
     with open(gitignore_path, "r") as f:
         lines = f.readlines()
 
@@ -62,7 +65,8 @@ class CodeBaseFile(CodeBaseNode):
         content_hash = hashlib.sha256(content.encode()).hexdigest()
         try:
             summary = await summarize_file(content)
-        except:
+        except Exception as e:
+            print(f"Failed to summarize file {path}: {e.__class__.__name__}: {e.args[0]}")
             summary = "N/A"
         return cls(
             path=path,
@@ -116,7 +120,7 @@ class CodeBaseTree(CodeBaseNode):
         tasks = [
             CodeBaseFile.from_path(file_path) if file_path.is_file() else cls.from_path(file_path)
             for file_path in path.iterdir()
-            if not is_ignored_by_gitignore(file_path)
+            if not is_ignored_by_gitignore(file_path.as_posix())
         ]
         nodes: list["CodeBaseNode"] = await asyncio.gather(*tasks)
 
