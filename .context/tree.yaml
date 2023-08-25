@@ -6,36 +6,29 @@ nodes:
     an AI tool for faster coding. It specifies the project's metadata, dependencies,
     dev-dependencies, scripts, and build system, as well as configurations for isort
     and black code formatting tools.
-- name: tree.yaml
-  sha256: 259164e56ca4f05177146aec419a9f62f565c08455b18cd522903ea0b5ecd00c
-  summary: The file is a YAML representation of a Python project's codebase, detailing
-    the structure, SHA256 hashes, and summaries of each file, which include functionalities
-    like managing a codebase as a tree structure, interacting with language models,
-    parsing output, handling exceptions, and providing a command-line interface for
-    task solving.
 - name: funcchain
   nodes:
   - name: funcchain/shortcuts.py
     sha256: af696742c0d33696d9e9c63555c2c38cbb56abd540951150a8e75ac6a9937399
-    summary: The file contains utility functions for interacting with OpenAI's GPT-4
-      model, including functions to get the model instance, extract docstrings, parse
-      output types, and get function arguments. It also includes the main functions
-      `funcchain` and `afuncchain` (asynchronous version) that generate a response
-      from the GPT-4 model based on provided instructions, system message, parser,
-      and context. These functions handle token count limitations, format instructions,
-      and construct the chat prompt.
+    summary: The file is a Python script that uses OpenAI's GPT-4 and Azure's GPT-4-32k
+      models to generate responses based on provided instructions. It includes functions
+      to get the docstring of the parent caller function, parse the output type, and
+      get the kwargs from the parent function. It also includes two main functions,
+      `funcchain` and `afuncchain`, which generate responses from the chat models,
+      handling instruction formatting, token counting, and input truncation if necessary.
+      The `afuncchain` function is an asynchronous version of `funcchain`.
   - name: funcchain/__init__.py
     sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     summary: As an AI, I need the actual content of the file to provide a summary.
-      Could you please provide the code or describe the content of the file?
+      Could you please provide the content or describe the functionality of the code
+      in the file?
   - name: funcchain/parser.py
     sha256: 5b78d14cf95282938616efdebeaa18dd6b613672571f531921b8f94e8d64cac7
-    summary: The file defines several classes for parsing output in different formats,
-      including a base class `LambdaOutputParser` and a custom parser `CustomPydanticOutputParser`
-      for Pydantic models. It also includes a `ParserBaseModel` class that provides
-      methods for parsing JSON strings into Pydantic models, and a `CodeBlock` class
-      for parsing code blocks from text. The file uses regular expressions for parsing
-      and handles exceptions for invalid parsing.
+    summary: The file defines a set of classes for parsing output in Python, including
+      a base class `LambdaOutputParser` and a custom parser `CustomPydanticOutputParser`
+      that uses Pydantic for validation. It also includes a `ParserBaseModel` class
+      that provides methods for parsing JSON objects and a `CodeBlock` class for parsing
+      code blocks from text.
   - name: funcchain/utils.py
     sha256: 5d6eaa8ed4aba86b2d72240ae84dcb8252f2ed16c9c7ca0446d9f9263a0367a5
     summary: The file contains a Python module that provides a retry decorator for
@@ -47,36 +40,32 @@ nodes:
   nodes:
   - name: codr/tree.py
     sha256: 320278e228f2f0b808735260e51729f5b801a829ea90319c8405e803e32ad80b
-    summary: "The provided codebase is a Python script that models a codebase as a\
-      \ tree of nodes, where each node can either be a file or a directory. It provides\
-      \ classes to represent a node (`CodeBaseNode`), a file (`CodeBaseFile`), and\
-      \ a directory (`CodeBaseTree`). \n\nThe `CodeBaseNode` class has properties\
-      \ like `name`, `sha256` (a hash of the file content or directory content), and\
-      \ `embedding` (possibly a vector representation of the file content). \n\nThe\
-      \ `CodeBaseFile` class extends `CodeBaseNode` and adds a `summary` property,\
-      \ which is a one-line description of the file content. It also provides methods\
-      \ to create an instance from a dictionary or a file path, and to refresh the\
-      \ instance if the file content has changed.\n\nThe `CodeBaseTree` class also\
-      \ extends `CodeBaseNode` and represents a directory. It has a list of nodes\
-      \ (`files` and/or `directories`) as its children. It provides methods to create\
-      \ an instance from a dictionary or a directory path, to load the tree from a\
-      \ YAML file, to refresh the instance if any of the files or directories it contains\
-      \ have changed, and to serialize the instance to a YAML file.\n\nThe script\
-      \ also includes a function `is_ignored_by_gitignore` to check if a file or directory\
-      \ should be ignored based on the patterns in a `.gitignore` file."
+    summary: The provided codebase is a Python script that defines classes and functions
+      for managing a codebase. It includes functionality to check if a file is ignored
+      by .gitignore, to summarize a file's content, and to represent a file or a directory
+      (tree) in the codebase. The `CodeBaseNode` class represents a node in the codebase,
+      which can be a file or a directory. The `CodeBaseFile` class represents a file
+      in the codebase, and it includes methods to create an instance from a dictionary
+      or a path, to refresh the file's content, and to summarize the file's content.
+      The `CodeBaseTree` class represents a directory in the codebase, and it includes
+      methods to create an instance from a dictionary or a path, to load a tree from
+      a YAML file, to refresh the tree's content, and to serialize the tree to a YAML
+      file.
   - name: codr/llm
     nodes:
     - name: codr/llm/chains.py
-      sha256: 29fed48e3b71110e560ea349b0174fc91efdb9cfde2f75c70e560a2056fd5775
-      summary: The file contains a collection of functions and a class that are used
-        to interact with a codebase. The functions perform various tasks such as asking
-        additional questions about a task, summarizing a task, searching for important
-        files in a codebase, generating a summary of the codebase, improving task
-        descriptions, planning file changes, and checking the result of a task. The
-        class, FileModifications, is used to format instructions for modifying files.
-        The functions use the funcchain and afuncchain methods from the funcchain
-        library, and the CodeBaseTree, Task, PlannedFileChanges, and PlannedFileChange
-        classes from the codr library.
+      sha256: e59137ccf330340227b8ddb980b2f23e67cd4bcc5b268ddbb88e53d04e925483
+      summary: This file appears to be a collection of functions and a class definition
+        that are used to interact with a codebase. The functions perform various tasks
+        such as asking additional questions about a task, summarizing a task, searching
+        for important files in a codebase, generating a summary of the codebase, improving
+        task descriptions, planning file changes, and checking the result of a task.
+        The class `FileModifications` is used to format instructions for modifying
+        files. The functions use the `funcchain` and `afuncchain` methods from the
+        `funcchain` library, which suggests that these functions are designed to be
+        chained together in a functional programming style. The `CodeBaseTree` and
+        `Task` objects are used as inputs to many of the functions, indicating that
+        these objects represent the state of the codebase and the current task, respectively.
     - name: codr/llm/__init__.py
       sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
       summary: As an AI, I need the actual content of the file to provide a summary.
@@ -84,46 +73,43 @@ nodes:
         code in the file?
     - name: codr/llm/templates.py
       sha256: ec0c6053145e3a14a8b8d6017b53bfeb0e59c3ca13e5fe24823ffc90450eb41a
-      summary: The file imports the SystemMessage class from the langchain.schema
-        module and creates an instance of it, named 'solve_task_system_instruction',
-        with a multi-line string as its content, which describes the role and responsibilities
-        of a coding assistant.
+      summary: The file defines a `SystemMessage` object from the `langchain.schema`
+        module, which contains a long string as its content, serving as an instruction
+        for a coding assistant on how to solve tasks for developers.
     - name: codr/llm/scripts.py
       sha256: 5610723043f3803cb3e8f86055951b7bc762ccf722aa73cdcd337604f9253553
       summary: The file contains asynchronous functions for solving tasks in a codebase,
         including improving task descriptions, planning and applying file changes
-        (create, modify, delete), and handling errors for invalid methods or changes.
+        (creation, modification, deletion), and handling errors for invalid methods
+        or changes.
     - name: codr/llm/schema.py
       sha256: c1ec0f3f7aea3b11dc0fb7bb8d37a2d3a3a91fcc0df8448f3f60aa5f16017a28
       summary: The file defines several Pydantic models related to file operations,
         including Task, File, PlannedFileChange, PlannedFileChanges, CreatedFile,
-        ModifiedFile, DeletedFile, and a Union type FileChange. These models represent
-        different aspects of file operations such as creating, modifying, and deleting
-        files, with properties like relative path, method, description, and content.
-        Some models also include methods for reading file content and iterating over
-        changes.
-    sha256: 55f89b31b092baebc2630d8bc4eca5da80eeda2db7a7c456bd2b6b87e528d1ff
+        ModifiedFile, and DeletedFile, with the FileChange model being a union of
+        the latter three. These models are used to represent and manage tasks and
+        changes to files in a codebase, with methods for reading file content and
+        iterating over planned changes.
+    sha256: c996abca4d97a8d7077248fb523c00fa7211219e500e3636fc70af494dff36b6
   - name: codr/__init__.py
     sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-    summary: As an AI, I need the actual content of the file to provide a summary.
-      Could you please provide the content or describe the codebase?
+    summary: I'm sorry, but I can't provide the information you're asking for because
+      you haven't provided any file content to summarize. Could you please provide
+      the content of the file?
   - name: codr/codebase.py
     sha256: b049693a2c0085a5975b0f14a01e870081e7b8b179554cfc5bfe4bda48b3895e
     summary: The file defines a class `CodeBase` that provides methods for interacting
-      with a codebase, including loading the codebase, running bash commands (both
-      synchronously and asynchronously), reading files, showing and getting the codebase
-      tree, checking if a file exists, validating file paths, creating, changing,
-      and deleting files, preparing the git environment for a task, and fixing file
-      paths. The class uses asyncio for asynchronous operations and subprocess for
-      synchronous ones.
+      with a codebase, such as running bash commands (both synchronously and asynchronously),
+      reading files, showing and getting the codebase tree, checking if a file exists,
+      validating file paths, creating, changing, and deleting files, preparing the
+      git environment for a task, and fixing file paths. It uses the `asyncio` library
+      for asynchronous operations and the `subprocess` library for running bash commands.
   - name: codr/__main__.py
-    sha256: 2e1b738f6687e70e7cc09f9ed2208f1ee466fe772240e18b41b451211315e16b
-    summary: 'The file is a Python script that uses the Typer library to create a
-      command-line interface (CLI) with two commands: "solve" and "debug". The "solve"
-      command takes a task description as input, generates a task name from it, creates
-      a Task object, and then runs the solve_task function on it asynchronously. The
-      "debug" command creates a CodeBase object, gets its tree structure, generates
-      a command to run from the tree, executes the command, checks the result, and
-      if the check fails, it generates a task from the result and solves it.'
-  sha256: bf103d0db6671f99f8c1de2c0c9e016f606632e7b99ff82ab1d729360794c657
-sha256: d99aeb21a459a6aaf8df998c1fc9abb821b187471c1bed6a65499e33155abf0f
+    sha256: b483b8b3986c586219bcf27fbea16cc4f2c6d92b8f00a5591a9e3ce893dc1d46
+    summary: The file is a command-line interface script using the Typer library in
+      Python. It includes commands to solve a task based on a given description, debug
+      the codebase by running a command and checking the result, and a test command.
+      The script uses asyncio for asynchronous operations and interacts with a codebase
+      and task-related modules.
+  sha256: 259b83f67f5a2040d0f04cf8bd4a1314c97df14d0e26523cc4bbfec93291f20d
+sha256: 330aafa1ef5f1dbd76db3f68c7c577434fa4f3b836d04e1d2dece6b9f568888c
