@@ -48,8 +48,10 @@ async def generate_change(task: Task, change: PlannedFileChange, codebase: CodeB
     tree = await codebase.get_tree()
     if change.method == "create":
         return CreatedFile(relative_path=change.relative_path, content=(await create_file(change, tree)).code)
+    # elif change.method == "modify":
+    #     return ModifiedFile(relative_path=change.relative_path, changes=(await modify_file(task, tree, change)).changes)
     elif change.method == "modify":
-        return ModifiedFile(relative_path=change.relative_path, changes=(await modify_file(task, tree, change)).changes)
+        return ModifiedFile(relative_path=change.relative_path, content=(await modify_file(task, tree, change)).code)
     elif change.method == "delete":
         return DeletedFile(relative_path=change.relative_path)
     else:
@@ -62,7 +64,7 @@ async def apply_changes(codebase: CodeBase, changes: list[FileChange]):
         if isinstance(change, CreatedFile):
             await codebase.create_file(change.relative_path, change.content)
         elif isinstance(change, ModifiedFile):
-            await codebase.change_file(change.relative_path, change.changes)
+            await codebase.change_file(change.relative_path, change.content)
         elif isinstance(change, DeletedFile):
             await codebase.delete_file(change.relative_path)
         else:

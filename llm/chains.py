@@ -211,7 +211,7 @@ class FileModifications(ParserBaseModel):
             """
 
 
-async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> FileModifications:
+async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> CodeBlock:
     """
     CODEBASE:
     {tree}
@@ -226,8 +226,8 @@ async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange)
     {change_content}
 
     Modify this file using the plan as part of solving the main task.
-    Instead of rewriting the whole file, create a list of changes to make.
-    Reply with a json codeblock containing the list of changes.
+    Do not change anything not related to the plan.
+    Rewrite the entire file including the changes, do not leave out any lines.
     """
     return await afuncchain(
         change_description=change.description,

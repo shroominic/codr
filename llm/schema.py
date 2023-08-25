@@ -18,10 +18,11 @@ class File(BaseModel):
 class PlannedFileChange(File):
     method: str = Field(..., description="StringEnum (create, modify, delete)")
     description: str = Field(..., description="AbstractDescription (what to change)")
-    
+
     @property
     def content(self):
         from codeio.codebase import CodeBase
+
         return CodeBase().read_file(Path(self.relative_path))
 
 
@@ -36,8 +37,10 @@ class CreatedFile(File):
     content: str = Field(..., description="New File Content")
 
 
+# class ModifiedFile(File):
+#     changes: list[tuple[int, str, str]] = Field(..., description="List of changes to make")
 class ModifiedFile(File):
-    changes: list[tuple[int, str, str]] = Field(..., description="List of changes to make")
+    content: str = Field(..., description="New File Content")
 
 
 class DeletedFile(File):

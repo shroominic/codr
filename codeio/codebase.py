@@ -94,23 +94,30 @@ class CodeBase:
             f.write(content)
 
     # TODO: test this
-    async def change_file(self, relative_path: str, changes: list[tuple[int, str, str]]) -> None:
+    # async def change_file(self, relative_path: str, changes: list[tuple[int, str, str]]) -> None:
+    #     """
+    #     Change a file in the codebase
+    #     """
+    #     async for output in self.bash(f"cat {relative_path}"):
+    #         file_content = output
+    #         lines = file_content.split("\n")
+    #         for line_number, action, new_code in changes:
+    #             if action == "add":
+    #                 lines.insert(line_number, "\n" + new_code)
+    #             elif action == "overwrite":
+    #                 lines[line_number] = new_code + "\n"
+    #             elif action == "delete":
+    #                 del lines[line_number]
+    #         file_content = "\n".join(lines)
+    #         await self.bash_str(f"echo '{file_content}' > {relative_path}")
+    #         await self.bash_str(f"black {relative_path}")
+
+    async def change_file(self, relative_path: str, content: str) -> None:
         """
-        Change a file in the codebase
+        Replace a file in the codebase
         """
-        async for output in self.bash(f"cat {relative_path}"):
-            file_content = output
-            lines = file_content.split("\n")
-            for line_number, action, new_code in changes:
-                if action == "add":
-                    lines.insert(line_number, "\n" + new_code)
-                elif action == "overwrite":
-                    lines[line_number] = new_code + "\n"
-                elif action == "delete":
-                    del lines[line_number]
-            file_content = "\n".join(lines)
-            await self.bash_str(f"echo '{file_content}' > {relative_path}")
-            await self.bash_str(f"black {relative_path}")
+        await self.bash_str(f"echo '{content}' > {relative_path}")
+        await self.bash_str(f"black {relative_path}")
 
     async def delete_file(self, relative_path: str) -> None:
         await self.bash_str(f"rm ./{relative_path}")
