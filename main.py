@@ -11,8 +11,7 @@ app = typer.Typer()
 
 
 @app.command()
-def solve():
-    task_description = typer.prompt("Task description")
+def solve(task_description: str):
     task_name = summarize_task_to_name(task_description)
     print("Task name:", task_name)
     task = Task(
