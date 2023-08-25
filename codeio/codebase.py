@@ -123,7 +123,10 @@ class CodeBase:
         """
         Replace a file in the codebase
         """
-        await self.bash_str(f"echo '{content}' > {relative_path}")
+        import aiofiles
+        
+        async with aiofiles.open(relative_path, "w") as f:
+            await f.write(content)
         await self.bash_str(f"black {relative_path}")
 
     async def delete_file(self, relative_path: str) -> None:
