@@ -23,7 +23,7 @@ class PlannedFileChange(File):
     def content(self):
         from codeio.codebase import CodeBase
 
-        return CodeBase().read_file_str(Path(self.relative_path))
+        return CodeBase().read_file_sync(Path(self.relative_path))
 
 
 class PlannedFileChanges(BaseModel):
