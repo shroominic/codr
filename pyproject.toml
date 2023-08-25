@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "neuralcodr"
+name = "codr"
 version = "0.0.1"
 authors = ["Shroominic <contact@shroominic.com>"]
 description = "Neuralcodr is an ai tool for faster coding."
@@ -22,6 +22,9 @@ isort = "^5.11.2"
 autoflake = "^2.0.0"
 flake8 = "^6.0.0"
 pytest = "^7.2.0"
+
+[tool.poetry.scripts]
+codr = 'codr.__main__:app'
 
 [tool.isort]
 multi_line_output = 3
