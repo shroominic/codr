@@ -1,10 +1,11 @@
 import re, os
 import asyncio
+import subprocess
 from datetime import datetime
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Generator
 from pathlib import Path
-from codeio.tree import CodeBaseTree
-from llm.schema import Task
+from codr.tree import CodeBaseTree
+from codr.llm.schema import Task
 
 
 class CodeBase:
@@ -38,6 +39,23 @@ class CodeBase:
         """
         async for output in self._bash(*commands):
             yield output.decode()
+            
+    def bash_sync(self, *commands: str) -> Generator[str, None, None]:
+        """
+        Run a bash command
+        """
+        process = subprocess.Popen(
+            "\n".join(commands),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        stdout, stderr = process.communicate()
+
+        if stdout:
+            yield stdout.decode()
+        if stderr:
+            yield stderr.decode()
 
     async def bash_str(self, *commands: str) -> str:
         """
@@ -45,6 +63,15 @@ class CodeBase:
         """
         summed_output = ""
         async for output in self.bash(*commands):
+            summed_output += output
+        return summed_output
+    
+    def bash_str_sync(self, *commands: str) -> str:
+        """
+        Run a bash command
+        """
+        summed_output = ""
+        for output in self.bash_sync(*commands):
             summed_output += output
         return summed_output
 
@@ -69,6 +96,14 @@ class CodeBase:
         if self.tree is None:
             self.tree = await CodeBaseTree.load()
         return self.tree.show()
+    
+    def show_tree_sync(self) -> str:
+        """
+        Show the codebase tree
+        """
+        if self.tree is None:
+            self.tree = asyncio.run(CodeBaseTree.load())
+        return self.tree.show()
 
     async def get_tree(self) -> CodeBaseTree:
         """
@@ -76,6 +111,14 @@ class CodeBase:
         """
         if self.tree is None:
             self.tree = await CodeBaseTree.load()
+        return self.tree
+    
+    def get_tree_sync(self) -> CodeBaseTree:
+        """
+        Get the codebase tree
+        """
+        if self.tree is None:
+            self.tree = asyncio.run(CodeBaseTree.load())
         return self.tree
 
     # TODO: test this
@@ -123,7 +166,7 @@ class CodeBase:
         """
         Replace a file in the codebase
         """
-        import aiofiles
+        import aiofiles  # type: ignore
         
         async with aiofiles.open(relative_path, "w") as f:
             await f.write(content)

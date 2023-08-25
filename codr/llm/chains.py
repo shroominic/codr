@@ -1,8 +1,7 @@
-from codeio.tree import CodeBaseTree
+from codr.tree import CodeBaseTree
 from funcchain.shortcuts import funcchain, afuncchain
 from funcchain.parser import LambdaOutputParser, CodeBlock, ParserBaseModel
-from llm.schema import Task, PlannedFileChanges, PlannedFileChange, CreatedFile
-from pydantic import Field
+from codr.llm.schema import Task, PlannedFileChanges, PlannedFileChange
 
 
 def ask_additional_question(task: Task) -> str | None:
@@ -10,8 +9,8 @@ def ask_additional_question(task: Task) -> str | None:
     TASK: {task.name}
     {task.description}
 
-    This is the task you are supposed to solve.
-    Evaluate if the task is clear or if you have additional questions.
+    This is task you are supposed to solve.
+    Evaluate if task is clear or if you have additional questions.
     Ask your question(s) or just answer 'Clear!'.
     """
     return funcchain(
@@ -26,7 +25,7 @@ def summarize_task_to_name(task_description: str) -> str:
     TASK:
     {task_description}
 
-    Summarize the task in less than 5 words to create a name for it.
+    Summarize task in less than 5 words to create a name for it.
     Only reply with this name.
     """
     return funcchain()
@@ -37,8 +36,8 @@ async def summarize_file(content: str) -> str:
     FILE CONTENT:
     {content}
 
-    Summarize the file content.
-    Try to describe the file in a way that a programmer can understand it without reading the code.
+    Summarize file content.
+    Try to describe file in a way that a programmer can understand it without reading code.
     Make it fit in one line but don't be afraid to use multiple sentences.
     """
     return await afuncchain()
@@ -49,39 +48,50 @@ async def search_important_files(task: Task, tree: CodeBaseTree) -> list[str]:
     TASK:
     {task}
 
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
-    Which of these files are important to understand and solve the task?
+    Which of these files are important to understand and solve task?
     """
     return await afuncchain()
 
 
 async def generate_code_summary(task: Task, tree: CodeBaseTree) -> str:
     """
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
-    Summarize the codebase, answer with a compressed piece of knowledge. What technologies and frameworks are used? What is the general structure?
-    Write it as context for a programmer with only access to a small part of the codebase.
+    Summarize codebase, answer with a compressed piece of knowledge. What technologies and frameworks are used? What is general structure?
+    Write it as context for a programmer with only access to a small part of codebase.
     """
     return await afuncchain()
 
 
-async def improve_task_description(task: Task, extra_info: str, tree: CodeBaseTree) -> Task:
+async def improve_task_description(task: Task, tree: CodeBaseTree) -> str:
     """
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
     TASK:
     {task}
 
-    ADDITIONAL INFO:
-    {extra_info}
+    Improve task description based on context of codebase.
+    Create a dense piece of knowledge giving understanding of task/goal.
+    Write it for a programmer with only access to a part of codebase.
+    """
+    return await afuncchain()
 
-    Improve the task description based on the context of the codebase.
-    Create a dense piece of knowledge giving understanding of the task/goal.
-    Write it for a programmer with only access to a part of the codebase.
+
+async def fix_filename(file_name: str, tree: CodeBaseTree) -> str:
+    """
+    RELATIVE_FILE_PATH:
+    {file_name}
+    
+    CODEBASE TREE:
+    {tree}
+
+    Fix RELATIVE_FILE_PATH to match 
+    valid relative file path from CodeBaseTree.
     """
     return await afuncchain()
 
@@ -91,16 +101,16 @@ async def plan_file_changes(task: Task, tree: CodeBaseTree) -> PlannedFileChange
     TASK:
     {task}
 
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
-    Which of these files from the tree need to be modified to solve the task?
+    Which of these files from tree need to be modified to solve task?
     Answer with a list of file changes inside a JSON array.
     Each file change consists of a path, method and description.
-    The path is a relative path, make sure the path is
-    correct and the file exists in the codebase.
-    The method is one of "create", "modify" or "delete".
-    The description is a compressed summary of knowledge describing what to change.
+    path is a relative path, make sure path is
+    correct and file exists in codebase.
+    method is one of "create", "modify" or "delete".
+    description is a compressed summary of knowledge describing what to change.
     """
     return await afuncchain()
 
@@ -110,13 +120,13 @@ async def generate_file_change(file_name: str, abstract_plan: str, tree: CodeBas
     FILE:
     {file_name}
 
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
     ABSTRACT PLAN:
     {abstract_plan}
 
-    Generate a precise plan for the file change.
+    Generate a precise plan for file change.
     Answer with a compressed summary of knowledge describing what to change.
     """
     return await afuncchain()
@@ -156,10 +166,10 @@ async def llm_format(file: str):
     FILE:
     {file}
 
-    Rewrite the following file to match proper formatting.
-    Do not change the code or contents, only the appearance.
-    If the file is already properly formatted, return the same file.
-    Reply with a codeblock containing the formatted file.
+    Rewrite following file to match proper formatting.
+    Do not change code or contents, only appearance.
+    If file is already properly formatted, return same file.
+    Reply with a codeblock containing formatted file.
     """
     return await afuncchain()
 
@@ -169,16 +179,38 @@ async def create_file(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBloc
     FILE:
     {change.relative_path}
 
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
     PLAN:
     {change.description}
 
-    Create a new file as part of solving the task.
-    Reply with a codeblock containing the code to create the file.
+    Create a new file as part of solving task.
+    Reply with a codeblock containing code to create file.
     """
     return await afuncchain()
+
+
+def gather_run_cmd(tree: CodeBaseTree) -> CodeBlock:
+    """
+    CODEBASE TREE:
+    {tree}
+
+    Gather command to run codebase.
+    Reply with a bash codeblock containing command.
+    """
+    return funcchain()
+
+
+def generate_task(result: str) -> str:
+    """
+    CONSOLE OUTPUT:
+    {result}
+
+    Generate a task description to fix the error.
+    """
+    return funcchain()
+
 
 
 class FileModifications(ParserBaseModel):
@@ -189,7 +221,7 @@ class FileModifications(ParserBaseModel):
         return """
             Create list called "changes",
             containing smaller lists: [line_number, action, "new code"].
-            Action can be one of the following:
+            Action can be one of following:
             - add: insert new code at line number and shift following lines down
             - overwrite: replace line number with new code
             - delete: remove code at line number
@@ -213,7 +245,7 @@ class FileModifications(ParserBaseModel):
 
 async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> CodeBlock:
     """
-    CODEBASE:
+    CODEBASE TREE:
     {tree}
 
     MAIN TASK:
@@ -225,11 +257,21 @@ async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange)
     FILE:
     {change_content}
 
-    Modify this file using the plan as part of solving the main task.
-    Do not change anything not related to the plan, this includes formatting or comments.
-    Rewrite the entire file including the changes, do not leave out any lines.
+    Modify this file using plan as part of solving main task.
+    Do not change anything not related to plan, this includes formatting or comments.
+    Rewrite entire file including changes, do not leave out any lines.
     """
     return await afuncchain(
         change_description=change.description,
         change_content=change.content,
     )
+
+
+async def check_result(result: str) -> bool:
+    """
+    CONSOLE OUTPUT:
+    {result}
+
+    Is the output healthy? Answer with "yes" or "no".
+    """
+    return await afuncchain()

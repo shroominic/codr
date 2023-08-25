@@ -1,7 +1,7 @@
 import asyncio
-from codeio.codebase import CodeBase
-from llm.schema import Task, PlannedFileChange, CreatedFile, ModifiedFile, DeletedFile, FileChange
-from llm.chains import (
+from codr.codebase import CodeBase
+from codr.llm.schema import Task, PlannedFileChange, CreatedFile, ModifiedFile, DeletedFile, FileChange
+from codr.llm.chains import (
     improve_task_description,
     plan_file_changes,
     create_file,
@@ -9,11 +9,11 @@ from llm.chains import (
 )
 
 
-async def solve_task(task: Task, extra_info: str = "N/A") -> None:
+async def solve_task(task: Task) -> None:
     codebase = await CodeBase.load()
     tree = await codebase.get_tree()
 
-    task = await improve_task_description(task, extra_info, tree)
+    task.description = await improve_task_description(task, tree)
     print("Improved task: ", task)
 
     changes = (
@@ -45,6 +45,7 @@ async def generate_change(task: Task, change: PlannedFileChange, codebase: CodeB
     # TODO: collect relevant context
     # TODO: plan file changes precise based on context
     print("Generating change: ", change)
+    change.relative_path = await codebase.fix_file_path(change.relative_path)
     tree = await codebase.get_tree()
     if change.method == "create":
         return CreatedFile(relative_path=change.relative_path, content=(await create_file(change, tree)).code)

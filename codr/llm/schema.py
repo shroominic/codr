@@ -21,7 +21,7 @@ class PlannedFileChange(File):
 
     @property
     def content(self):
-        from codeio.codebase import CodeBase
+        from codr.codebase import CodeBase
 
         return CodeBase().read_file_sync(Path(self.relative_path))
 

@@ -59,7 +59,7 @@ class CodeBaseFile(CodeBaseNode):
 
     @classmethod
     async def from_path(cls, path: Path) -> "CodeBaseFile":
-        from llm.chains import summarize_file
+        from codr.llm.chains import summarize_file
 
         content = path.read_text()
         content_hash = hashlib.sha256(content.encode()).hexdigest()
