@@ -226,7 +226,7 @@ async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange)
     {change_content}
 
     Modify this file using the plan as part of solving the main task.
-    Do not change anything not related to the plan.
+    Do not change anything not related to the plan, this includes formatting or comments.
     Rewrite the entire file including the changes, do not leave out any lines.
     """
     return await afuncchain(
