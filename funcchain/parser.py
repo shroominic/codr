@@ -83,11 +83,10 @@ class CodeBlock(ParserBaseModel):
 
     @classmethod
     def parse(cls, text: str) -> "CodeBlock":
-        return (
-            cls(**match.groupdict())
-            if (match := re.match(r"```(?P<language>\w+)\n(?P<code>.*?)```", text, re.DOTALL))
-            else raiser(OutputParserException("Invalid codeblock"))
-        )
+        matches = re.finditer(r"```(?P<language>\w+)\n(?P<code>.*?)```", text, re.DOTALL)
+        for match in matches:
+            return cls(**match.groupdict())
+        raiser(OutputParserException("Invalid codeblock"))
 
     @staticmethod
     def format_instructions() -> str:
