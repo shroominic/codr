@@ -54,6 +54,12 @@ class CodeBase:
         """
         async for output in self._bash(f"cat {path}"):
             yield output
+            
+    async def read_file_str(self, path: Path) -> str:
+        """
+        Read a file from the codebase
+        """
+        return await self.bash_str(f"cat {path}")
 
     async def show_tree(self) -> str:
         """
