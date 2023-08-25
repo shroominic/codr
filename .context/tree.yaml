@@ -1,6 +1,113 @@
-name: .git/refs/remotes/origin
+name: .
 nodes:
-- name: .git/refs/remotes/origin/main
-  sha256: 3dd248bbcec05f70daa53e7f0d889f94f6dbe0d9d92c6439055587c8f8e5b0ab
-  summary: N/A
-sha256: 50f78c16d372c7f69c19b7555fc509e7363c7a3226a11843f054a317f0b20f64
+- name: llm
+  nodes:
+  - name: llm/chains.py
+    sha256: 87d62faf62976ab0e58d6777e3e18a01b3bfbefd7e58ae344db28f8bdf011f74
+    summary: This file appears to be a collection of functions and classes that are
+      used to assist in the process of understanding, planning, and modifying codebases.
+      It includes functions for asking additional questions about a task, summarizing
+      a task, summarizing a file, searching for important files, generating a code
+      summary, improving a task description, planning file changes, generating a file
+      change plan, querying relevant context, formatting a file, creating a file,
+      and modifying a file. It also includes a class for formatting file modifications.
+      The functions use the funcchain library for chaining functions and the pydantic
+      library for data validation and settings management.
+  - name: llm/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    summary: As an AI, I'm unable to access or summarize file content without it being
+      provided in the conversation. Could you please provide the code or describe
+      the file content so I can assist you better?
+  - name: llm/templates.py
+    sha256: cad5f97d722391c452a4fe25d3b8d198ac6f6e1076eff176c8c467b8cba6cab7
+    summary: The file content appears to be a collection of message templates for
+      a coding assistant. These templates are used to guide a developer through the
+      process of understanding a codebase, summarizing a repository, describing an
+      issue, preparing changes to the codebase, and implementing those changes. The
+      templates are designed to be detailed and precise, encouraging the developer
+      to provide specific information about the codebase and the tasks at hand. The
+      templates are written in Python and make use of the `SystemMessage` and `HumanMessagePromptTemplate`
+      classes from the `langchain` package.
+  - name: llm/scripts.py
+    sha256: d54b2d250047a20555b6dd970a7d287c2bd6f9c569052d1cc35734c75bf6bc55
+    summary: This file contains asynchronous functions for solving tasks in a codebase,
+      including improving task descriptions, planning and applying file changes (create,
+      modify, delete), and computing changes based on the task and codebase. It uses
+      asyncio for concurrent execution and interacts with a CodeBase class for file
+      operations.
+  - name: llm/schema.py
+    sha256: e3db7b3915600e75b0de5a517c30b43142e61644fda59dd1e50e12e2897c9291
+    summary: The file defines several Pydantic models related to tasks and file changes,
+      including classes for a general task, file, planned file changes (with methods
+      for reading file content and iterating over changes), and specific types of
+      file changes (created, modified, deleted), along with a union type for any type
+      of file change.
+  sha256: a2156afa604597433d80c06242b3b23e8f11e7c46e311ac1a0e11adaf34060a5
+- name: codeio
+  nodes:
+  - name: codeio/tree.py
+    sha256: 0ecbf1ff704e60d03731c5f0c311af1d1c4e793020c8bb3a7616ca0d3ac336fa
+    summary: The file contains Python code for a system that manages a codebase as
+      a tree structure, with each node representing a file or a directory. It includes
+      functionality to ignore files based on .gitignore rules, calculate SHA256 hashes
+      for files and directories, summarize file content asynchronously, refresh the
+      state of the tree, and serialize the tree structure to a YAML file.
+  - name: codeio/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    summary: As an AI, I'm unable to access or summarize file content without it being
+      provided in the conversation. Could you please provide the code or describe
+      the file content so I can assist you better?
+  - name: codeio/codebase.py
+    sha256: d3b665a54dbbab242c6d3de0b85fa04b41c024c002974507373265b92e4b627f
+    summary: The file defines a class `CodeBase` that provides methods for interacting
+      with a codebase, including loading the codebase, running bash commands, reading
+      files, checking if a file exists, validating file paths, creating, changing,
+      and deleting files, and preparing the git environment for a task. It uses asynchronous
+      programming for most of its methods.
+  sha256: 3d26b294e4d0c0a265ebd6e99c00830d719862f4d83d49c95aa14d3650d01652
+- name: pyproject.toml
+  sha256: 57cb930eb2a794820f7d8aee5288fd4af5fd12cbb1d116a122aadb9d02f4004c
+  summary: This is a Poetry configuration file for a Python project named "neuralcodr",
+    version 0.0.1, authored by Shroominic, which is an AI tool for faster coding.
+    It specifies dependencies such as Python 3.11, langchain, openai, python-dotenv,
+    typer, tiktoken, and pyyaml, along with dev-dependencies like pre-commit, mypy,
+    black, isort, autoflake, flake8, and pytest. It also sets formatting rules for
+    isort and black, and defines the build system requirements and backend.
+- name: main.py
+  sha256: 17b633fad5da846b78d80bd815abfb80b9ef51715be161c8c5c425e7ef84dc05
+  summary: This Python script uses the Typer library to create a command-line interface
+    (CLI) that prompts the user for a task description, generates a task name from
+    the description, creates a Task object, and then uses asyncio to run a function
+    that solves the task. The script also contains commented-out code for a debug
+    command.
+- name: funcchain
+  nodes:
+  - name: funcchain/shortcuts.py
+    sha256: 58d47980adf195a7a2438b523ce869b44e4fdc6dcb1e2015937b4e4e1e47c789
+    summary: The file contains utility functions for interacting with language models
+      like GPT-4 or Azure's GPT-4-32k, using OpenAI's API. It includes functions to
+      get the model based on the provided string, extract docstrings, parse output
+      types, and retrieve function arguments. The main functions, `funcchain` and
+      `afuncchain`, generate a prompt from the provided instructions and context,
+      send it to the language model, and parse the response. The functions handle
+      token count limitations and retry failed attempts.
+  - name: funcchain/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    summary: As an AI, I'm unable to access or summarize file content without it being
+      provided in the conversation. Please provide the code or describe the file content
+      so I can assist you better.
+  - name: funcchain/parser.py
+    sha256: a4ee5c53bdb8be327013e7a37cc3a23825172168557b907f74a0e8d7c2ca93e7
+    summary: The file defines a set of classes for parsing output from different sources,
+      primarily using Pydantic for data validation and settings management. It includes
+      a base class for output parsing, a custom Pydantic output parser, and a specific
+      parser for code blocks. The parsers handle both synchronous and asynchronous
+      parsing, and can raise exceptions for unimplemented methods or failed parsing.
+  - name: funcchain/utils.py
+    sha256: 5d6eaa8ed4aba86b2d72240ae84dcb8252f2ed16c9c7ca0446d9f9263a0367a5
+    summary: The file contains a Python module that provides a retry decorator for
+      handling exceptions in both synchronous and asynchronous functions, a function
+      to raise exceptions, and a function to count tokens in a text string using the
+      "gpt-4" model from the tiktoken library.
+  sha256: 12d3d4d76c78f894f1c865bc3ff33f09806ab1660460fdbdea6fe50324d12c0a
+sha256: cc15f51d86542ac88efcc08d3f51c69a536556a32f110d6a809fbbc74ad00ea9
