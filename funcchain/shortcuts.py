@@ -15,39 +15,46 @@ from langchain.schema import (
     BaseOutputParser,
     StrOutputParser,
 )
+from langchain.schema.runnable import RunnableWithFallbacks
 
-from llm.templates import solve_task_system_instruction
+from codr.llm.templates import solve_task_system_instruction
 from funcchain.utils import count_tokens, retry
 from funcchain.parser import ParserBaseModel
 
 
 load_dotenv()
 
+MAX_TOKENS = 32768 - 8192
+
 T = TypeVar("T")
 
 
-def _get_llm(model: str) -> BaseChatModel:
-    verbose = getenv("VERBOSE", "false").lower() == "true"
-    if "azure" in model:
-        return AzureChatOpenAI(
-            model="gpt-4-32k",
-            deployment_name="giga-4",
-            openai_api_key=getenv("AZURE_OPENAI_API_KEY", ""),
-            openai_api_base="https://science.openai.azure.com/",
-            openai_api_type="azure",
-            openai_api_version="2023-07-01-preview",
-            verbose=verbose,
-        )
-    if "gpt" in model:
-        print("Using: ", model)
-        return ChatOpenAI(
-            model=model,
-            verbose=verbose,
-            request_timeout=60 * 5,
-            openai_api_key=getenv("OPENAI_API_KEY", ""),
-            temperature=0.01,
-        )
-    raise ValueError(f"Unknown model: {model}")
+def _get_llm() -> RunnableWithFallbacks:
+    kwargs = dict(
+        verbose=getenv("VERBOSE", "false").lower() == "true",
+        request_timeout=60 * 5,
+        temperature=0.01,
+    )
+    short_llm = ChatOpenAI(
+        model="gpt-4",
+        temperature=0.01,
+        request_timeout=60 * 5,
+        verbose=getenv("VERBOSE", "false").lower() == "true",
+        openai_api_key=getenv("OPENAI_API_KEY"),
+    )
+    long_llm = AzureChatOpenAI(
+        temperature=0.01,
+        model="gpt-4-32k",
+        request_timeout=60 * 5,
+        verbose=getenv("VERBOSE", "false").lower() == "true",
+        openai_api_type="azure",
+        deployment_name="giga-4",
+        openai_api_key=getenv("AZURE_OPENAI_API_KEY", ""),
+        openai_api_base="https://science.openai.azure.com/",
+        openai_api_version="2023-07-01-preview",
+    )
+    return short_llm.with_fallbacks([long_llm])
+
 
 
 def _get_parent_frame() -> inspect.FrameInfo:
@@ -92,8 +99,6 @@ def funcchain(
     system: SystemMessage = solve_task_system_instruction,
     parser: BaseOutputParser[T] | None = None,
     context: list[BaseMessage] = [],
-    model: str = "gpt-4",
-    max_tokens: int = 8192 - 2048,
     /,
     **input_kwargs,
 ) -> T:
@@ -113,8 +118,8 @@ def funcchain(
         if isinstance(v, str):
             content_tokens = count_tokens(v)
             print("Tokens: ", content_tokens + base_tokens)
-            if base_tokens + content_tokens > max_tokens:
-                input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
+            if base_tokens + content_tokens > MAX_TOKENS:
+                input_kwargs[k] = v[: (MAX_TOKENS - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
 
     try:
@@ -133,7 +138,7 @@ def funcchain(
             else instruction
         ]
     )
-    return (prompt | _get_llm(model=model) | parser).invoke(input_kwargs)
+    return (prompt | _get_llm() | parser).invoke(input_kwargs)
 
 
 @retry(3)
@@ -142,8 +147,6 @@ async def afuncchain(
     system: SystemMessage = solve_task_system_instruction,
     parser: BaseOutputParser[T] | None = None,
     context: list[BaseMessage] = [],
-    model: str = "gpt-4",
-    max_tokens: int = 8192 - 2048,
     /,
     **input_kwargs,
 ) -> T:
@@ -162,8 +165,8 @@ async def afuncchain(
         if isinstance(v, str):
             content_tokens = count_tokens(v)
             print("Tokens: ", content_tokens + base_tokens)
-            if base_tokens + content_tokens > max_tokens:
-                input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
+            if base_tokens + content_tokens > MAX_TOKENS:
+                input_kwargs[k] = v[: (MAX_TOKENS - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
 
     try:
@@ -182,4 +185,4 @@ async def afuncchain(
             else instruction
         ]
     )
-    return await (prompt | _get_llm(model=model) | parser).ainvoke(input_kwargs)
+    return await (prompt | _get_llm() | parser).ainvoke(input_kwargs)
