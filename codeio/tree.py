@@ -12,7 +12,7 @@ def is_ignored_by_gitignore(file_path: str, gitignore_path: str = ".gitignore") 
     """
     Checks if the given file path is ignored by the patterns in .gitignore or starts with a dot.
     """
-    if os.path.basename(file_path).startswith('.'):
+    if os.path.basename(file_path).startswith("."):
         return True
 
     with open(gitignore_path, "r") as f:

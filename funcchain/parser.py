@@ -43,7 +43,7 @@ class ParserBaseModel(BaseModel):
         return cls.parse_obj(json_object)
 
     @staticmethod
-    def format_instructions() -> str: 
+    def format_instructions() -> str:
         return PYDANTIC_FORMAT_INSTRUCTIONS
 
 
@@ -88,7 +88,7 @@ class CodeBlock(ParserBaseModel):
             if (match := re.match(r"```(?P<language>\w+)\n(?P<code>.*?)```", text, re.DOTALL))
             else raiser(OutputParserException("Invalid codeblock"))
         )
-    
+
     @staticmethod
     def format_instructions() -> str:
         return "\nAnswer with a codeblock."

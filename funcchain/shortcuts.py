@@ -8,10 +8,7 @@ from pydantic import BaseModel
 from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
 from langchain.chat_models.base import BaseChatModel
 from langchain.output_parsers import BooleanOutputParser, PydanticOutputParser
-from langchain.prompts import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate
-)
+from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import (
     BaseMessage,
     SystemMessage,
@@ -53,18 +50,15 @@ def _get_llm(model: str) -> BaseChatModel:
     raise ValueError(f"Unknown model: {model}")
 
 
-def _get_parent_frame() -> inspect.FrameInfo: 
+def _get_parent_frame() -> inspect.FrameInfo:
     return inspect.getouterframes(inspect.currentframe())[4]
+
 
 def _from_docstring() -> str:
     """
     Get the docstring of the parent caller function.
     """
-    doc_str = (
-        (caller_frame := _get_parent_frame())
-        .frame.f_globals[caller_frame.function]
-        .__doc__
-    )
+    doc_str = (caller_frame := _get_parent_frame()).frame.f_globals[caller_frame.function].__doc__
     return "\n".join([line.lstrip() for line in doc_str.split("\n")])
 
 
@@ -72,11 +66,7 @@ def _parser_from_type() -> BaseOutputParser:
     """
     Get the parser from the type annotation of the parent caller function.
     """
-    output_type = (
-        (caller_frame := _get_parent_frame())
-        .frame.f_globals[caller_frame.function]
-        .__annotations__["return"]
-    )
+    output_type = (caller_frame := _get_parent_frame()).frame.f_globals[caller_frame.function].__annotations__["return"]
     if output_type is str:
         return StrOutputParser()
     if output_type is bool:
@@ -118,12 +108,11 @@ def funcchain(
         parser = _parser_from_type()
 
     base_tokens = count_tokens(instruction + str(system.content))
-    print("BaseTokens: ", base_tokens)
 
     for k, v in input_kwargs.copy().items():
         if isinstance(v, str):
             content_tokens = count_tokens(v)
-            print("ContentTokens: ", content_tokens)
+            print("Tokens: ", content_tokens + base_tokens)
             if base_tokens + content_tokens > max_tokens:
                 input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
@@ -134,7 +123,7 @@ def funcchain(
             input_kwargs["format_instructions"] = format_instructions
     except NotImplementedError:
         pass
-    
+
     prompt = ChatPromptTemplate.from_messages(
         [system]
         + context
@@ -168,16 +157,15 @@ async def afuncchain(
         parser = _parser_from_type()
 
     base_tokens = count_tokens(instruction + str(system.content))
-    print("BaseTokens: ", base_tokens)
 
     for k, v in input_kwargs.copy().items():
         if isinstance(v, str):
             content_tokens = count_tokens(v)
-            print("ContentTokens: ", content_tokens)
+            print("Tokens: ", content_tokens + base_tokens)
             if base_tokens + content_tokens > max_tokens:
                 input_kwargs[k] = v[: (max_tokens - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
-    
+
     try:
         if format_instructions := parser.get_format_instructions():
             instruction += "\n\n" + "{format_instructions}"
