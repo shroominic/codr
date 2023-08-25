@@ -191,12 +191,14 @@ async def create_file(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBloc
     return await afuncchain()
 
 
-def gather_run_cmd(tree: CodeBaseTree) -> CodeBlock:
+def gather_test_cmd(tree: CodeBaseTree) -> CodeBlock:
     """
     CODEBASE TREE:
     {tree}
 
-    Gather command to run codebase.
+    Gather command to test codebase. 
+    There might be a script to run tests, 
+    or you need to run them manually.
     Reply with a bash codeblock containing command.
     """
     return funcchain()
@@ -235,7 +237,7 @@ class FileModifications(ParserBaseModel):
                     [0, "add", "import example"],
                     [4, "overwrite", "def foo():"],
                     [5, "add", "    print(\"hello world\")"],
-                    [6, "delete", "    print(\"bar\")"]
+                    [6, "delete", "    print(\"bar\")"],
                     // ... and so on
                 ]
             }}
@@ -267,11 +269,11 @@ async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange)
     )
 
 
-async def check_result(result: str) -> bool:
+def check_result(result: str) -> bool:
     """
     CONSOLE OUTPUT:
     {result}
 
     Is the output healthy? Answer with "yes" or "no".
     """
-    return await afuncchain()
+    return funcchain()

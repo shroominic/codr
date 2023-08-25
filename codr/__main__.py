@@ -1,12 +1,10 @@
 import asyncio
 import typer
 
-# from codr.llm.chains import ask_additional_question
 from codr.llm.scripts import solve_task
 from codr.llm.schema import Task
-from codr.llm.chains import summarize_task_to_name, check_result, gather_run_cmd, generate_task
+from codr.llm.chains import summarize_task_to_name, check_result, generate_task
 from codr.codebase import CodeBase
-
 
 app = typer.Typer()
 
@@ -20,23 +18,27 @@ def solve(task_description: str):
         description=task_description,
     )
     asyncio.run(solve_task(task))
+    debug()
 
 
 @app.command()
 def debug():
-    codebase = CodeBase()
-    tree = codebase.get_tree_sync()
-    
-    cmd = gather_run_cmd(tree).code
-    
-    result = codebase.bash_str_sync(cmd)
+    result = CodeBase().bash_str_sync("./test.sh")
 
-    if not check_result(result):
-        task = generate_task(result)
-        solve(task)
+    print("RESULT: ", result)
 
-            
+    if check_result(result):
+        return print("DEBUG SUCCESSFUL")
     
+    task = generate_task(result)
+    print("TASK:", task)
+    solve(task)
+
+
+@app.command()
+def test():
+    
+    print("test successful")
 
 
 if __name__ == "__main__":
