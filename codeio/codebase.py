@@ -153,3 +153,20 @@ class CodeBase:
 
         # apply stash to new branch
         apply_result = await self.bash_str("git stash apply")
+
+    async def fix_file_path(self, relative_path: str) -> str:
+        """Fix file name to absolute path"""
+        tree = await self.get_tree()
+        file_name = relative_path.split("/")[-1]
+        files = [
+            file for file in tree.files 
+            if file.name.split("/")[-1] == file_name
+        ]
+        
+        if len(files) > 1:
+            raise Exception(f"Duplicate file name: {file_name}, {files}")
+        elif len(files) < 1:
+            raise Exception(f"File not found: {file_name}, {files}")
+        
+        return files[0].name
+            
