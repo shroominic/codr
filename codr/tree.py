@@ -143,7 +143,7 @@ class CodeBaseTree(CodeBaseNode):
         if self.sha256 != folder_hash:
             self.nodes = await asyncio.gather(*[node.refresh() for node in self.nodes])
         return self
-    
+
     @property
     def files(self) -> list[CodeBaseFile]:
         files = []
@@ -159,6 +159,9 @@ class CodeBaseTree(CodeBaseNode):
         for node in self.nodes:
             folder_str += node.__str__(indent + 2) + "\n"
         return folder_str
+
+    def __repr__(self):
+        return f"CodeBaseTree(path={self.path}, files={len(self.files)}, nodes={len(self.nodes)})"
 
     def show(self) -> str:
         return self.__str__()
