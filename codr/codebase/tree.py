@@ -8,24 +8,40 @@ from pathlib import Path
 from pydantic import BaseModel
 
 
-def is_ignored_by_gitignore(file_path: str, gitignore_path: str = ".gitignore") -> bool:
+IGNORED: set[str] = {
+    ".context",
+    ".git",
+    "node_modules",
+    "__pycache__",
+    "venv",
+    "poetry.lock",
+    "package-lock.json",
+    "yarn.lock",
+}
+
+
+def load_gitignore(path: str = ".") -> None:
     """
-    Checks if the given file path is ignored by the patterns in .gitignore or starts with a dot.
+    Loads the patterns from .gitignore and updates the global IGNORED set.
     """
-    if os.path.basename(file_path).startswith("."):
-        return True
+    IGNORED.update(
+        pattern
+        for root, _, files in os.walk(os.path.dirname(path))
+        if '.gitignore' in files
+        for line in open(os.path.join(root, '.gitignore'), 'r')
+        if (pattern := line.strip().split("#")[0])
+    )
 
-    with open(gitignore_path, "r") as f:
-        lines = f.readlines()
 
-    for line in lines:
-        # Remove leading and trailing whitespaces and comments
-        pattern = line.strip().split("#")[0]
-
-        if pattern:
-            if fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern):
-                return True
-    return False
+def is_ignored_by_gitignore(file_path: str) -> bool:
+    """
+    Checks if a file is ignored by .gitignore
+    """
+    return any(
+        fnmatch.fnmatch(file_path, pattern)
+        or fnmatch.fnmatch(os.path.basename(file_path), pattern)
+        for pattern in IGNORED
+    )
 
 
 class CodeBaseNode(BaseModel):
@@ -61,13 +77,14 @@ class CodeBaseFile(CodeBaseNode):
     async def from_path(cls, path: Path) -> "CodeBaseFile":
         from codr.llm.chains import summarize_file
 
-        content = path.read_text()
-        content_hash = hashlib.sha256(content.encode()).hexdigest()
         try:
+            content = path.read_text()
+            content_hash = hashlib.sha256(content.encode()).hexdigest()
             summary = await summarize_file(content)
         except Exception as e:
             print(f"Failed to summarize file {path}: {e.__class__.__name__}: {e.args[0]}")
             summary = "N/A"
+            content_hash = "error"
         return cls(
             path=path,
             sha256=content_hash,
@@ -138,7 +155,7 @@ class CodeBaseTree(CodeBaseNode):
     async def new(cls) -> "CodeBaseTree":
         return await cls.from_path(Path("."))
 
-    async def refresh(self) -> "CodeBaseTree":
+    async def refresh(self) -> "CodeBaseTree":  # TODO: fix this
         folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in self.nodes)).encode()).hexdigest()
         if self.sha256 != folder_hash:
             self.nodes = await asyncio.gather(*[node.refresh() for node in self.nodes])
