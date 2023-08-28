@@ -1,44 +1,35 @@
 import asyncio
+
 import typer
 
-from codr.llm.scripts import solve_task
-from codr.llm.schema import Task
-from codr.llm.chains import summarize_task_to_name, check_result, generate_task
-from codr.codebase import CodeBase
+from codr.llm.scripts import solve_task, auto_debug
+from codr.llm.templates import solve_task_system_instruction
+from funcchain import settings
 
 app = typer.Typer()
+
+settings.DEFAULT_SYSTEM_PROMPT = solve_task_system_instruction
 
 
 @app.command()
 def solve(task_description: str):
-    task_name = summarize_task_to_name(task_description)
-    print("Task name:", task_name)
-    task = Task(
-        name=task_name,
-        description=task_description,
-    )
-    asyncio.run(solve_task(task))
-    debug()
+    """
+    Input a task description and the llm agent will try to solve it.
+    """
+    asyncio.run(solve_task(task_description))
 
 
 @app.command()
 def debug():
-    result = CodeBase().bash_str_sync("./test.sh")
-
-    print("RESULT: ", result)
-
-    if check_result(result):
-        return print("DEBUG SUCCESSFUL")
-    
-    task = generate_task(result)
-    print("TASK:", task)
-    solve(task)
+    """
+    Automatically debug with the llm agent.
+    """
+    asyncio.run(auto_debug())
 
 
 @app.command()
 def test():
-    
-    print("test successful")
+    typer.echo("Test successful!")
 
 
 if __name__ == "__main__":

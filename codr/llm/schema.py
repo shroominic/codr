@@ -1,6 +1,6 @@
 from typing import Union
+
 from pydantic import BaseModel, Field
-from pathlib import Path
 
 
 class Task(BaseModel):
@@ -21,9 +21,9 @@ class PlannedFileChange(File):
 
     @property
     def content(self):
-        from codr.codebase import CodeBase
+        from codr.codebase.func import read_file_sync
 
-        return CodeBase().read_file_sync(Path(self.relative_path))
+        return read_file_sync(self.relative_path)
 
 
 class PlannedFileChanges(BaseModel):
@@ -37,8 +37,6 @@ class CreatedFile(File):
     content: str = Field(..., description="New File Content")
 
 
-# class ModifiedFile(File):
-#     changes: list[tuple[int, str, str]] = Field(..., description="List of changes to make")
 class ModifiedFile(File):
     content: str = Field(..., description="New File Content")
 
