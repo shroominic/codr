@@ -1,60 +1,40 @@
-import asyncio
 import inspect
-from os import getenv
-from dotenv import load_dotenv
-
 from typing import TypeVar
-from pydantic import BaseModel
-from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
-from langchain.chat_models.base import BaseChatModel
+
+from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.output_parsers import BooleanOutputParser, PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
-from langchain.schema import (
-    BaseMessage,
-    SystemMessage,
-    BaseOutputParser,
-    StrOutputParser,
-)
+from langchain.schema import BaseMessage, BaseOutputParser, StrOutputParser, SystemMessage
 from langchain.schema.runnable import RunnableWithFallbacks
+from pydantic import BaseModel
 
-from codr.llm.templates import solve_task_system_instruction
-from funcchain.utils import count_tokens, retry
+from funcchain import settings
 from funcchain.parser import ParserBaseModel
-
-
-load_dotenv()
-
-MAX_TOKENS = 32768 - 8192
+from funcchain.utils import count_tokens, retry
 
 T = TypeVar("T")
 
 
 def _get_llm() -> RunnableWithFallbacks:
-    kwargs = dict(
-        verbose=getenv("VERBOSE", "false").lower() == "true",
-        request_timeout=60 * 5,
-        temperature=0.01,
-    )
     short_llm = ChatOpenAI(
         model="gpt-4",
         temperature=0.01,
         request_timeout=60 * 5,
-        verbose=getenv("VERBOSE", "false").lower() == "true",
-        openai_api_key=getenv("OPENAI_API_KEY"),
+        verbose=settings.VERBOSE,
+        openai_api_key=settings.OPENAI_API_KEY,
     )
     long_llm = AzureChatOpenAI(
         temperature=0.01,
         model="gpt-4-32k",
         request_timeout=60 * 5,
-        verbose=getenv("VERBOSE", "false").lower() == "true",
+        verbose=settings.VERBOSE,
         openai_api_type="azure",
-        deployment_name="giga-4",
-        openai_api_key=getenv("AZURE_OPENAI_API_KEY", ""),
-        openai_api_base="https://science.openai.azure.com/",
-        openai_api_version="2023-07-01-preview",
+        deployment_name=settings.AZURE_DEPLOYMENT_NAME,
+        openai_api_key=settings.AZURE_API_KEY,
+        openai_api_base=settings.AZURE_API_BASE,
+        openai_api_version=settings.AZURE_API_VERSION,
     )
     return short_llm.with_fallbacks([long_llm])
-
 
 
 def _get_parent_frame() -> inspect.FrameInfo:
@@ -93,33 +73,21 @@ def _kwargs_from_parent() -> dict[str, str]:
     return _get_parent_frame().frame.f_locals
 
 
-@retry(3)
-def funcchain(
-    instruction: str | None = None,
-    system: SystemMessage = solve_task_system_instruction,
-    parser: BaseOutputParser[T] | None = None,
-    context: list[BaseMessage] = [],
-    /,
+def _create_prompt(
+    instruction: str,
+    system: str,
+    parser: BaseOutputParser,
+    context: list[BaseMessage],
     **input_kwargs,
-) -> T:
-    """
-    Get response from chatgpt for provided instructions.
-    """
-    if not instruction:
-        instruction = _from_docstring()
-    if not input_kwargs:
-        input_kwargs = _kwargs_from_parent()
-    if not parser:
-        parser = _parser_from_type()
-
-    base_tokens = count_tokens(instruction + str(system.content))
-
+) -> ChatPromptTemplate:
+    input_kwargs.update(_kwargs_from_parent())
+    base_tokens = count_tokens(instruction + system)
     for k, v in input_kwargs.copy().items():
         if isinstance(v, str):
             content_tokens = count_tokens(v)
             print("Tokens: ", content_tokens + base_tokens)
-            if base_tokens + content_tokens > MAX_TOKENS:
-                input_kwargs[k] = v[: (MAX_TOKENS - base_tokens) * 2 // 3]
+            if base_tokens + content_tokens > settings.MAX_TOKENS:
+                input_kwargs[k] = v[: (settings.MAX_TOKENS - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
 
     try:
@@ -129,8 +97,8 @@ def funcchain(
     except NotImplementedError:
         pass
 
-    prompt = ChatPromptTemplate.from_messages(
-        [system]
+    return ChatPromptTemplate.from_messages(
+        [SystemMessage(content=system)]
         + context
         + [
             HumanMessagePromptTemplate.from_template(template=instruction)
@@ -138,14 +106,30 @@ def funcchain(
             else instruction
         ]
     )
-    return (prompt | _get_llm() | parser).invoke(input_kwargs)
+
+
+@retry(3)
+def funcchain(
+    instruction: str = _from_docstring(),
+    system: str = settings.DEFAULT_SYSTEM_PROMPT,
+    parser: BaseOutputParser[T] = _parser_from_type(),
+    context: list[BaseMessage] = [],
+    /,
+    **input_kwargs,
+) -> T:  # type: ignore
+    """
+    Get response from chatgpt for provided instructions.
+    """
+    return (_create_prompt(instruction, system, parser, context, **input_kwargs) | _get_llm() | parser).invoke(
+        input_kwargs
+    )
 
 
 @retry(3)
 async def afuncchain(
-    instruction: str | None = None,
-    system: SystemMessage = solve_task_system_instruction,
-    parser: BaseOutputParser[T] | None = None,
+    instruction: str = _from_docstring(),
+    system: str = settings.DEFAULT_SYSTEM_PROMPT,
+    parser: BaseOutputParser[T] = _parser_from_type(),
     context: list[BaseMessage] = [],
     /,
     **input_kwargs,
@@ -153,36 +137,6 @@ async def afuncchain(
     """
     Get response from chatgpt for provided instructions.
     """
-    input_kwargs.update(_kwargs_from_parent())
-    if not instruction:
-        instruction = _from_docstring()
-    if not parser:
-        parser = _parser_from_type()
-
-    base_tokens = count_tokens(instruction + str(system.content))
-
-    for k, v in input_kwargs.copy().items():
-        if isinstance(v, str):
-            content_tokens = count_tokens(v)
-            print("Tokens: ", content_tokens + base_tokens)
-            if base_tokens + content_tokens > MAX_TOKENS:
-                input_kwargs[k] = v[: (MAX_TOKENS - base_tokens) * 2 // 3]
-                print("Truncated: ", len(input_kwargs[k]))
-
-    try:
-        if format_instructions := parser.get_format_instructions():
-            instruction += "\n\n" + "{format_instructions}"
-            input_kwargs["format_instructions"] = format_instructions
-    except NotImplementedError:
-        pass
-
-    prompt = ChatPromptTemplate.from_messages(
-        [system]
-        + context
-        + [
-            HumanMessagePromptTemplate.from_template(template=instruction)
-            if isinstance(instruction, str)
-            else instruction
-        ]
+    return await (_create_prompt(instruction, system, parser, context, **input_kwargs) | _get_llm() | parser).ainvoke(
+        input_kwargs
     )
-    return await (prompt | _get_llm() | parser).ainvoke(input_kwargs)
