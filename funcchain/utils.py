@@ -1,8 +1,10 @@
 import asyncio
-from typing import NoReturn
-from tiktoken import encoding_for_model
 from functools import wraps
+from typing import NoReturn
+
 from langchain.schema import OutputParserException
+from tiktoken import encoding_for_model
+from funcchain import settings
 
 
 def raiser(e: Exception | str) -> NoReturn:
@@ -11,6 +13,10 @@ def raiser(e: Exception | str) -> NoReturn:
     else:
         raise Exception(e)
 
+
+def log(*text) -> None:
+    if settings.VERBOSE:
+        print(*text)
 
 def retry(retry: int):
     def decorator(fn):
@@ -43,5 +49,5 @@ def retry(retry: int):
     return decorator
 
 
-def count_tokens(text: str) -> int:
-    return len(encoding_for_model("gpt-4").encode(text))
+def count_tokens(text: str, model: str = "gpt-4") -> int:
+    return len(encoding_for_model(model).encode(text))
