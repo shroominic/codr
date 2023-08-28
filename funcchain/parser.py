@@ -1,13 +1,13 @@
 import json
 import re
-from typing import TypeVar, Callable, Awaitable, Optional, Type
-from typing_extensions import Self
+from typing import Awaitable, Callable, Optional, Type, TypeVar
 
 from langchain.output_parsers.format_instructions import PYDANTIC_FORMAT_INSTRUCTIONS
 from langchain.pydantic_v1 import BaseModel, ValidationError
 from langchain.schema import BaseOutputParser, OutputParserException
-from funcchain.utils import raiser
+from typing_extensions import Self
 
+from funcchain.utils import raiser
 
 T = TypeVar("T")
 

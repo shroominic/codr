@@ -1,7 +1,7 @@
-from codr.tree import CodeBaseTree
-from funcchain.shortcuts import funcchain, afuncchain
-from funcchain.parser import LambdaOutputParser, CodeBlock, ParserBaseModel
-from codr.llm.schema import Task, PlannedFileChanges, PlannedFileChange
+from codr.codebase.tree import CodeBaseTree
+from codr.llm.schema import PlannedFileChange, PlannedFileChanges, Task
+from funcchain.parser import CodeBlock, LambdaOutputParser, ParserBaseModel
+from funcchain.shortcuts import afuncchain, funcchain
 
 
 def ask_additional_question(task: Task) -> str | None:
@@ -61,7 +61,8 @@ async def generate_code_summary(task: Task, tree: CodeBaseTree) -> str:
     CODEBASE TREE:
     {tree}
 
-    Summarize codebase, answer with a compressed piece of knowledge. What technologies and frameworks are used? What is general structure?
+    Summarize codebase, answer with a compressed piece of knowledge.
+    What technologies and frameworks are used? What is general structure?
     Write it as context for a programmer with only access to a small part of codebase.
     """
     return await afuncchain()
@@ -86,11 +87,11 @@ async def fix_filename(file_name: str, tree: CodeBaseTree) -> str:
     """
     RELATIVE_FILE_PATH:
     {file_name}
-    
+
     CODEBASE TREE:
     {tree}
 
-    Fix RELATIVE_FILE_PATH to match 
+    Fix RELATIVE_FILE_PATH to match
     valid relative file path from CodeBaseTree.
     """
     return await afuncchain()
@@ -174,7 +175,7 @@ async def llm_format(file: str):
     return await afuncchain()
 
 
-async def create_file(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBlock:
+async def create_file_prompt(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBlock:
     """
     FILE:
     {change.relative_path}
@@ -196,23 +197,22 @@ def gather_test_cmd(tree: CodeBaseTree) -> CodeBlock:
     CODEBASE TREE:
     {tree}
 
-    Gather command to test codebase. 
-    There might be a script to run tests, 
+    Gather command to test codebase.
+    There might be a script to run tests,
     or you need to run them manually.
     Reply with a bash codeblock containing command.
     """
     return funcchain()
 
 
-def generate_task(result: str) -> str:
+async def generate_task(result: str) -> str:
     """
     CONSOLE OUTPUT:
     {result}
 
     Generate a task description to fix the error.
     """
-    return funcchain()
-
+    return await afuncchain()
 
 
 class FileModifications(ParserBaseModel):
@@ -227,9 +227,9 @@ class FileModifications(ParserBaseModel):
             - add: insert new code at line number and shift following lines down
             - overwrite: replace line number with new code
             - delete: remove code at line number
-            
+
             Format these changes as json codeblock:
-            
+
             ```json
             {{
                 // (line_number, 'action', 'new code')
@@ -245,7 +245,7 @@ class FileModifications(ParserBaseModel):
             """
 
 
-async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> CodeBlock:
+async def modify_file_prompt(task: Task, tree: CodeBaseTree, change: PlannedFileChange) -> CodeBlock:
     """
     CODEBASE TREE:
     {tree}
@@ -269,11 +269,11 @@ async def modify_file(task: Task, tree: CodeBaseTree, change: PlannedFileChange)
     )
 
 
-def check_result(result: str) -> bool:
+async def check_result(result: str) -> bool:
     """
     CONSOLE OUTPUT:
     {result}
 
     Is the output healthy? Answer with "yes" or "no".
     """
-    return funcchain()
+    return await afuncchain()
