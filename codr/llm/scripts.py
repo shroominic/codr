@@ -101,21 +101,26 @@ async def apply_changes(changes: list[FileChange]):
 async def commit_changes() -> None:
     git_status = await bash("git status")
     if "Changes not staged for commit" in git_status:
-        for change in git_status.split("\n"):
-            if change.startswith("\t"):
-                change_split = change.split()
-                if len(change_split) > 1:
-                    file_change = change_split[1].strip()
-                    await bash(f"git add {file_change}")
-                    modifications = await bash(f"git diff --staged {file_change}")
-                    commit_msg = await write_commit_message(file_change, modifications)
-                    await bash(f'git commit -m "{commit_msg}"')
-                    print("File committed: ", file_change, commit_msg)
-                elif len(change_split) == 1:
-                    file_change = change_split[0].strip()
-                    await bash(f"git add {file_change}")
-                    commit_msg = await write_commit_message(file_change, "")
-                    await bash(f'git commit -m "{commit_msg}"')
-                    print("File committed: ", file_change, commit_msg)
-                else:
-                    raise ValueError(f"Invalid change: {change}")
+        changes = git_status.split("\n")
+        commit_tasks = [
+            process_change(change)
+            for change in changes
+            if change.startswith("\t")
+        ]
+        await asyncio.gather(*commit_tasks)
+
+async def process_change(change: str) -> None:
+    change_split = change.split()
+    if len(change_split) > 1:
+        file_change = change_split[1].strip()
+        modifications = await bash(f"git diff {file_change}")
+        commit_msg = await write_commit_message(file_change, modifications)
+        await bash(f'git add {file_change} && git commit -m "{commit_msg}"')
+        print("File committed: ", file_change, commit_msg)
+    elif len(change_split) == 1:
+        file_change = change_split[0].strip()
+        commit_msg = await write_commit_message(file_change, "")
+        await bash(f'git add {file_change} && git commit -m "{commit_msg}"')
+        print("File committed: ", file_change, commit_msg)
+    else:
+        raise ValueError(f"Invalid change: {change}")
