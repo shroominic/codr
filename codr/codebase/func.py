@@ -56,7 +56,10 @@ def read_file_sync(relative_path: str) -> str:
     Read a file from the codebase
     """
     with open(relative_path) as f:
-        return f.read()
+        if relative_path.endswith(".py"):
+            return "```python\n" + f.read() + "\n```"
+        else:
+            return "```\n" + f.read() + "\n```"
 
 
 async def show_tree() -> str:
