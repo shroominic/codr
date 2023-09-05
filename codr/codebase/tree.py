@@ -20,17 +20,20 @@ IGNORED: set[str] = {
 }
 
 
-def load_gitignore(path: str = ".") -> None:
+def load_gitignore() -> None:
     """
     Loads the patterns from .gitignore and updates the global IGNORED set.
     """
-    IGNORED.update(
-        pattern
-        for root, _, files in os.walk(os.path.dirname(path))
-        if '.gitignore' in files
-        for line in open(os.path.join(root, '.gitignore'), 'r')
-        if (pattern := line.strip().split("#")[0])
-    )
+    gitignore_files = [file for file in Path(".").rglob(".gitignore")]
+    for gitignore_file in gitignore_files:
+        with open(gitignore_file, "r") as f:
+            for line in f.readlines():
+                pattern = line.strip().split("#")[0]
+                if pattern and pattern != "*":
+                    IGNORED.add(pattern)
+
+
+load_gitignore()
 
 
 def is_ignored_by_gitignore(file_path: str) -> bool:
@@ -38,8 +41,7 @@ def is_ignored_by_gitignore(file_path: str) -> bool:
     Checks if a file is ignored by .gitignore
     """
     return any(
-        fnmatch.fnmatch(file_path, pattern)
-        or fnmatch.fnmatch(os.path.basename(file_path), pattern)
+        fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern)
         for pattern in IGNORED
     )
 
@@ -75,11 +77,12 @@ class CodeBaseFile(CodeBaseNode):
 
     @classmethod
     async def from_path(cls, path: Path) -> "CodeBaseFile":
-        from codr.llm.chains import summarize_file
+        from codr.llm.chains.files import summarize_file
 
         try:
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
+            print(path)
             summary = await summarize_file(content)
         except Exception as e:
             print(f"Failed to summarize file {path}: {e.__class__.__name__}: {e.args[0]}")
