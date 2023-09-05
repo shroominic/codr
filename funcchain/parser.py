@@ -1,10 +1,12 @@
 import json
 import re
+import asyncio
 from typing import Awaitable, Callable, Optional, Type, TypeVar
 
 from langchain.output_parsers.format_instructions import PYDANTIC_FORMAT_INSTRUCTIONS
 from langchain.pydantic_v1 import BaseModel, ValidationError
 from langchain.schema import BaseOutputParser, OutputParserException
+from langchain.chat_models.base import BaseChatModel
 from typing_extensions import Self
 
 from funcchain.utils import raiser
@@ -14,17 +16,15 @@ T = TypeVar("T")
 
 class LambdaOutputParser(BaseOutputParser[T]):
     _parse: Optional[Callable[[str], T]] = None
-    _aparse: Optional[Callable[[str], Awaitable[T]]] = None
 
     def parse(self, text: str) -> T:
         if self._parse is None:
             raise NotImplementedError("LambdaOutputParser.lambda_parse() is not implemented")
         return self._parse(text)
 
-    async def aparse(self, text: str) -> T:
-        if self._aparse is None:
-            raise NotImplementedError("LambdaOutputParser.lambda_aparse() is not implemented")
-        return await self._aparse(text)
+    @property
+    def _type(self) -> str:
+        return "lambda"
 
 
 class ParserBaseModel(BaseModel):
@@ -57,9 +57,10 @@ class CustomPydanticOutputParser(BaseOutputParser[P]):
         try:
             return self.pydantic_object.parse(text)
         except (json.JSONDecodeError, ValidationError) as e:
-            name = self.pydantic_object.__name__
-            msg = f"Failed to parse {name} from completion {text}. Got: {e}"
-            raise OutputParserException(msg, llm_output=text)
+            raise OutputParserException(
+                f"Failed to parse {self.pydantic_object.__name__} from completion {text}. Got: {e}",
+                llm_output=text,
+            )
 
     def get_format_instructions(self) -> str:
         reduced_schema = self.pydantic_object.schema()
