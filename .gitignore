@@ -2,3 +2,7 @@
 __pycache__
 .env
 poetry.lock
+.mypy_cache
+__pycache__
+.vscode
+.pytest_cache
