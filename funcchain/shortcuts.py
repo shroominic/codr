@@ -76,11 +76,9 @@ def _kwargs_from_parent() -> dict[str, str]:
 def _create_prompt(
     instruction: str,
     system: str,
-    parser: BaseOutputParser,
-    context: list[BaseMessage],
+    context: list[BaseMessage] = [],
     **input_kwargs,
 ) -> ChatPromptTemplate:
-    input_kwargs.update(_kwargs_from_parent())
     base_tokens = count_tokens(instruction + system)
     for k, v in input_kwargs.copy().items():
         if isinstance(v, str):
@@ -89,13 +87,6 @@ def _create_prompt(
             if base_tokens + content_tokens > settings.MAX_TOKENS:
                 input_kwargs[k] = v[: (settings.MAX_TOKENS - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
-
-    try:
-        if format_instructions := parser.get_format_instructions():
-            instruction += "\n\n" + "{format_instructions}"
-            input_kwargs["format_instructions"] = format_instructions
-    except NotImplementedError:
-        pass
 
     return ChatPromptTemplate.from_messages(
         [SystemMessage(content=system)]
@@ -110,9 +101,9 @@ def _create_prompt(
 
 @retry(3)
 def funcchain(
-    instruction: str = _from_docstring(),
+    instruction: str | None = None,
     system: str = settings.DEFAULT_SYSTEM_PROMPT,
-    parser: BaseOutputParser[T] = _parser_from_type(),
+    parser: BaseOutputParser[T] | None = None,
     context: list[BaseMessage] = [],
     /,
     **input_kwargs,
@@ -120,16 +111,27 @@ def funcchain(
     """
     Get response from chatgpt for provided instructions.
     """
-    return (_create_prompt(instruction, system, parser, context, **input_kwargs) | _get_llm() | parser).invoke(
-        input_kwargs
-    )
+    if instruction is None:
+        instruction = _from_docstring()
+    if parser is None:
+        parser = _parser_from_type()
+    input_kwargs.update(_kwargs_from_parent())
+
+    try:
+        if format_instructions := parser.get_format_instructions():
+            instruction += "\n\n" + "{format_instructions}"
+            input_kwargs["format_instructions"] = format_instructions
+    except NotImplementedError:
+        pass
+
+    return (_create_prompt(instruction, system, context, **input_kwargs) | _get_llm() | parser).invoke(input_kwargs)
 
 
 @retry(3)
 async def afuncchain(
-    instruction: str = _from_docstring(),
+    instruction: str | None = None,
     system: str = settings.DEFAULT_SYSTEM_PROMPT,
-    parser: BaseOutputParser[T] = _parser_from_type(),
+    parser: BaseOutputParser[T] | None = None,
     context: list[BaseMessage] = [],
     /,
     **input_kwargs,
@@ -137,6 +139,19 @@ async def afuncchain(
     """
     Get response from chatgpt for provided instructions.
     """
-    return await (_create_prompt(instruction, system, parser, context, **input_kwargs) | _get_llm() | parser).ainvoke(
+    if instruction is None:
+        instruction = _from_docstring()
+    if parser is None:
+        parser = _parser_from_type()
+    input_kwargs.update(_kwargs_from_parent())
+
+    try:
+        if format_instructions := parser.get_format_instructions():
+            instruction += "\n\n" + "{format_instructions}"
+            input_kwargs["format_instructions"] = format_instructions
+    except NotImplementedError:
+        pass
+
+    return await (_create_prompt(instruction, system, context, **input_kwargs) | _get_llm() | parser).ainvoke(
         input_kwargs
     )
