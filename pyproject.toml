@@ -5,7 +5,7 @@ authors = ["Shroominic <contact@shroominic.com>"]
 description = "Neuralcodr is an ai tool for faster coding."
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 langchain = "*"
 openai = "*"
 python-dotenv = "*"
