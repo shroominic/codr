@@ -12,11 +12,11 @@ load_dotenv("./.env")
 class FuncchainSettings(BaseSettings):
     # General
     VERBOSE: bool = False
-    
+
     # Prompt
     MAX_TOKENS: int = 32768 - 8192
     DEFAULT_SYSTEM_PROMPT: str = "You are an advanced programming assistant solving tasks for developers."
-    
+
     # Model
     OPENAI_API_KEY: str = ""
     AZURE_API_KEY: str = ""
