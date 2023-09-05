@@ -7,7 +7,7 @@ from typing import AsyncGenerator
 from pathlib import Path
 from codr.codebase.tree import CodeBaseTree
 from codr.llm.schema import Task
-    
+
 
 async def _bash_gen(*commands: str) -> AsyncGenerator[bytes, None]:
     """
@@ -25,7 +25,7 @@ async def _bash_gen(*commands: str) -> AsyncGenerator[bytes, None]:
     if stderr:
         yield stderr
 
- 
+
 async def bash(*commands: str) -> str:
     """
     Run a bash command
@@ -34,6 +34,7 @@ async def bash(*commands: str) -> str:
     async for output in _bash_gen(*commands):
         stdout += output.decode()
     return stdout
+
 
 def bash_sync(*commands: str) -> str:
     """
@@ -93,7 +94,7 @@ async def modify_file(relative_path: str, content: str) -> None:
     Replace a file in the codebase
     """
     import aiofiles  # type: ignore
-    
+
     async with aiofiles.open(relative_path, "w") as f:
         await f.write(content)
     await bash(f"black {relative_path}")
@@ -112,8 +113,12 @@ async def prepare_environment(task: Task) -> None:
     """
     if not os.path.exists(".git"):
         await bash("git init")
-    
+
     # if there are open changes stash them
+    if getenv("AUTO_COMMIT", "false").lower() == "true":
+        from codr.llm.scripts import commit_changes
+        await commit_changes()
+        
     git_status = await bash("git status")
     if "Changes not staged for commit" in git_status:
         stash_result = await bash("git stash")
@@ -123,28 +128,25 @@ async def prepare_environment(task: Task) -> None:
             raise Exception(f"Failed to stash changes: {stash_result}")
 
     # checkout to new created branch with task name
-    if getenv("CHECKOUT_TO_NEW_BRANCH", "True") == "True":
+    if getenv("CHECKOUT_BRANCH", "false").lower() == "true":
         task_name = task.name.replace(" ", "_") + "_" + datetime.now().strftime("%Y%m%d%H%M%S")
         checkout_result = await bash(f"git checkout -b {task_name}")
         if "Switched to a new branch" not in checkout_result:
             raise Exception(f"Failed to checkout to new branch: {checkout_result}")
 
-    # apply stash to new branch
-    apply_result = await bash("git stash apply")
+        # apply stash to new branch
+        apply_result = await bash("git stash apply")
 
 
 async def fix_file_path(relative_path: str) -> str:
     """Fix file name to absolute path"""
     tree = await get_tree()
     file_name = relative_path.split("/")[-1]
-    files = [
-        file for file in tree.files 
-        if file.name.split("/")[-1] == file_name
-    ]
-    
+    files = [file for file in tree.files if file.name.split("/")[-1] == file_name]
+
     if len(files) > 1:
         raise Exception(f"Duplicate file name: {file_name}, {files}")
     elif len(files) < 1:
         raise Exception(f"File not found: {file_name}, {files}")
-    
+
     return files[0].name
