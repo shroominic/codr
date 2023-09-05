@@ -18,6 +18,7 @@ def log(*text) -> None:
     if settings.VERBOSE:
         print(*text)
 
+
 def retry(retry: int):
     def decorator(fn):
         if asyncio.iscoroutinefunction(fn):
