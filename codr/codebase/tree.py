@@ -82,7 +82,6 @@ class CodeBaseFile(CodeBaseNode):
         try:
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
-            print(path)
             summary = await summarize_file(content)
         except Exception as e:
             print(f"Failed to summarize file {path}: {e.__class__.__name__}: {e.args[0]}")
