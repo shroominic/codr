@@ -1,5 +1,5 @@
-from funcchain.parser import ParserBaseModel, LambdaOutputParser
-from funcchain.shortcuts import afuncchain, funcchain
+from funcchain.parser import LambdaOutputParser
+from funcchain.shortcuts import afuncchain
 from funcchain.utils import raiser
 from emoji import is_emoji
 
