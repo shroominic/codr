@@ -2,7 +2,7 @@ import asyncio
 
 import typer
 
-from codr.llm.scripts import solve_task, auto_debug
+from codr.llm.scripts import solve_task, auto_debug, commit_changes
 from codr.llm.templates import solve_task_system_instruction
 from funcchain import settings
 
@@ -25,6 +25,14 @@ def debug():
     Automatically debug with the llm agent.
     """
     asyncio.run(auto_debug())
+
+
+@app.command()
+def commit():
+    """
+    Write commit messages and commit changes.
+    """
+    asyncio.run(commit_changes())
 
 
 @app.command()
