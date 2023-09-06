@@ -17,6 +17,12 @@ IGNORED: set[str] = {
     "poetry.lock",
     "package-lock.json",
     "yarn.lock",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".vscode",
+    ".idea",
+    ".DS_Store",
+    "*.pyc",
 }
 
 
@@ -30,6 +36,7 @@ def load_gitignore() -> None:
             for line in f.readlines():
                 pattern = line.strip().split("#")[0]
                 if pattern and pattern != "*":
+                    print("Ignoring:", pattern)
                     IGNORED.add(pattern)
 
 
@@ -82,7 +89,7 @@ class CodeBaseFile(CodeBaseNode):
         try:
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
-            summary = await summarize_file(content)
+            summary = await summarize_file(content) if content else "None"
         except Exception as e:
             print(f"Failed to summarize file {path}: {e.__class__.__name__}: {e.args[0]}")
             summary = "N/A"
@@ -96,8 +103,8 @@ class CodeBaseFile(CodeBaseNode):
     async def refresh(self) -> "CodeBaseFile":
         content = self.path.read_text()
         content_hash = hashlib.sha256(content.encode()).hexdigest()
+        print("Old hash:", self.sha256, "New hash:", content_hash)
         if self.sha256 != content_hash:
-            print("Old hash:", self.sha256, "New hash:", content_hash)
             return await CodeBaseFile.from_path(self.path)
         return self
 
@@ -143,7 +150,13 @@ class CodeBaseTree(CodeBaseNode):
         ]
         nodes: list["CodeBaseNode"] = await asyncio.gather(*tasks)
 
-        folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in nodes)).encode()).hexdigest()
+        folder_hash = hashlib.sha256(
+            (
+                "".join(
+                    str(node.sha256) for node in nodes
+                )
+            ).encode()
+        ).hexdigest()
 
         tree = cls(
             path=path,
@@ -157,10 +170,18 @@ class CodeBaseTree(CodeBaseNode):
     async def new(cls) -> "CodeBaseTree":
         return await cls.from_path(Path("."))
 
-    async def refresh(self) -> "CodeBaseTree":  # TODO: fix this
-        folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in self.nodes)).encode()).hexdigest()
-        if self.sha256 != folder_hash:
-            self.nodes = await asyncio.gather(*[node.refresh() for node in self.nodes])
+    async def refresh(self) -> "CodeBaseTree":
+        # gather new nodes from codebase not in self.nodes
+        node_paths = [node.path for node in self.nodes]
+        new_nodes = [
+            file_path.read_text() if file_path.is_file() else await CodeBaseTree.from_path(file_path)
+            for file_path in self.path.iterdir()
+            if not is_ignored_by_gitignore(file_path.as_posix()) and file_path not in node_paths
+        ]
+        # delete nodes not in codebase anymore
+        
+        # check node hash and update if necessary
+        
         return self
 
     @property
