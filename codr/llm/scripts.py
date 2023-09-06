@@ -101,26 +101,26 @@ async def apply_changes(changes: list[FileChange]):
 async def commit_changes() -> None:
     git_status = await bash("git status")
     if "Changes not staged for commit" in git_status:
-        changes = git_status.split("\n")
-        commit_tasks = [
+        commits = await asyncio.gather(*[
             process_change(change)
-            for change in changes
+            for change in git_status.split("\n")
             if change.startswith("\t")
-        ]
-        await asyncio.gather(*commit_tasks)
+        ])
+        for change, msg in commits:
+            await bash(f'git add {change} && git commit -m "{msg}"')
+            print("File committed: ", change, msg)
 
-async def process_change(change: str) -> None:
+async def process_change(change: str) -> tuple[str, str]:
     change_split = change.split()
     if len(change_split) > 1:
         file_change = change_split[1].strip()
         modifications = await bash(f"git diff {file_change}")
         commit_msg = await write_commit_message(file_change, modifications)
-        await bash(f'git add {file_change} && git commit -m "{commit_msg}"')
-        print("File committed: ", file_change, commit_msg)
+        return file_change, commit_msg
     elif len(change_split) == 1:
         file_change = change_split[0].strip()
         commit_msg = await write_commit_message(file_change, "")
-        await bash(f'git add {file_change} && git commit -m "{commit_msg}"')
-        print("File committed: ", file_change, commit_msg)
+        return file_change, commit_msg
     else:
         raise ValueError(f"Invalid change: {change}")
+
