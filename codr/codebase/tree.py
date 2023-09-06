@@ -36,7 +36,6 @@ def load_gitignore() -> None:
             for line in f.readlines():
                 pattern = line.strip().split("#")[0]
                 if pattern and pattern != "*":
-                    print("Ignoring:", pattern)
                     IGNORED.add(pattern)
 
 
