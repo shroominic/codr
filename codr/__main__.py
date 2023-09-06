@@ -36,6 +36,17 @@ def commit():
 
 
 @app.command()
+def tree():
+    """
+    Print the current tree.
+    """
+    from codr.codebase.tree import CodeBaseTree
+    typer.echo(
+        asyncio.run(CodeBaseTree.load())
+    )
+
+
+@app.command()
 def test():
     typer.echo("Test successful!")
 
