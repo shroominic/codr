@@ -148,6 +148,8 @@ class CodeBaseTree(CodeBaseNode):
             for file_path in path.iterdir()
             if not is_ignored_by_gitignore(file_path.as_posix())
         ]
+        if len(tasks) > 50:
+            input(f"Found {len(tasks)} files in {path}. Press enter to continue...")
         nodes: list["CodeBaseNode"] = await asyncio.gather(*tasks)
 
         folder_hash = hashlib.sha256(
