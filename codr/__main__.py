@@ -20,11 +20,11 @@ def solve(task_description: str):
 
 
 @app.command()
-def debug():
+def debug(command: str):
     """
     Automatically debug with the llm agent.
     """
-    asyncio.run(auto_debug())
+    asyncio.run(auto_debug(command))
 
 
 @app.command()
