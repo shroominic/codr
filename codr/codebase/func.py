@@ -121,14 +121,15 @@ async def prepare_environment(task: Task) -> None:
     if getenv("AUTO_COMMIT", "false").lower() == "true":
         from codr.llm.scripts import commit_changes
         await commit_changes()
-        
-    git_status = await bash("git status")
-    if "Changes not staged for commit" in git_status:
-        stash_result = await bash("git stash")
-        if "No local changes to save" in stash_result:
-            print("No changes to stash")
-        elif "Saved working directory and index state" not in stash_result:
-            raise Exception(f"Failed to stash changes: {stash_result}")
+    
+    if getenv("AUTO_STASH", "false").lower() == "true":
+        git_status = await bash("git status")
+        if "Changes not staged for commit" in git_status:
+            stash_result = await bash("git stash")
+            if "No local changes to save" in stash_result:
+                print("No changes to stash")
+            elif "Saved working directory and index state" not in stash_result:
+                raise Exception(f"Failed to stash changes: {stash_result}")
 
     # checkout to new created branch with task name
     if getenv("CHECKOUT_BRANCH", "false").lower() == "true":
