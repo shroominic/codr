@@ -40,8 +40,8 @@ async def solve_task(task_description: str) -> None:
     # TODO: add auto_debug()
 
 
-async def auto_debug() -> None:
-    result = await bash("./test.sh")
+async def auto_debug(command: str) -> None:
+    result = await bash(command)
 
     log("RESULT: ", result)
 
@@ -51,6 +51,7 @@ async def auto_debug() -> None:
     description = await generate_task(result)
     log("TASK:", description)
     await solve_task(description)
+    await auto_debug(command)
 
 
 async def compute_changes(task: Task) -> list[FileChange]:
