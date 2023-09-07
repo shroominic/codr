@@ -6,6 +6,7 @@ from langchain.output_parsers import BooleanOutputParser, PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import BaseMessage, BaseOutputParser, StrOutputParser, SystemMessage
 from langchain.schema.runnable import RunnableWithFallbacks
+from langchain.callbacks import get_openai_callback
 from pydantic import BaseModel
 
 from funcchain import settings
@@ -37,8 +38,8 @@ def _get_llm() -> RunnableWithFallbacks:
     return short_llm.with_fallbacks([long_llm])
 
 
-def _get_parent_frame() -> inspect.FrameInfo:
-    return inspect.getouterframes(inspect.currentframe())[4]
+def _get_parent_frame(depth: int = 4) -> inspect.FrameInfo:
+    return inspect.getouterframes(inspect.currentframe())[depth]
 
 
 def _from_docstring() -> str:
@@ -83,7 +84,6 @@ def _create_prompt(
     for k, v in input_kwargs.copy().items():
         if isinstance(v, str):
             content_tokens = count_tokens(v)
-            print("Tokens: ", content_tokens + base_tokens)
             if base_tokens + content_tokens > settings.MAX_TOKENS:
                 input_kwargs[k] = v[: (settings.MAX_TOKENS - base_tokens) * 2 // 3]
                 print("Truncated: ", len(input_kwargs[k]))
@@ -116,6 +116,7 @@ def funcchain(
     if parser is None:
         parser = _parser_from_type()
     input_kwargs.update(_kwargs_from_parent())
+    chain_name = _get_parent_frame(3).function
 
     try:
         if format_instructions := parser.get_format_instructions():
@@ -124,7 +125,13 @@ def funcchain(
     except NotImplementedError:
         pass
 
-    return (_create_prompt(instruction, system, context, **input_kwargs) | _get_llm() | parser).invoke(input_kwargs)
+    prompt = _create_prompt(instruction, system, context, **input_kwargs)
+    llm = _get_llm()
+    
+    with get_openai_callback() as cb:
+        result = (prompt | llm | parser).invoke(input_kwargs)
+        print(f"{cb.total_tokens:06} t / {cb.total_cost:.2f}$ by {chain_name}")
+    return result
 
 
 @retry(3)
@@ -144,6 +151,7 @@ async def afuncchain(
     if parser is None:
         parser = _parser_from_type()
     input_kwargs.update(_kwargs_from_parent())
+    chain_name = _get_parent_frame(3).function
 
     try:
         if format_instructions := parser.get_format_instructions():
@@ -151,7 +159,11 @@ async def afuncchain(
             input_kwargs["format_instructions"] = format_instructions
     except NotImplementedError:
         pass
-
-    return await (_create_prompt(instruction, system, context, **input_kwargs) | _get_llm() | parser).ainvoke(
-        input_kwargs
-    )
+    
+    prompt = _create_prompt(instruction, system, context, **input_kwargs)
+    llm = _get_llm()
+    
+    with get_openai_callback() as cb:
+        result = await (prompt | llm | parser).ainvoke(input_kwargs)
+        print(f"{cb.total_tokens:06} t / {cb.total_cost:.2f}$ by {chain_name}")
+    return result
