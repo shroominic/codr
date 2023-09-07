@@ -23,6 +23,7 @@ IGNORED: set[str] = {
     ".idea",
     ".DS_Store",
     "*.pyc",
+    "Cargo.lock"
 }
 
 
