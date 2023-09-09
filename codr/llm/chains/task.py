@@ -46,10 +46,13 @@ async def summarize_task_to_name(task_description: str) -> str:
     return await afuncchain()
 
 
-async def generate_task(result: str) -> str:
+async def generate_task(console_output: str, desired_output: str) -> str:
     """
     CONSOLE OUTPUT:
-    {result}
+    {console_output}
+    
+    DESIRED OUTPUT:
+    {desired_output}
 
     Generate a task description to fix the error.
     """
