@@ -11,7 +11,7 @@ load_dotenv("./.env")
 
 class FuncchainSettings(BaseSettings):
     # General
-    VERBOSE: bool = False
+    VERBOSE: bool = True
 
     # Prompt
     MAX_TOKENS: int = 32768 - 8192
