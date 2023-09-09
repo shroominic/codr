@@ -1,6 +1,14 @@
 import asyncio
 
-from codr.codebase.func import create_file, delete_file, fix_file_path, get_tree, modify_file, prepare_environment, bash
+from codr.codebase.func import (
+    create_file,
+    delete_file,
+    fix_file_path,
+    get_tree,
+    modify_file,
+    prepare_environment,
+    bash,
+)
 from codr.llm.chains import (
     create_file_prompt,
     improve_task_description,
@@ -10,12 +18,23 @@ from codr.llm.chains import (
     check_result,
     generate_task,
     write_commit_message,
+    check_desired_output,
 )
-from codr.llm.schema import CreatedFile, DeletedFile, FileChange, ModifiedFile, PlannedFileChange, Task
+from codr.llm.schema import (
+    CreatedFile,
+    DeletedFile,
+    FileChange,
+    ModifiedFile,
+    PlannedFileChange,
+    Task,
+)
 from funcchain.utils import log
 
 
-async def solve_task(task_description: str) -> None:
+async def solve_task(
+    task_description: str,
+    debug: bool = False,
+) -> None:
     task_name = await summarize_task_to_name(task_description)
     log("Task name:", task_name)
     task = Task(
@@ -34,24 +53,41 @@ async def solve_task(task_description: str) -> None:
             prepare_environment(task),
         )
     )[0]
-
+    
+    log("Changes: ", changes)
+    input("Press enter to apply changes.")
+    
     await apply_changes(changes)
+    
+    if debug:
+        # command = gather_run_command(task)
+        await auto_debug(
+            "python main.py",
+            task.description,
+            loop=True
+        )
 
-    # TODO: add auto_debug()
 
-
-async def auto_debug(command: str) -> None:
+async def auto_debug(
+    command: str,
+    goal: str | None = None,
+    loop: bool = False,
+) -> None:
     result = await bash(command)
 
     log("RESULT: ", result)
 
-    if await check_result(result):
+    if (
+        goal and await check_desired_output(result, goal)
+        or not goal and await check_result(result)
+    ):
         return log("DEBUG SUCCESSFUL")
 
-    description = await generate_task(result)
+    description = await generate_task(result, goal or "healthy")
     log("TASK:", description)
     await solve_task(description)
-    await auto_debug(command)
+    
+    if loop: await auto_debug(command, goal, loop)
 
 
 async def compute_changes(task: Task) -> list[FileChange]:
@@ -101,14 +137,14 @@ async def apply_changes(changes: list[FileChange]):
 
 async def commit_changes() -> None:
     git_status = await bash("git status")
-    if "Changes not staged for commit" in git_status:
+    if "Changes to be committed" in git_status:
         commits = await asyncio.gather(*[
             process_change(change)
             for change in git_status.split("\n")
             if change.startswith("\t")
         ])
         for change, msg in commits:
-            await bash(f'git add {change} && git commit -m "{msg}"')
+            await bash(f'git commit {change} -m "{msg}"')
             print("File committed: ", change, msg)
 
 async def process_change(change: str) -> tuple[str, str]:
