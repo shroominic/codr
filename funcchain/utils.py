@@ -4,6 +4,7 @@ from typing import NoReturn
 
 from langchain.schema import OutputParserException
 from tiktoken import encoding_for_model
+from rich import print
 from funcchain import settings
 
 
@@ -16,7 +17,7 @@ def raiser(e: Exception | str) -> NoReturn:
 
 def log(*text) -> None:
     if settings.VERBOSE:
-        print(*text)
+        print("[grey]" + " ".join(map(str, text)) + "[/grey]")
 
 
 def retry(retry: int):
