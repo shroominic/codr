@@ -178,10 +178,22 @@ class CodeBaseTree(CodeBaseNode):
         new_nodes = [
             file_path.read_text() if file_path.is_file() else await CodeBaseTree.from_path(file_path)
             for file_path in self.path.iterdir()
-            if not is_ignored_by_gitignore(file_path.as_posix()) and file_path not in node_paths
+            if not is_ignored_by_gitignore(
+                file_path.as_posix()
+            ) and file_path not in node_paths
         ]
         # delete nodes not in codebase anymore
-        
+        deleted_nodes = [
+            node
+            for node in self.nodes
+            if node.path not in [
+                file_path
+                for file_path in self.path.iterdir()
+                if not is_ignored_by_gitignore(
+                    file_path.as_posix()
+                )
+            ]
+        ]
         # check node hash and update if necessary
         
         return self
