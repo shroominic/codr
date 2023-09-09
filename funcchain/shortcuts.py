@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from funcchain import settings
 from funcchain.parser import ParserBaseModel
-from funcchain.utils import count_tokens, retry
+from funcchain.utils import count_tokens, retry, log
 
 T = TypeVar("T")
 
@@ -130,7 +130,7 @@ def funcchain(
     
     with get_openai_callback() as cb:
         result = (prompt | llm | parser).invoke(input_kwargs)
-        print(f"{cb.total_tokens:05}T / {cb.total_cost:.3f}$ - {chain_name}")
+        log(f"{cb.total_tokens:05}T / {cb.total_cost:.3f}$ - {chain_name}")
     return result
 
 
@@ -165,5 +165,5 @@ async def afuncchain(
     
     with get_openai_callback() as cb:
         result = await (prompt | llm | parser).ainvoke(input_kwargs)
-        print(f"{cb.total_tokens:05}T / {cb.total_cost:.3f}$ - {chain_name}")
+        log(f"{cb.total_tokens:05}T / {cb.total_cost:.3f}$ - {chain_name}")
     return result
