@@ -1,10 +1,12 @@
 import asyncio
 
 import typer
+from typing import Annotated, Optional
 
 from codr.llm.scripts import solve_task, auto_debug, commit_changes
 from codr.llm.templates import solve_task_system_instruction
 from funcchain import settings
+from rich import print
 
 app = typer.Typer()
 
@@ -12,7 +14,9 @@ settings.DEFAULT_SYSTEM_PROMPT = solve_task_system_instruction
 
 
 @app.command()
-def solve(task_description: str):
+def solve(
+    task_description: Annotated[str, typer.Argument(help="Description of the task to solve.")],
+) -> None:
     """
     Input a task description and the llm agent will try to solve it.
     """
@@ -20,11 +24,14 @@ def solve(task_description: str):
 
 
 @app.command()
-def debug(command: str):
+def debug(
+    command: Annotated[str, typer.Argument(help="Command to startup your app.")],
+    goal: Annotated[Optional[str], typer.Option(help="Desired output of the program.")] = None,
+) -> None:
     """
     Automatically debug with the llm agent.
     """
-    asyncio.run(auto_debug(command))
+    asyncio.run(auto_debug(command, goal))
 
 
 @app.command()
@@ -41,14 +48,13 @@ def tree():
     Print the current tree.
     """
     from codr.codebase.tree import CodeBaseTree
-    typer.echo(
-        asyncio.run(CodeBaseTree.load())
-    )
+    tree = asyncio.run(CodeBaseTree.load())
+    print(tree.nodes)
 
 
 @app.command()
 def test():
-    typer.echo("Test successful!")
+    print("Test successful!")
 
 
 if __name__ == "__main__":
