@@ -37,6 +37,10 @@ class CreatedFile(File):
     content: str = Field(..., description="New File Content")
 
 
+class CreateDirectory(File):
+    pass
+
+
 class ModifiedFile(File):
     content: str = Field(..., description="New File Content")
 
@@ -45,4 +49,9 @@ class DeletedFile(File):
     pass
 
 
-FileChange = Union[CreatedFile, ModifiedFile, DeletedFile]
+FileChange = Union[
+    CreatedFile,
+    CreateDirectory,
+    ModifiedFile,
+    DeletedFile,
+]
