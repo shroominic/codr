@@ -15,12 +15,13 @@ settings.DEFAULT_SYSTEM_PROMPT = solve_task_system_instruction
 
 @app.command()
 def solve(
-    task_description: Annotated[str, typer.Argument(help="Description of the task to solve.")],
+    task: Annotated[str, typer.Argument(help="Description of the task to solve.")],
+    debug_cmd: Annotated[Optional[str], typer.Option(help="Command to debug the task.")] = None,
 ) -> None:
     """
     Input a task description and the llm agent will try to solve it.
     """
-    asyncio.run(solve_task(task_description))
+    asyncio.run(solve_task(task, debug_cmd))
 
 
 @app.command()
@@ -28,12 +29,13 @@ def debug(
     command: Annotated[str, typer.Argument(help="Command to startup your app.")],
     goal: Annotated[Optional[str], typer.Option(help="Desired output of the program.")] = None,
     focus: Annotated[Optional[str], typer.Option(help="Focus on a specific file.")] = None,
+    loop: Annotated[bool, typer.Option(help="Loop the debug process.")] = True,
 ) -> None:
     """
     Automatically debug with the llm agent.
     """
     if focus: print("Focus on: ", focus, " (not implemented yet)")
-    asyncio.run(auto_debug(command, goal))
+    asyncio.run(auto_debug(command, goal, loop))
 
 
 @app.command()
