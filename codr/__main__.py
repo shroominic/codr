@@ -27,10 +27,12 @@ def solve(
 def debug(
     command: Annotated[str, typer.Argument(help="Command to startup your app.")],
     goal: Annotated[Optional[str], typer.Option(help="Desired output of the program.")] = None,
+    focus: Annotated[Optional[str], typer.Option(help="Focus on a specific file.")] = None,
 ) -> None:
     """
     Automatically debug with the llm agent.
     """
+    if focus: print("Focus on: ", focus, " (not implemented yet)")
     asyncio.run(auto_debug(command, goal))
 
 
@@ -40,6 +42,18 @@ def commit():
     Write commit messages and commit changes.
     """
     asyncio.run(commit_changes())
+
+
+@app.command()
+def ask(
+    question: Annotated[str, typer.Argument(help="Question to ask.")],
+) -> None:
+    """
+    Ask a question about the codebase or relevant libraries.
+    """
+    print("Answering: ", question)
+    print("Not implemented yet.")
+    # TODO: use ask to improve task solving
 
 
 @app.command()
