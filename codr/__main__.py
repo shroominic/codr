@@ -48,6 +48,7 @@ def tree():
     Print the current tree.
     """
     from codr.codebase.tree import CodeBaseTree
+
     tree = asyncio.run(CodeBaseTree.load())
     print(tree.nodes)
 
