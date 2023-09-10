@@ -50,7 +50,7 @@ async def generate_task(console_output: str, desired_output: str) -> str:
     """
     CONSOLE OUTPUT:
     {console_output}
-    
+
     DESIRED OUTPUT:
     {desired_output}
 
