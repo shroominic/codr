@@ -1,15 +1,11 @@
 import json
 import re
-import asyncio
-from typing import Awaitable, Callable, Optional, Type, TypeVar
+from typing import Callable, Optional, Type, TypeVar
 
 from langchain.output_parsers.format_instructions import PYDANTIC_FORMAT_INSTRUCTIONS
 from langchain.pydantic_v1 import BaseModel, ValidationError
 from langchain.schema import BaseOutputParser, OutputParserException
-from langchain.chat_models.base import BaseChatModel
 from typing_extensions import Self
-
-from funcchain.utils import raiser
 
 T = TypeVar("T")
 
@@ -84,10 +80,12 @@ class CodeBlock(ParserBaseModel):
 
     @classmethod
     def parse(cls, text: str) -> "CodeBlock":
-        matches = re.finditer(r"```(?P<language>\w+)\n(?P<code>.*?)```", text, re.DOTALL)
+        matches = re.finditer(r"```(?P<language>\w+)?\n?(?P<code>.*?)```", text, re.DOTALL)
         for match in matches:
-            return cls(**match.groupdict())
-        raiser(OutputParserException("Invalid codeblock"))
+            groupdict = match.groupdict()
+            groupdict["language"] = groupdict.get("language", "")
+            return cls(**groupdict)
+        raise OutputParserException("Invalid codeblock")
 
     @staticmethod
     def format_instructions() -> str:
