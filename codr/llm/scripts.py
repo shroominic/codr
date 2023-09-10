@@ -35,7 +35,7 @@ from funcchain.utils import log
 
 async def solve_task(
     task_description: str,
-    debug: bool = False,
+    debug_cmd: str | None = None,
 ) -> None:
     task_name = await summarize_task_to_name(task_description)
     log("Task name:", task_name)
@@ -61,9 +61,9 @@ async def solve_task(
 
     await apply_changes(changes)
 
-    if debug:
+    if debug_cmd:
         # command = gather_run_command(task)
-        await auto_debug("python main.py", task.description, loop=True)
+        await auto_debug(debug_cmd, task.description, loop=True)
 
 
 async def auto_debug(
