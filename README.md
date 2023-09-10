@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-'codr' is a Python-based coding assistant that automates and streamlines the task-solving process for developers. It leverages the power of GPT models to interact with codebases, generate prompts, parse outputs, and manage token counts and truncations. 
+'codr' is a Python-based coding assistant that automates and streamlines the task-solving process for developers. It leverages the power of GPT models to interact with codebases, generate prompts, parse outputs, and manage token counts and truncations.
 
 ## Features
 
@@ -15,7 +15,7 @@
 
 ## Codebase Structure
 
-The 'codr' project is organized into three main modules: 'funcchain', 'codr', and 'codebase'. 
+The 'codr' project is organized into three main modules: 'funcchain', 'codr', and 'codebase'.
 
 - **Funcchain**: This module provides utilities for interacting with GPT models, including prompt generation, output parsing, and token management.
 - **Codr**: This module contains scripts for automating tasks related to file management and debugging. It includes submodules for handling codebase nodes, running commands and file operations, and automating programming tasks.
