@@ -2,6 +2,7 @@ import asyncio
 
 from codr.codebase.func import (
     create_file,
+    create_directory,
     delete_file,
     fix_file_path,
     get_tree,
@@ -22,6 +23,7 @@ from codr.llm.chains import (
 )
 from codr.llm.schema import (
     CreatedFile,
+    CreateDirectory,
     DeletedFile,
     FileChange,
     ModifiedFile,
@@ -53,19 +55,15 @@ async def solve_task(
             prepare_environment(task),
         )
     )[0]
-    
+
     log("Changes: ", changes)
     input("Press enter to apply changes.")
-    
+
     await apply_changes(changes)
-    
+
     if debug:
         # command = gather_run_command(task)
-        await auto_debug(
-            "python main.py",
-            task.description,
-            loop=True
-        )
+        await auto_debug("python main.py", task.description, loop=True)
 
 
 async def auto_debug(
@@ -77,17 +75,15 @@ async def auto_debug(
 
     log("RESULT: ", result)
 
-    if (
-        goal and await check_desired_output(result, goal)
-        or not goal and await check_result(result)
-    ):
+    if goal and await check_desired_output(result, goal) or not goal and await check_result(result):
         return log("DEBUG SUCCESSFUL")
 
     description = await generate_task(result, goal or "healthy")
     log("TASK:", description)
     await solve_task(description)
-    
-    if loop: await auto_debug(command, goal, loop)
+
+    if loop:
+        await auto_debug(command, goal, loop)
 
 
 async def compute_changes(task: Task) -> list[FileChange]:
@@ -111,6 +107,8 @@ async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
     tree = await get_tree()
     if change.method == "create":
         return CreatedFile(relative_path=change.relative_path, content=(await create_file_prompt(change, tree)).code)
+    if change.method == "mkdir":
+        return CreateDirectory(relative_path=change.relative_path)
     change.relative_path = await fix_file_path(change.relative_path)
     if change.method == "modify":
         return ModifiedFile(
@@ -125,7 +123,9 @@ async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
 async def apply_changes(changes: list[FileChange]):
     for change in changes:
         log("Applying change: ", change)
-        if isinstance(change, CreatedFile):
+        if isinstance(change, CreateDirectory):
+            await create_directory(change.relative_path)
+        elif isinstance(change, CreatedFile):
             await create_file(change.relative_path, change.content)
         elif isinstance(change, ModifiedFile):
             await modify_file(change.relative_path, change.content)
@@ -138,14 +138,13 @@ async def apply_changes(changes: list[FileChange]):
 async def commit_changes() -> None:
     git_status = await bash("git status")
     if "Changes to be committed" in git_status:
-        commits = await asyncio.gather(*[
-            process_change(change)
-            for change in git_status.split("\n")
-            if change.startswith("\t")
-        ])
+        commits = await asyncio.gather(
+            *[process_change(change) for change in git_status.split("\n") if change.startswith("\t")]
+        )
         for change, msg in commits:
             await bash(f'git commit {change} -m "{msg}"')
             print("File committed: ", change, msg)
+
 
 async def process_change(change: str) -> tuple[str, str]:
     change_split = change.split()
@@ -160,4 +159,3 @@ async def process_change(change: str) -> tuple[str, str]:
         return file_change, commit_msg
     else:
         raise ValueError(f"Invalid change: {change}")
-
