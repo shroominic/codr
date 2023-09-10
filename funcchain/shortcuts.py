@@ -17,20 +17,24 @@ T = TypeVar("T")
 
 
 def _get_llm() -> RunnableWithFallbacks:
-    short_llm = ChatOpenAI(
+    short_llm = AzureChatOpenAI(
+        temperature=0.02,
         model="gpt-4",
-        temperature=0.01,
-        request_timeout=60 * 5,
-        verbose=settings.VERBOSE,
-        openai_api_key=settings.OPENAI_API_KEY,
-    )
-    long_llm = AzureChatOpenAI(
-        temperature=0.01,
-        model="gpt-4-32k",
         request_timeout=60 * 5,
         verbose=settings.VERBOSE,
         openai_api_type="azure",
         deployment_name=settings.AZURE_DEPLOYMENT_NAME,
+        openai_api_key=settings.AZURE_API_KEY,
+        openai_api_base=settings.AZURE_API_BASE,
+        openai_api_version=settings.AZURE_API_VERSION,
+    )
+    long_llm = AzureChatOpenAI(
+        temperature=0.02,
+        model="gpt-4-32k",
+        request_timeout=60 * 5,
+        verbose=settings.VERBOSE,
+        openai_api_type="azure",
+        deployment_name=settings.AZURE_DEPLOYMENT_NAME_LONG,
         openai_api_key=settings.AZURE_API_KEY,
         openai_api_base=settings.AZURE_API_BASE,
         openai_api_version=settings.AZURE_API_VERSION,
@@ -127,7 +131,7 @@ def funcchain(
 
     prompt = _create_prompt(instruction, system, context, **input_kwargs)
     llm = _get_llm()
-    
+
     with get_openai_callback() as cb:
         result = (prompt | llm | parser).invoke(input_kwargs)
         log(f"{cb.total_tokens:05}T / {cb.total_cost:.3f}$ - {chain_name}")
@@ -159,10 +163,10 @@ async def afuncchain(
             input_kwargs["format_instructions"] = format_instructions
     except NotImplementedError:
         pass
-    
+
     prompt = _create_prompt(instruction, system, context, **input_kwargs)
     llm = _get_llm()
-    
+
     with get_openai_callback() as cb:
         result = await (prompt | llm | parser).ainvoke(input_kwargs)
         log(f"{cb.total_tokens:05}T / {cb.total_cost:.3f}$ - {chain_name}")
