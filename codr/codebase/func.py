@@ -85,8 +85,11 @@ async def file_exists(relative_path: str) -> bool:
 
 async def create_file(relative_path: str, content: str):
     """
-    Create a file in the codebase
+    Create a file in the codebase. If the directory does not exist, create it.
     """
+    dir_name = os.path.dirname(relative_path)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
     async with aiofiles.open(relative_path, "w") as f:
         await f.write(content)
     await bash(f"black {relative_path}")
