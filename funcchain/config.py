@@ -22,6 +22,7 @@ class FuncchainSettings(BaseSettings):
     AZURE_API_KEY: str = ""
     AZURE_API_BASE: str = ""
     AZURE_DEPLOYMENT_NAME: str = ""
+    AZURE_DEPLOYMENT_NAME_LONG: str = ""
     AZURE_API_VERSION: str = ""
 
 
