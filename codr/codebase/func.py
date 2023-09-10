@@ -92,6 +92,13 @@ async def create_file(relative_path: str, content: str):
     await bash(f"black {relative_path}")
 
 
+async def create_directory(relative_path: str):
+    """
+    Create a directory in the codebase
+    """
+    await bash(f"mkdir {relative_path}")
+
+
 async def modify_file(relative_path: str, content: str) -> None:
     """
     Replace a file in the codebase
@@ -120,8 +127,9 @@ async def prepare_environment(task: Task) -> None:
     # if there are open changes stash them
     if getenv("AUTO_COMMIT", "false").lower() == "true":
         from codr.llm.scripts import commit_changes
+
         await commit_changes()
-    
+
     if getenv("AUTO_STASH", "false").lower() == "true":
         git_status = await bash("git status")
         if "Changes not staged for commit" in git_status:
