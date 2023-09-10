@@ -1,101 +1,169 @@
-name: codr
+name: .
 nodes:
-- name: codr/llm
+- name: .pre-commit-config.yaml
+  sha256: dd2b6f65facfd866feab5e84a35b293fb11dec8c0eafdd304e78434fbebca955
+  summary: The file defines configuration for pre-commit hooks from various repositories
+    (pre-commit-hooks, black, mypy, isort, flake8) with specific revisions and arguments,
+    used for tasks like YAML checking, file fixing, code formatting, type checking,
+    and code linting.
+- name: pyproject.toml
+  sha256: a4c27b264dd59e9e81181cb5a693620a98c5c9bc24fc296bace984eb61e41b35
+  summary: This is a Poetry configuration file for a Python project named "codr",
+    version 0.0.1, with its dependencies, dev-dependencies, scripts, and settings
+    for isort, black, flake8, and the build system specified.
+- name: README.md
+  sha256: 6a94b91ae369ba46f06f82a129010e7c5a1dc79369b2cf73bf5fcd1aeff8a426
+  summary: The 'codr' project is a Python-based coding assistant that uses GPT models
+    to interact with codebases, generate prompts, handle long inputs, and automate
+    tasks like debugging and file management, organized into modules like 'funcchain',
+    'codr', and 'codebase'; it can be installed via Poetry and offers a command-line
+    interface for task-solving, debugging, committing changes, and testing.
+- name: .gitignore
+  sha256: 38d02f56721811c9c068f24a0d81dcd8745afb2a6728503596124e9bfc8274d7
+  summary: The file content lists various types of files and directories typically
+    ignored in Python projects, likely representing a .gitignore file.
+- name: test.sh
+  sha256: 1c094c544e6416116d6afbbdc09111f25a71a019d7908c3076c6ad5108966378
+  summary: The file contains a command to run tests in a Python project using the
+    Poetry package manager and the 'codr' test suite.
+- name: funcchain
   nodes:
-  - name: codr/llm/__init__.py
-    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-    summary: As an AI, I need the actual file content to provide a summary. Please
-      provide the code or file content you want summarized.
-  - name: codr/llm/templates.py
-    sha256: e08bcc8f5cadda9bc05d6965aff342264def5d28ec04932cd032ed28809e44de
-    summary: The file contains instructions for a coding assistant, outlining its
-      role in solving tasks for developers through a conversational process, the importance
-      of understanding the codebase and task, and the potential need for planning
-      in complex tasks.
-  - name: codr/llm/scripts.py
-    sha256: 6cd432ab3418f7cd3b6133adb19020f9c0df8667556da6e3de56951e90bd1ced
-    summary: The file contains asynchronous Python functions for a codebase management
-      system. It includes functions to solve tasks, auto debug, compute changes, generate
-      changes, apply changes, commit changes, and process changes. These tasks involve
-      creating, modifying, and deleting files, improving task descriptions, planning
-      file changes, checking results, generating tasks, writing commit messages, and
-      interacting with a git repository.
-  - name: codr/llm/chains
+  - name: funcchain/config.py
+    sha256: 385dd21b97794ce646b5a41a17ec9c3924ae31d5bc21de75c0a0d27c7aae9400
+    summary: The file loads environment variables from a .env file, defines a settings
+      class with various configuration options for a program named Funcchain, and
+      creates an instance of this settings class.
+  - name: funcchain/shortcuts.py
+    sha256: 0bd665a3f6413833eafbe24599ca856db0dec8b3776c2bb53560d6dfc0378454
+    summary: The file defines utility functions and two main functions, `funcchain`
+      and `afuncchain`, for interacting with the Azure ChatOpenAI model. These functions
+      generate prompts, handle retries, parse responses, and manage costs. They use
+      introspection to automatically derive instructions from docstrings and determine
+      the appropriate parser based on the return type of the calling function.
+  - name: funcchain/__init__.py
+    sha256: 9a5f076b7a678d7d96c1faabb40de775aa225148f9b044e8d79697554285a6b8
+    summary: The file imports the 'settings' module from the 'funcchain.config' package,
+      presumably for configuration purposes in the subsequent code.
+  - name: funcchain/compress.todo
+    sha256: 86eef89212d5dc902a249827831bf922b030f29093faf9642df2edfd03b8fe31
+    summary: The file outlines the creation of a Compressable Context Schema, which
+      compresses additional content when the context length is filled, prioritizing
+      important content to remain uncompressed. It allows optional definition of compression
+      method and gap placement, defaulting to the middle with [...].
+  - name: funcchain/parser.py
+    sha256: bcab1a448c4052b832030216ac177bea8ac09f371f9b01d8b7412d3afa04c521
+    summary: The file defines several classes for parsing output in Python, including
+      a base class for output parsers, a custom parser for Pydantic models, and a
+      specific parser for code blocks. It also includes a base model for Pydantic
+      with custom parsing and formatting methods.
+  - name: funcchain/utils.py
+    sha256: a73561c4f330b405448758624447445b7514a44f5c1040f9db745b7d2d37b239
+    summary: The file contains utility functions for a Python application, including
+      a function to raise exceptions (`raiser`), a logging function (`log`), a retry
+      decorator for both synchronous and asynchronous functions (`retry`), and a function
+      to count tokens in a text string for a given model (`count_tokens`).
+  sha256: 39826dd9acd59a6c702bb3aa329d9701bcdec17f088071554fef78eba70d3e87
+- name: codr
+  nodes:
+  - name: codr/llm
     nodes:
-    - name: codr/llm/chains/files.py
-      sha256: 5fec69d2c5a89a8b6178a443b9bac10d47ecaabbbe100d92736ff1af127bb2ba
-      summary: The file contains a set of asynchronous functions that are designed
-        to interact with a codebase tree. These functions include summarizing file
-        content, searching for important files, fixing file names, planning file changes,
-        generating file change plans, and creating and modifying file prompts. Each
-        function is designed to take in specific parameters and return specific types
-        of results, and they all use the 'afuncchain' function from the 'funcchain'
-        module.
-    - name: codr/llm/chains/task.py
-      sha256: 200cb98c5016a562ae015d3979a4fc53d1ae758430e4a3ef401f4fe32ec5ab4e
-      summary: This file contains four asynchronous functions that are used to improve
-        task descriptions, ask additional questions about a task, summarize a task
-        into a name, and generate a task description based on console output, all
-        within the context of a codebase.
-    - name: codr/llm/chains/commit.py
-      sha256: 7080bc8cc8205bbefb1a350345d83d598c2f7c1a937523ea743f2821e5fdd479
-      summary: The file contains two asynchronous functions, `write_commit_message`
-        and `summarize_commit_message`, which are used to create and summarize commit
-        messages respectively. The commit messages must start with an emoji and be
-        concise, not exceeding 5 words. The functions use a lambda output parser from
-        the `funcchain` library to ensure the messages meet the specified criteria.
-    - name: codr/llm/chains/__init__.py
-      sha256: 4a1ac3098a6c9b781ee6d0eac0435507b9c6fea8cc7954f505ed71ad79873f35
-      summary: The file imports various modules related to commit, files, task, and
-        debug functionalities from the 'chains' package in the 'codr.llm' library.
-    - name: codr/llm/chains/other.py
-      sha256: e030c1f7416154f7448d16c31cb8218d6009a6516552b7ba1385a4a034964922
-      summary: This file contains several asynchronous functions for generating a
-        summary of a codebase, querying relevant context for each file, formatting
-        a file to match proper formatting, and gathering a command to test the codebase.
-        It uses modules like Task, CodeBaseTree, CodeBlock, and afuncchain from different
-        libraries.
-    - name: codr/llm/chains/debug.py
-      sha256: 6a717e4cc55ad00c9d2befa95a8cdadd9454ba2e5cf4e715438a1f347f03f011
-      summary: The file contains an asynchronous function 'check_result' that takes
-        a string 'result' as an argument and returns a boolean value. It uses a function
-        chain from 'funcchain.shortcuts' module. The function's purpose is to check
-        if the output is healthy, expecting a "yes" or "no" response.
-    sha256: 1a5c249293f6aac66ad4f3cb49079adf092d115304a40ccd8e4892c7b3bd6af0
-  - name: codr/llm/schema.py
-    sha256: f9b4a8a42051e97813b483cae1a21eb1ebb6a5a8b10c76a383f76bba4667bddc
-    summary: The file defines several Pydantic models related to file operations,
-      including Task, File, PlannedFileChange, PlannedFileChanges, CreatedFile, ModifiedFile,
-      DeletedFile, and a Union type FileChange, with various fields and methods for
-      handling file changes such as creation, modification, and deletion.
-  sha256: e26d30d05544a9c397c95b635cbe3a976f89170c21f7105523f5af653e24c6ae
-- name: codr/__init__.py
-  sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-  summary: As an AI, I need the actual file content to provide a summary. Please provide
-    the code or file content you want summarized.
-- name: codr/codebase
-  nodes:
-  - name: codr/codebase/tree.py
-    sha256: 82c6627c218037d3993544b85eac2827e043fc176d47dd476c833d3afc796b80
-    summary: The file contains Python code for a system that manages a codebase. It
-      includes classes for representing nodes in the codebase, either as individual
-      files or as directories (trees). The system can load and ignore patterns from
-      a .gitignore file, check if a file is ignored by .gitignore, and calculate SHA256
-      hashes for files and directories. It also includes functionality to refresh
-      the state of the codebase, serialize the codebase to a YAML file, and summarize
-      the content of a file. The code uses asyncio for asynchronous operations and
-      Pydantic for data validation and serialization.
-  - name: codr/codebase/func.py
-    sha256: 88401b137e2a2264d46b0468b740ae83a5dfdc54af5d56cbac854b3a7b0bd672
-    summary: The file contains asynchronous and synchronous functions for running
-      bash commands, reading, creating, modifying, and deleting files, showing and
-      getting the codebase tree, checking if a file exists, preparing the git environment
-      for the codebase, and fixing the file path to an absolute path. It uses libraries
-      like asyncio, aiofiles, os, and pathlib.
-  sha256: 3dcc0548c6f33bc8032182d2efb954be3fd788aab97e6040f8297c7d5ec432a9
-- name: codr/__main__.py
-  sha256: 23895d3d4fc276f4b6b149598d766bab2b06a02239e6dda1f60c7574312ee1a0
-  summary: The file is a command-line interface script using the Typer library in
-    Python, providing commands to solve tasks, debug, commit changes, print the current
-    codebase tree, and run a test echo, all of which are executed asynchronously.
-sha256: 35b375e097417147de16034916e842c731072d0cbe2a50b76c7d454c6d5ecaec
+    - name: codr/llm/__init__.py
+      sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      summary: None
+    - name: codr/llm/templates.py
+      sha256: e08bcc8f5cadda9bc05d6965aff342264def5d28ec04932cd032ed28809e44de
+      summary: The file contains instructions for a coding assistant, outlining its
+        role in solving tasks for developers through a conversational process, with
+        emphasis on understanding the codebase, task details, efficient communication,
+        and planning for complex tasks.
+    - name: codr/llm/scripts.py
+      sha256: 114ba3b57159cdfcef5fd6161e54a21afae59d6ca3c683582bb3e83486061a9f
+      summary: The file contains an asynchronous Python script that automates the
+        process of solving programming tasks. It includes functions for task solving,
+        automatic debugging, computing changes in files, generating changes based
+        on tasks, applying these changes, and committing changes to a Git repository.
+        The script uses various imported functions and classes from other modules
+        to perform these tasks.
+    - name: codr/llm/chains
+      nodes:
+      - name: codr/llm/chains/files.py
+        sha256: 5fec69d2c5a89a8b6178a443b9bac10d47ecaabbbe100d92736ff1af127bb2ba
+        summary: This file appears to be a collection of asynchronous Python functions
+          designed to interact with a codebase tree. The functions perform various
+          tasks such as summarizing file content, searching for important files, fixing
+          file names, planning file changes, generating file change plans, creating
+          file prompts, and modifying file prompts. Each function uses a placeholder
+          function called 'afuncchain()' which likely needs to be replaced with actual
+          logic.
+      - name: codr/llm/chains/task.py
+        sha256: 60ab241794c911ef2c55ae1ce31c539d665657bd07e71b07e6865d7fcec402fd
+        summary: This file contains asynchronous functions for improving task descriptions,
+          asking additional questions about a task, summarizing a task into a name,
+          and generating a task description based on console and desired output, all
+          within the context of a codebase.
+      - name: codr/llm/chains/commit.py
+        sha256: 7080bc8cc8205bbefb1a350345d83d598c2f7c1a937523ea743f2821e5fdd479
+        summary: The file contains two asynchronous functions, `write_commit_message`
+          and `summarize_commit_message`, which are used to create and summarize commit
+          messages respectively. The commit messages are expected to start with an
+          emoji and be concise, not exceeding 5 words for `write_commit_message` and
+          6 words for `summarize_commit_message`. The functions use `afuncchain` from
+          `funcchain.shortcuts` and `LambdaOutputParser` from `funcchain.parser` to
+          process the messages, and `is_emoji` from `emoji` to check if the first
+          character is an emoji.
+      - name: codr/llm/chains/__init__.py
+        sha256: 4a1ac3098a6c9b781ee6d0eac0435507b9c6fea8cc7954f505ed71ad79873f35
+        summary: The file imports various modules related to commit, files, task,
+          and debug operations from the 'chains' package in the 'codr.llm' library.
+      - name: codr/llm/chains/other.py
+        sha256: e030c1f7416154f7448d16c31cb8218d6009a6516552b7ba1385a4a034964922
+        summary: 'The file contains four asynchronous Python functions: `generate_code_summary`,
+          `query_relevant_context`, `llm_format`, and `gather_test_cmd`. These functions
+          are designed to interact with a codebase, providing functionality such as
+          generating a summary of the codebase, querying relevant context for file
+          modifications, formatting a file to match a specific style, and gathering
+          a command to test the codebase.'
+      - name: codr/llm/chains/debug.py
+        sha256: 37ee1476f65fce0ee6717e30b12e5a356ca5437fed10871668778d4328c8077f
+        summary: 'The file contains two asynchronous functions: ''check_result'' which
+          checks if the console output is healthy, and ''check_desired_output'' which
+          compares the console output with the desired output, both returning a boolean
+          value.'
+      sha256: 7221c95a1fb392fb8ce034b5c9bce17433cfed931cd0dbdcc11509a615b09eb3
+    - name: codr/llm/schema.py
+      sha256: f9b4a8a42051e97813b483cae1a21eb1ebb6a5a8b10c76a383f76bba4667bddc
+      summary: The file defines several Pydantic models related to tasks and file
+        changes, including classes for different types of file changes (creation,
+        modification, deletion), and a union type for these changes. It also includes
+        methods for reading file content and iterating over planned changes.
+    sha256: e4bed3f9b5e3e7fb389bb418fae4fb6e1108e8d445b17f13ea58b8ef8d5ec12c
+  - name: codr/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    summary: None
+  - name: codr/codebase
+    nodes:
+    - name: codr/codebase/tree.py
+      sha256: ad76f1cc45b2798e1944054854b203bfa086baefc03623234503c4d6989b4666
+      summary: The file contains Python code for a program that manages a codebase.
+        It includes classes for representing nodes in the codebase, such as files
+        and directories, and methods for loading and refreshing these nodes. The program
+        also includes functionality to ignore certain files and directories, such
+        as those specified in a .gitignore file. The nodes in the codebase can be
+        serialized to a YAML file. The codebase files are summarized using a separate
+        function, which is not defined in this file.
+    - name: codr/codebase/func.py
+      sha256: 97ea1692b5f5a71c60b25f960f4e2f0a29474adab7f2018df0edda699f1d0d1c
+      summary: The file contains asynchronous and synchronous functions for running
+        bash commands, reading, creating, modifying, and deleting files, showing and
+        getting the codebase tree, checking if a file exists, preparing the git environment
+        for the codebase, and fixing file paths to absolute paths. It uses libraries
+        like asyncio, aiofiles, os, and pathlib.
+    sha256: fbb07c9225040ba71bb40b59b101a33ca94bd17e806db49bf21d92a8bbf2886a
+  - name: codr/__main__.py
+    sha256: 27e23a5e7aaf52c2272706c74c1c00b4847862137f03ebf477f1d21aefc1d87f
+    summary: The file is a command-line interface application using the Typer library
+      in Python. It provides several commands for task solving, automatic debugging,
+      committing changes, printing the current tree, and a test command. The tasks
+      are executed asynchronously using asyncio.
+  sha256: c8546256a91587ac611c6f989ea000380700291d36d875b143b73146c7d08594
+sha256: 59736f98504784e50b4f18d47b90b960b5f3172912df8fd6abb905292315d635
