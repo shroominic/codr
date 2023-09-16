@@ -1,4 +1,0 @@
-
-Create a Compressable Context Schema where it is compressed in case the context lenght is already filled
-So anything that is additional can be compressed to fit in the context but when other things that are important are not compressed.
-Optionally you can define how to compress and where to leave the gaps (default in the middle with [...])
