@@ -1,7 +1,7 @@
 from codr.llm.schema import Task
 from codr.codebase.tree import CodeBaseTree
 from funcchain.parser import CodeBlock
-from funcchain.shortcuts import afuncchain
+from funcchain.chain import achain
 
 
 async def generate_code_summary(task: Task, tree: CodeBaseTree) -> str:
@@ -13,7 +13,7 @@ async def generate_code_summary(task: Task, tree: CodeBaseTree) -> str:
     What technologies and frameworks are used? What is general structure?
     Write it as context for a programmer with only access to a small part of codebase.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def query_relevant_context(
@@ -42,7 +42,7 @@ async def query_relevant_context(
     Query relevant context for each file.
     Relevant context is information that is needed to plan precise changes.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def llm_format(file: str):
@@ -55,7 +55,7 @@ async def llm_format(file: str):
     If file is already properly formatted, return same file.
     Reply with a codeblock containing formatted file.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def gather_test_cmd(tree: CodeBaseTree) -> CodeBlock:
@@ -68,4 +68,4 @@ async def gather_test_cmd(tree: CodeBaseTree) -> CodeBlock:
     or you need to run them manually.
     Reply with a bash codeblock containing command.
     """
-    return await afuncchain()
+    return await achain()
