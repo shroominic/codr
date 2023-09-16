@@ -1,6 +1,6 @@
 from codr.codebase.tree import CodeBaseTree
 from codr.llm.schema import PlannedFileChanges, PlannedFileChange, Task
-from funcchain.shortcuts import afuncchain
+from funcchain.chain import achain
 from funcchain.parser import CodeBlock
 
 
@@ -13,7 +13,7 @@ async def summarize_file(content: str) -> str:
     Try to describe file in a way that a programmer can understand it without reading code.
     Make it fit in one line but don't be afraid to use multiple sentences.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def search_important_files(task: Task, tree: CodeBaseTree) -> list[str]:
@@ -26,7 +26,7 @@ async def search_important_files(task: Task, tree: CodeBaseTree) -> list[str]:
 
     Which of these files are important to understand and solve task?
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def fix_filename(file_name: str, tree: CodeBaseTree) -> str:
@@ -40,7 +40,7 @@ async def fix_filename(file_name: str, tree: CodeBaseTree) -> str:
     Fix RELATIVE_FILE_PATH to match
     valid relative file path from CodeBaseTree.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def plan_file_changes(task: Task, tree: CodeBaseTree) -> PlannedFileChanges:
@@ -60,7 +60,7 @@ async def plan_file_changes(task: Task, tree: CodeBaseTree) -> PlannedFileChange
     method is one of "create", "mkdir", "modify" or "delete".
     description is a compressed summary of knowledge describing what to change.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def generate_file_change(file_name: str, abstract_plan: str, tree: CodeBaseTree) -> str:
@@ -77,7 +77,7 @@ async def generate_file_change(file_name: str, abstract_plan: str, tree: CodeBas
     Generate a precise plan for file change.
     Answer with a compressed summary of knowledge describing what to change.
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def create_file_prompt(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBlock:
@@ -94,7 +94,7 @@ async def create_file_prompt(change: PlannedFileChange, tree: CodeBaseTree) -> C
     Create a new file as part of solving task.
     Reply with the file content.
     """
-    return await afuncchain(
+    return await achain(
         change_relative_path=change.relative_path,
         change_description=change.description,
     )
@@ -118,7 +118,7 @@ async def modify_file_prompt(task: Task, tree: CodeBaseTree, change: PlannedFile
     Do not change anything not related to plan, this includes formatting or comments.
     Rewrite entire file including changes, do not leave out any lines.
     """
-    return await afuncchain(
+    return await achain(
         change_description=change.description,
         change_content=change.content,
     )
