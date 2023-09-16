@@ -18,8 +18,8 @@ async def write_commit_message(file_name: str, modifications: str) -> str:
     """
     return await achain(
         # parser=LambdaOutputParser(
-        #     _parse=lambda t: t if len(t.split()) > 6 else summarize_commit_message(t),
-        # )  #  TODO: Fix this
+        #     _parse=(lambda t: t if len(t.split()) > 6 else summarize_commit_message(t)),
+        # )
     )
 
 
