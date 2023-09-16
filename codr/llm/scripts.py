@@ -136,10 +136,15 @@ async def apply_changes(changes: list[FileChange]):
 
 
 async def commit_changes() -> None:
-    git_status = await bash("git status")
+    git_status = (await bash("git status")).split("Changes not staged for commit:")[0]
+    print("Git status: ", git_status)
     if "Changes to be committed" in git_status:
         commits = await asyncio.gather(
-            *[process_change(change) for change in git_status.split("\n") if change.startswith("\t")]
+            *[
+                process_change(change)
+                for change in git_status.split("\n")
+                if change.startswith("\t")
+            ]
         )
         for change, msg in commits:
             await bash(f'git commit {change} -m "{msg}"')
@@ -149,10 +154,22 @@ async def commit_changes() -> None:
 async def process_change(change: str) -> tuple[str, str]:
     change_split = change.split()
     if len(change_split) > 1:
-        file_change = change_split[1].strip()
-        modifications = await bash(f"git diff {file_change}")
-        commit_msg = await write_commit_message(file_change, modifications)
-        return file_change, commit_msg
+        if change_split[0] == "modified:":
+            file_change = change_split[1].strip()
+            modifications = await bash(f"git diff {file_change}")
+            commit_msg = await write_commit_message(file_change, modifications)
+            return file_change, commit_msg
+        if change_split[0] == "new":
+            file_change = change_split[2].strip()
+            modifications = await bash(f"git diff {file_change}")
+            commit_msg = await write_commit_message(file_change, "")
+            return file_change, commit_msg
+        if change_split[0] == "deleted:":
+            file_change = change_split[1].strip()
+            commit_msg = await write_commit_message(file_change, "")
+            return file_change, commit_msg
+        else:
+            raise ValueError(f"Invalid change: {change}")
     elif len(change_split) == 1:
         file_change = change_split[0].strip()
         commit_msg = await write_commit_message(file_change, "")
