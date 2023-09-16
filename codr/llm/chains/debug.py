@@ -1,5 +1,5 @@
 import pytest
-from funcchain.shortcuts import afuncchain
+from funcchain.chain import achain
 
 
 async def check_result(result: str) -> bool:
@@ -9,7 +9,7 @@ async def check_result(result: str) -> bool:
 
     Is the output healthy? Answer with "yes" or "no".
     """
-    return await afuncchain()
+    return await achain()
 
 
 async def check_desired_output(result: str, goal: str) -> bool:
@@ -22,7 +22,7 @@ async def check_desired_output(result: str, goal: str) -> bool:
 
     Is the output what is desired? Answer with "yes" or "no".
     """
-    return await afuncchain()
+    return await achain()
 
 
 # Test cases for check_result function
