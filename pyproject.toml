@@ -2,7 +2,7 @@
 name = "codr"
 version = "0.0.1"
 authors = ["Shroominic <contact@shroominic.com>"]
-description = "Neuralcodr is an ai tool for faster coding."
+description = "Codr is an ai tool for faster coding."
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -16,6 +16,7 @@ aiofiles = "^23.2.1"
 pydantic-settings = "^2.0.3"
 emoji = "^2.8.0"
 rich = "^13.5.2"
+funcchain = "^0.0.6"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.3.3"
