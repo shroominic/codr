@@ -1,6 +1,6 @@
 from typing import Union
 
-from pydantic import BaseModel, Field
+from langchain.pydantic_v1 import BaseModel, Field
 
 
 class Task(BaseModel):
@@ -16,7 +16,7 @@ class File(BaseModel):
 
 
 class PlannedFileChange(File):
-    method: str = Field(..., description="StringEnum (create, modify, delete)")
+    method: str = Field(..., description="StringEnum (create, modify, mkdir, delete)")
     description: str = Field(..., description="AbstractDescription (what to change)")
 
     @property
@@ -25,12 +25,29 @@ class PlannedFileChange(File):
 
         return read_file_sync(self.relative_path)
 
+    def __str__(self):
+        icon = (
+            "📄"
+            if self.method == "create"
+            else "📂"
+            if self.method == "mkdir"
+            else "📝"
+            if self.method == "modify"
+            else "🗑️"
+            if self.method == "delete"
+            else "❓"
+        )
+        return f"{icon} {self.relative_path} ({self.description})"
+
 
 class PlannedFileChanges(BaseModel):
     changes: list[PlannedFileChange] = Field(..., description="List of file changes to make")
 
     def __iter__(self):
         return iter(self.changes)
+
+    def __str__(self):
+        return "\n\n".join(str(change) for change in self.changes)
 
 
 class CreatedFile(File):
