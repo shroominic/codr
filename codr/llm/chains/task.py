@@ -1,7 +1,8 @@
+from funcchain.chain import achain
+from funcchain.parser import LambdaOutputParser
+
 from codr.codebase.tree import CodeBaseTree
 from codr.llm.schema import Task
-from funcchain.parser import LambdaOutputParser
-from funcchain.chain import achain
 
 
 async def improve_task_description(task: Task, tree: CodeBaseTree) -> str:
