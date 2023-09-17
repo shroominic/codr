@@ -1,7 +1,8 @@
-from codr.llm.schema import Task
-from codr.codebase.tree import CodeBaseTree
-from funcchain.parser import CodeBlock
 from funcchain.chain import achain
+from funcchain.parser import CodeBlock
+
+from codr.codebase.tree import CodeBaseTree
+from codr.llm.schema import Task
 
 
 async def generate_code_summary(task: Task, tree: CodeBaseTree) -> str:
