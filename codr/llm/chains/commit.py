@@ -1,7 +1,7 @@
-from funcchain.parser import LambdaOutputParser
-from funcchain.chain import achain, chain
-from funcchain.utils import raiser
 from emoji import is_emoji
+from funcchain.chain import achain, chain
+from funcchain.parser import LambdaOutputParser
+from funcchain.utils import raiser
 
 
 async def write_commit_message(file_name: str, modifications: str) -> str:
