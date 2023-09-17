@@ -1,36 +1,29 @@
 import asyncio
 
+from funcchain.utils.helpers import log  # type: ignore
+
 from codr.codebase.func import (
-    create_file,
+    bash,
     create_directory,
+    create_file,
     delete_file,
     fix_file_path,
     get_tree,
     modify_file,
     prepare_environment,
-    bash,
 )
 from codr.llm.chains import (
+    check_desired_output,
+    check_result,
     create_file_prompt,
+    generate_task,
     improve_task_description,
     modify_file_prompt,
     plan_file_changes,
     summarize_task_to_name,
-    check_result,
-    generate_task,
     write_commit_message,
-    check_desired_output,
 )
-from codr.llm.schema import (
-    CreatedFile,
-    CreateDirectory,
-    DeletedFile,
-    FileChange,
-    ModifiedFile,
-    PlannedFileChange,
-    Task,
-)
-from funcchain.utils import log
+from codr.llm.schema import CreatedFile, CreateDirectory, DeletedFile, FileChange, ModifiedFile, PlannedFileChange, Task
 
 
 async def solve_task(
@@ -88,7 +81,7 @@ async def auto_debug(
 
 async def compute_changes(task: Task) -> list[FileChange]:
     planned_changes = await plan_file_changes(task, await get_tree())
-    log("Planned changes: ", planned_changes)
+    log("\nPlanned changes:\n", planned_changes)
     return await asyncio.gather(
         *[
             generate_change(
@@ -103,7 +96,6 @@ async def compute_changes(task: Task) -> list[FileChange]:
 async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
     # TODO: collect relevant context
     # TODO: plan file changes precise based on context
-    log("Generating change: ", change)
     tree = await get_tree()
     if change.method == "create":
         return CreatedFile(relative_path=change.relative_path, content=(await create_file_prompt(change, tree)).code)
@@ -137,18 +129,13 @@ async def apply_changes(changes: list[FileChange]):
 
 async def commit_changes() -> None:
     git_status = (await bash("git status")).split("Changes not staged for commit:")[0]
-    print("Git status: ", git_status)
     if "Changes to be committed" in git_status:
         commits = await asyncio.gather(
-            *[
-                process_change(change)
-                for change in git_status.split("\n")
-                if change.startswith("\t")
-            ]
+            *[process_change(change) for change in git_status.split("\n") if change.startswith("\t")]
         )
         for change, msg in commits:
             await bash(f'git commit {change} -m "{msg}"')
-            print("File committed: ", change, msg)
+            print("Committed: ", change, msg)
 
 
 async def process_change(change: str) -> tuple[str, str]:
