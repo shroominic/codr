@@ -1,12 +1,12 @@
 import asyncio
-
-import typer
 from typing import Annotated, Optional
 
-from codr.llm.scripts import solve_task, auto_debug, commit_changes
-from codr.llm.templates import solve_task_system_instruction
+import typer
 from funcchain import settings
 from rich import print
+
+from codr.llm.scripts import auto_debug, commit_changes, solve_task
+from codr.llm.templates import solve_task_system_instruction
 
 app = typer.Typer()
 
@@ -34,7 +34,8 @@ def debug(
     """
     Automatically debug with the llm agent.
     """
-    if focus: print("Focus on: ", focus, " (not implemented yet)")
+    if focus:
+        print("Focus on: ", focus, " (not implemented yet)")
     asyncio.run(auto_debug(command, goal, loop))
 
 
