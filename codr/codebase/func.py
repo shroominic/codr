@@ -1,10 +1,12 @@
-import os
 import asyncio
-import aiofiles  # type: ignore
-from os import getenv
+import os
 from datetime import datetime
-from typing import AsyncGenerator
+from os import getenv
 from pathlib import Path
+from typing import AsyncGenerator
+
+import aiofiles  # type: ignore
+
 from codr.codebase.tree import CodeBaseTree
 from codr.llm.schema import Task
 
@@ -90,9 +92,20 @@ async def create_file(relative_path: str, content: str):
     dir_name = os.path.dirname(relative_path)
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+
     async with aiofiles.open(relative_path, "w") as f:
         await f.write(content)
-    await bash(f"black {relative_path}")
+
+    # Markdown Formatting
+    if relative_path.endswith(".md"):
+        if not await bash("which prettier") == "":
+            await bash(f"prettier --write {relative_path}")
+            return
+        print("Prettier is not installed. Please install it with `npm install -g prettier`")
+
+    # Python Formatting
+    if relative_path.endswith(".py"):
+        await bash(f"black {relative_path}")
 
 
 async def create_directory(relative_path: str):
@@ -150,7 +163,7 @@ async def prepare_environment(task: Task) -> None:
             raise Exception(f"Failed to checkout to new branch: {checkout_result}")
 
         # apply stash to new branch
-        apply_result = await bash("git stash apply")
+        await bash("git stash apply")
 
 
 async def fix_file_path(relative_path: str) -> str:
