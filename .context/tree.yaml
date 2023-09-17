@@ -33,10 +33,10 @@ nodes:
     summary: The file loads environment variables from a .env file, defines a settings
       class with various configuration options for a program named Funcchain, and
       creates an instance of this settings class.
-  - name: funcchain/shortcuts.py
+  - name: funcchain/chain.py
     sha256: 0bd665a3f6413833eafbe24599ca856db0dec8b3776c2bb53560d6dfc0378454
     summary: The file defines utility functions and two main functions, `funcchain`
-      and `afuncchain`, for interacting with the Azure ChatOpenAI model. These functions
+      and `achain`, for interacting with the Azure ChatOpenAI model. These functions
       generate prompts, handle retries, parse responses, and manage costs. They use
       introspection to automatically derive instructions from docstrings and determine
       the appropriate parser based on the return type of the calling function.
@@ -93,7 +93,7 @@ nodes:
           tasks such as summarizing file content, searching for important files, fixing
           file names, planning file changes, generating file change plans, creating
           file prompts, and modifying file prompts. Each function uses a placeholder
-          function called 'afuncchain()' which likely needs to be replaced with actual
+          function called 'achain()' which likely needs to be replaced with actual
           logic.
       - name: codr/llm/chains/task.py
         sha256: 60ab241794c911ef2c55ae1ce31c539d665657bd07e71b07e6865d7fcec402fd
@@ -107,8 +107,8 @@ nodes:
           and `summarize_commit_message`, which are used to create and summarize commit
           messages respectively. The commit messages are expected to start with an
           emoji and be concise, not exceeding 5 words for `write_commit_message` and
-          6 words for `summarize_commit_message`. The functions use `afuncchain` from
-          `funcchain.shortcuts` and `LambdaOutputParser` from `funcchain.parser` to
+          6 words for `summarize_commit_message`. The functions use `achain` from
+          `funcchain.chain` and `LambdaOutputParser` from `funcchain.parser` to
           process the messages, and `is_emoji` from `emoji` to check if the first
           character is an emoji.
       - name: codr/llm/chains/__init__.py
