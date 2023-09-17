@@ -1,12 +1,12 @@
-import os
-import yaml
-import fnmatch
 import asyncio
+import fnmatch
 import hashlib
-from typing import Union
+import os
 from pathlib import Path
-from pydantic import BaseModel
+from typing import Union
 
+import yaml
+from langchain.pydantic_v1 import BaseModel
 
 IGNORED: set[str] = {
     ".context",
@@ -37,6 +37,7 @@ def load_gitignore() -> None:
             for line in f.readlines():
                 pattern = line.strip().split("#")[0]
                 if pattern and pattern != "*":
+                    pattern = pattern.removesuffix("/")
                     IGNORED.add(pattern)
 
 
@@ -215,4 +216,4 @@ class CodeBaseTree(CodeBaseNode):
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         with open(file_path, "w+") as f:
-            yaml.safe_dump(self.model_dump(exclude_none=True), f)
+            yaml.safe_dump(self.dict(exclude_none=True), f)
