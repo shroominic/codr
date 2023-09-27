@@ -90,7 +90,7 @@ async def create_file(relative_path: str, content: str):
     Create a file in the codebase. If the directory does not exist, create it.
     """
     dir_name = os.path.dirname(relative_path)
-    if not os.path.exists(dir_name):
+    if dir_name != "" and not os.path.exists(dir_name):
         os.makedirs(dir_name)
 
     async with aiofiles.open(relative_path, "w") as f:
@@ -166,15 +166,15 @@ async def prepare_environment(task: Task) -> None:
         await bash("git stash apply")
 
 
-async def fix_file_path(relative_path: str) -> str:
+async def fix_file_path(relative_path: str, tree: CodeBaseTree | None = None) -> str:
     """Fix file name to absolute path"""
-    tree = await get_tree()
+    tree = tree or await get_tree()
     file_name = relative_path.split("/")[-1]
     files = [file for file in tree.files if file.name.split("/")[-1] == file_name]
 
     if len(files) > 1:
         raise Exception(f"Duplicate file name: {file_name}, {files}")
     elif len(files) < 1:
-        raise Exception(f"File not found: {file_name}, {files}")
+        raise FileNotFoundError(f"File not found: {file_name}, {files}")
 
     return files[0].name
