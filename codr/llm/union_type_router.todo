@@ -1,0 +1,20 @@
+Build a router using python union types containing pydantic objects which represent the function input to route to.
+This is directly used by openai functions which get multiple tools as selection.
+So all the Pydantic objects you define as output type these are the options of tools the model has to choose from.
+Additionally the model generates a perfect input for the tool matching the schema.
+
+from typing import Union
+from langchain.tools import Tool1, Tool2, Tool3
+from funcchain import chain
+
+
+Router = Union[Tool1, Tool2, Tool3]
+
+
+def select_tool (user_query: Input) -> Router:
+    """
+    USER_QUERY: {user_query}
+
+    Take the user query and select the right tool to apply.
+    """
+    return chain()
