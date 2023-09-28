@@ -3,14 +3,16 @@ from typing import Annotated, Optional
 
 import typer
 from funcchain import settings
+from funcchain.utils.model_defaults import create_long_llm
 from rich import print
 
-from codr.llm.scripts import auto_debug, commit_changes, solve_task
+from codr.llm.scripts import auto_debug, commit_changes, solve_task, expert_answer
 from codr.llm.templates import solve_task_system_instruction
 
 app = typer.Typer()
 
 settings.DEFAULT_SYSTEM_PROMPT = solve_task_system_instruction
+settings.LLM = create_long_llm()
 
 
 @app.command()
@@ -54,9 +56,7 @@ def ask(
     """
     Ask a question about the codebase or relevant libraries.
     """
-    print("Answering: ", question)
-    print("Not implemented yet.")
-    # TODO: use ask to improve task solving
+    print(asyncio.run(expert_answer(question)))
 
 
 @app.command()
@@ -67,12 +67,17 @@ def tree():
     from codr.codebase.tree import CodeBaseTree
 
     tree = asyncio.run(CodeBaseTree.load())
-    print(tree.nodes)
+    print(tree.__str__())
 
 
 @app.command()
-def test():
-    print("Test successful!")
+def chat():
+    """
+    Open CLI Chat Interface
+    """
+    # from codr.llm.chat import chat
+
+    # asyncio.run(chat())
 
 
 if __name__ == "__main__":
