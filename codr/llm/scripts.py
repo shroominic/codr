@@ -5,6 +5,7 @@ from funcchain.utils.helpers import log  # type: ignore
 from codr.codebase.func import (
     bash,
     create_directory,
+    read_file,
     create_file,
     delete_file,
     fix_file_path,
@@ -22,6 +23,8 @@ from codr.llm.chains import (
     plan_file_changes,
     summarize_task_to_name,
     write_commit_message,
+    get_relevant_files,
+    codebase_answer,
 )
 from codr.llm.schema import CreatedFile, CreateDirectory, DeletedFile, FileChange, ModifiedFile, PlannedFileChange, Task
 
@@ -31,7 +34,7 @@ async def solve_task(
     debug_cmd: str | None = None,
 ) -> None:
     task_name = await summarize_task_to_name(task_description)
-    log("Task name:", task_name)
+    log(task_name)
     task = Task(
         name=task_name,
         description=task_description,
@@ -39,6 +42,7 @@ async def solve_task(
 
     tree = await get_tree()
 
+    # May result in more halluzinations
     task.description = await improve_task_description(task, tree)
     log("Improved task: ", task)
 
@@ -101,7 +105,10 @@ async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
         return CreatedFile(relative_path=change.relative_path, content=(await create_file_prompt(change, tree)).code)
     if change.method == "mkdir":
         return CreateDirectory(relative_path=change.relative_path)
-    change.relative_path = await fix_file_path(change.relative_path)
+    try:
+        change.relative_path = await fix_file_path(change.relative_path)
+    except FileNotFoundError:
+        return CreatedFile(relative_path=change.relative_path, content=(await create_file_prompt(change, tree)).code)
     if change.method == "modify":
         return ModifiedFile(
             relative_path=change.relative_path, content=(await modify_file_prompt(task, tree, change)).code
@@ -155,6 +162,10 @@ async def process_change(change: str) -> tuple[str, str]:
             file_change = change_split[1].strip()
             commit_msg = await write_commit_message(file_change, "")
             return file_change, commit_msg
+        if change_split[0] == "renamed:":
+            file_change = change_split[3].strip()
+            commit_msg = await write_commit_message(file_change, "")
+            return file_change, commit_msg
         else:
             raise ValueError(f"Invalid change: {change}")
     elif len(change_split) == 1:
@@ -163,3 +174,16 @@ async def process_change(change: str) -> tuple[str, str]:
         return file_change, commit_msg
     else:
         raise ValueError(f"Invalid change: {change}")
+
+
+async def expert_answer(question: str) -> str:
+    # classify: check if question requires expert answer
+    tree = await get_tree()
+    knowledge: list[str] = []
+    
+    paths = (await get_relevant_files(question, tree)).relevant_files
+    print("Relevant files: ", paths)
+    for path in paths:
+        knowledge.append(await read_file(path))
+    
+    return await codebase_answer(question, tree, knowledge)
