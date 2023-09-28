@@ -13,7 +13,7 @@ async def get_relevant_files(question: str, tree: CodeBaseTree) -> RelevantFiles
     """
     USER QUESTION:
     {question}
-    
+
     CODEBASE TREE:
     {tree}
 

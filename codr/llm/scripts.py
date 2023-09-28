@@ -180,10 +180,10 @@ async def expert_answer(question: str) -> str:
     # classify: check if question requires expert answer
     tree = await get_tree()
     knowledge: list[str] = []
-    
+
     paths = (await get_relevant_files(question, tree)).relevant_files
     print("Relevant files: ", paths)
     for path in paths:
         knowledge.append(await read_file(path))
-    
+
     return await codebase_answer(question, tree, knowledge)

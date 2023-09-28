@@ -112,7 +112,9 @@ class CodeBaseFile(CodeBaseNode):
         return self
 
     def __str__(self, indent=0):
-        return " " * indent + f"<file {self.path.name}>" + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
+        return (
+            " " * indent + f"<file {self.path.name}>" + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
+        )
 
 
 class CodeBaseTree(CodeBaseNode):
@@ -184,7 +186,7 @@ class CodeBaseTree(CodeBaseNode):
             if node.path
             in [file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())]
         ]
-        
+
         # delete nodes not in codebase anymore
         deleted_nodes = [
             node
@@ -192,7 +194,7 @@ class CodeBaseTree(CodeBaseNode):
             if node.path
             not in [file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())]
         ]
-        
+
         # update self.nodes
         self.nodes = [node for node in self.nodes if node not in deleted_nodes]
         self.nodes = [node for node in self.nodes if node not in node_updates]
@@ -200,11 +202,11 @@ class CodeBaseTree(CodeBaseNode):
 
         # update self.sha256
         folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in self.nodes)).encode()).hexdigest()
-        
+
         if self.sha256 != folder_hash:
             self.sha256 = folder_hash
             self.to_yaml(".context/tree.yaml")
-        
+
         return self
 
     @property
