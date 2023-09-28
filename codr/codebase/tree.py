@@ -102,14 +102,17 @@ class CodeBaseFile(CodeBaseNode):
         )
 
     async def refresh(self) -> "CodeBaseFile":
-        content = self.path.read_text()
+        try:
+            content = self.path.read_text()
+        except UnicodeDecodeError:
+            content = "N/A"
         content_hash = hashlib.sha256(content.encode()).hexdigest()
         if self.sha256 != content_hash:
             return await CodeBaseFile.from_path(self.path)
         return self
 
     def __str__(self, indent=0):
-        return " " * indent + f"<{self.path.name}" + f": {self.summary}>"
+        return " " * indent + f"<file {self.path.name}>" + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
 
 
 class CodeBaseTree(CodeBaseNode):
@@ -215,9 +218,10 @@ class CodeBaseTree(CodeBaseNode):
         return files
 
     def __str__(self, indent=0):
-        folder_str = " " * indent + f"<{self.path.name}>\n"
+        folder_str = " " * indent + f"<folder {self.path.name}>\n"
         for node in self.nodes:
             folder_str += node.__str__(indent + 2) + "\n"
+        folder_str += " " * indent + f"</endfolder {self.path.name}>\n"
         return folder_str
 
     def __repr__(self):
