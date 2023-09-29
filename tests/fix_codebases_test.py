@@ -21,7 +21,7 @@ async def run_debugging(example_path: str) -> None:
     )
 
 
-async def fix_codebases():
+async def fix_codebases() -> None:
     # copy example codebases to new created playgrounds
     os.system("cp -r examples/ playgrounds/")
 
@@ -32,7 +32,7 @@ async def fix_codebases():
     await asyncio.gather(prepare_environments(example_path) for example_path in fix_examples)
 
 
-def test_fix_codebases():
+def test_fix_codebases() -> None:
     assert True
 
 
