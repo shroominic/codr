@@ -42,7 +42,7 @@ def debug(
 
 
 @app.command()
-def commit():
+def commit() -> None:
     """
     Write commit messages and commit changes.
     """
@@ -60,7 +60,7 @@ def ask(
 
 
 @app.command()
-def tree():
+def tree() -> None:
     """
     Print the current tree.
     """
@@ -71,7 +71,7 @@ def tree():
 
 
 @app.command()
-def chat():
+def chat() -> None:
     """
     Open CLI Chat Interface
     """
