@@ -46,7 +46,7 @@ async def query_relevant_context(
     return await achain()
 
 
-async def llm_format(file: str):
+async def llm_format(file: str) -> CodeBlock:
     """
     FILE:
     {file}
@@ -54,7 +54,6 @@ async def llm_format(file: str):
     Rewrite following file to match proper formatting.
     Do not change code or contents, only appearance.
     If file is already properly formatted, return same file.
-    Reply with a codeblock containing formatted file.
     """
     return await achain()
 
