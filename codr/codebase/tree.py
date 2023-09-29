@@ -3,7 +3,7 @@ import fnmatch
 import hashlib
 import os
 from pathlib import Path
-from typing import Union
+from typing import Union, Any
 
 import yaml
 from langchain.pydantic_v1 import BaseModel
@@ -64,17 +64,17 @@ class CodeBaseNode(BaseModel):
         return Path(".") / self.name
 
     @path.setter
-    def path(self, value: Union[str, Path]):
+    def path(self, value: Union[str, Path]) -> None:
         self.name = Path(value).relative_to(Path.cwd()).as_posix()
 
-    def __str__(self, indent=0):
+    def __str__(self, indent: int = 0) -> str:
         return " " * indent + f"Node: {self.path.name}"
 
 
 class CodeBaseFile(CodeBaseNode):
     summary: str
 
-    def __init__(self, path: Path | str, **data):
+    def __init__(self, path: Path | str, **data: Any) -> None:
         data["name"] = Path(path).as_posix()
         super().__init__(**data)
 
@@ -111,7 +111,7 @@ class CodeBaseFile(CodeBaseNode):
             return await CodeBaseFile.from_path(self.path)
         return self
 
-    def __str__(self, indent=0):
+    def __str__(self, indent: int = 0) -> str:
         return (
             " " * indent + f"<file {self.path.name}>" + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
         )
@@ -120,7 +120,7 @@ class CodeBaseFile(CodeBaseNode):
 class CodeBaseTree(CodeBaseNode):
     nodes: list[Union["CodeBaseFile", "CodeBaseTree"]] = []
 
-    def __init__(self, path: Path | str, **data):
+    def __init__(self, path: Path | str, **data: Any) -> None:
         data["name"] = Path(path).as_posix()
         super().__init__(**data)
 
@@ -219,14 +219,14 @@ class CodeBaseTree(CodeBaseNode):
                 files.extend(node.files)
         return files
 
-    def __str__(self, indent=0):
+    def __str__(self, indent: int = 0) -> str:
         folder_str = " " * indent + f"<folder {self.path.name}>\n"
         for node in self.nodes:
             folder_str += node.__str__(indent + 2) + "\n"
         folder_str += " " * indent + f"</endfolder {self.path.name}>\n"
         return folder_str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"CodeBaseTree(path={self.path}, files={len(self.files)}, nodes={len(self.nodes)})"
 
     def show(self) -> str:
