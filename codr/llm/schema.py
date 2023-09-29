@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 
 from langchain.pydantic_v1 import BaseModel, Field
 
@@ -7,7 +7,7 @@ class Task(BaseModel):
     name: str
     description: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.description
 
 
@@ -20,12 +20,12 @@ class PlannedFileChange(File):
     description: str = Field(..., description="AbstractDescription (what to change)")
 
     @property
-    def content(self):
+    def content(self) -> str:
         from codr.codebase.func import read_file_sync
 
         return read_file_sync(self.relative_path)
 
-    def __str__(self):
+    def __str__(self) -> str:
         icon = (
             "📄"
             if self.method == "create"
@@ -43,10 +43,10 @@ class PlannedFileChange(File):
 class PlannedFileChanges(BaseModel):
     changes: list[PlannedFileChange] = Field(..., description="List of file changes to make")
 
-    def __iter__(self):
+    def __iter__(self) -> Any:
         return iter(self.changes)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n\n".join(str(change) for change in self.changes)
 
 
