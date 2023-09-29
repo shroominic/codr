@@ -119,7 +119,7 @@ async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
         raise ValueError(f"Invalid method: {change.method}")
 
 
-async def apply_changes(changes: list[FileChange]):
+async def apply_changes(changes: list[FileChange]) -> None:
     for change in changes:
         log("Applying change: ", change)
         if isinstance(change, CreateDirectory):
