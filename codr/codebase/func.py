@@ -85,7 +85,7 @@ async def file_exists(relative_path: str) -> bool:
     return Path(relative_path).exists()
 
 
-async def create_file(relative_path: str, content: str):
+async def create_file(relative_path: str, content: str) -> None:
     """
     Create a file in the codebase. If the directory does not exist, create it.
     """
@@ -108,7 +108,7 @@ async def create_file(relative_path: str, content: str):
         await bash(f"black {relative_path}")
 
 
-async def create_directory(relative_path: str):
+async def create_directory(relative_path: str) -> None:
     """
     Create a directory in the codebase
     """
