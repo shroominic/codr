@@ -84,14 +84,14 @@ async def generate_file_change(file_name: str, abstract_plan: str, tree: CodeBas
 
 async def create_file_prompt(change: PlannedFileChange, tree: CodeBaseTree) -> CodeBlock:
     """
-    FILE:
-    {change_relative_path}
-
     CODEBASE TREE:
     {tree}
 
     PLAN:
     {change_description}
+
+    FILE:
+    {change_relative_path}
 
     Create a new file as part of solving task.
     Reply with the file content.
