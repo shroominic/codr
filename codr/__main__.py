@@ -80,5 +80,13 @@ def chat() -> None:
     # asyncio.run(chat())
 
 
+def auto_linter() -> None:
+    """
+    Automatically run a linter on the codebase and fix issues.
+    Also include mypy and flake8.
+    """
+    
+
+
 if __name__ == "__main__":
     app()
