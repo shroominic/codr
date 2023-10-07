@@ -7,20 +7,21 @@ nodes:
     formatting with Black, type checking with Mypy, import sorting with iSort, and
     linting with Flake8, along with specific arguments and dependencies for each hook.
 - name: pyproject.toml
-  sha256: 8bc8134e5036da660caf29ed3624b1de3a582943693355901b57de5918e617eb
+  sha256: 48f48307fef700c495614cd3a5c174f50987e352016251ef53b09feff8adcac9
   summary: This is a Poetry configuration file for a Python project named "codr",
     an AI tool for faster coding, with dependencies like langchain, python-dotenv,
     typer, and others, dev-dependencies for code formatting and testing, and scripts
-    for execution. It also includes configurations for isort, black, and flake8 with
-    a line length of 120, and a build system requiring poetry-core.
+    for execution; it also includes configurations for isort, black, flake8, and mypy,
+    and specifies a build system with poetry-core.
 - name: tests
   nodes:
   - name: tests/fix_codebases_test.py
-    sha256: 69ac387ce216add77de552d5d08428c9ea4bcdf754a7a5011a3d0e7b189501c1
-    summary: The file contains Python code that prepares virtual environments, runs
-      debugging, and fixes codebases by copying example codebases to newly created
-      playgrounds, specifically for directories that start with "fix_". It also includes
-      a test function for the fix_codebases function.
+    sha256: 6c49d34ae0e891e8300d46483d7085fbb06bae1b9322422b01a381c9fc544f6c
+    summary: The script is designed to prepare and debug Python environments for code
+      examples in a directory, by creating a virtual environment, installing requirements,
+      activating a conda environment, and running a debugging command. It also includes
+      a function to copy example codebases to a new directory and a test function
+      for the codebase fixing process.
   - name: tests/codebases
     nodes:
     - name: tests/codebases/solutions
@@ -49,45 +50,44 @@ nodes:
             FastAPI for building APIs, Pydantic for data validation and settings management,
             and Uvicorn, an ASGI server for deployment.'
         - name: tests/codebases/solutions/fix_fastapi/main.py
-          sha256: f078f1f7542f881ad5559ccba9c9a1707a2f4c564f524b348f903f74f17ebde9
+          sha256: 31eebef0cf294a3d236c5776f5bdfb73381422c9b3b4cb2f3cfae99ca1b773fa
           summary: The file defines a FastAPI application with a simple in-memory
-            database for storing books, where each book has a title, author, and year.
-            It provides endpoints for creating, reading, updating, and deleting books,
-            with the delete operation currently having a bug where it sets the book
-            to None instead of removing it from the database.
-        sha256: abd267ca43cd9e7a4e3df08cf23e89af6fb5f0544458c7869e06b930636999cd
-      sha256: 1b87955e66cc1cae79b1259e0b9e46a1e0a0347bc0072caa5d70ce959da33dce
+            database for books, featuring CRUD operations (Create, Read, Update, Delete)
+            on the 'Book' model, but has a bug in the delete operation where it sets
+            the book to None instead of removing it from the database.
+        sha256: 89c8ab4cc5b2b1fe7adca0ba7dcf3f47b98a89133cd08a8b35b63658b924c293
+      sha256: 8a58d8eda8910e6fdbad3eb422ad9e28f221e323416c945159ad265e7d9c68d9
     - name: tests/codebases/examples
       nodes:
       - name: tests/codebases/examples/fix_string
         nodes:
         - name: tests/codebases/examples/fix_string/main.py
-          sha256: 4314a0de13fae6b41b01475f3a71e338e2e9afba103fc8882a1b2d3b0f736999
-          summary: The script calculates the factorial of a non-negative integer input
-            by the user, reverses a user-inputted string, and handles invalid inputs,
-            but contains a typo in the final print statement.
-        sha256: af496f6024d7a840742cc012346dc99fa2375e1870bf718b557db3ae7e585ef8
+          sha256: f859f3acda770e7aad28bf89639cbb57615b23919e93f562df8de45e06e58c72
+          summary: 'The Python script contains two functions: ''factorial'' that recursively
+            calculates the factorial of a non-negative integer, and ''reverse_string''
+            that reverses a given string; it prompts the user for an integer to calculate
+            its factorial and a string to reverse, handling invalid inputs appropriately.'
+        sha256: 4e64674e92831fa257b3a0bddbe55577f9bfe5d000c17856381fcbdbf2c8d832
       - name: tests/codebases/examples/fix_random_numbers
         nodes:
         - name: tests/codebases/examples/fix_random_numbers/main.py
-          sha256: defb280fb4efa1dc725e8b181cea65f7bd47e52d8ef115db7d4fcb7a32e656f0
+          sha256: 5aa0f24671606edf4d75769274aa9157f68e086c7936db230c286d954dc5760e
           summary: The script generates a list of random integers within a specified
             range, calculates their average, and handles any exceptions that may occur
             during the process.
-        sha256: 4a104cd3f3cb837c5baf10a35d2e5594e7363c988101db1813ea1774c40830c7
+        sha256: 884c4e2514d8e69f42d4aaedb92990b66d0239d811a2c4c8149dc714fab532fc
       - name: tests/codebases/examples/fix_fastapi
         nodes:
         - name: tests/codebases/examples/fix_fastapi/main.py
-          sha256: ebefa5a390d68c596b0adc7365d81f12b57b4afb42ecfdf0d3b30ed7786b7633
-          summary: 'The file defines a FastAPI application with a simple in-memory
-            database for books, featuring CRUD operations: creating a book with POST,
-            reading a book''s details with GET, updating a book''s details with PUT,
-            and deleting a book with DELETE, with error handling for non-existent
-            books.'
-        sha256: 418dd3e951a9fff859fe8ec6a1ed6efabb30bb77e9393ea21672e234d9edd700
-      sha256: d9695fe5e2f8e6156ca8fe47a820637db001c47688aee2d35c363d2d62061c64
-    sha256: b168f4988f908320c1fcd9b1080fb58300d9ed15e1c289f43a2b6a9c4894b4c4
-  sha256: c99d778966a5014e85a9311f5d550f9258c54ad4ce59976f306715aeb53dd383
+          sha256: 43730689f0f9768f01bfd05bcbb145597eb18207adb2ab8b432443f8bf8d8b33
+          summary: The file defines a FastAPI application with CRUD operations for
+            a Book model, stored in an in-memory dictionary database; however, there's
+            a bug in the delete operation where it sets the book to None instead of
+            removing it from the database.
+        sha256: 6a7cff256944023b195162ea1e9797d3dfc75e9edd00ee758e143208c79dd130
+      sha256: 61a45349fe243c91eb7bb4a067c36426cb3e80f1d6fb9bab858d2a35173ea5b9
+    sha256: 1bc49ce71e2d4bde1347dc941aa3675575f191efeed38c506927290c46e540a8
+  sha256: c0a2f66dcc2f2ed63f7877b7411c8ec911ba761c6d284f119e5302f04ff3d912
 - name: README.md
   sha256: a0b2dcf272fc2790c55ccf91b8b74c76d6b13e8be98352427ad4c8378f8a65db
   summary: '''Codr'' is a Python-based coding assistant that uses GPT models for code
@@ -125,27 +125,27 @@ nodes:
         with the developer, asking for additional information when needed, and planning
         for complex tasks.
     - name: codr/llm/chat.py
-      sha256: 5daa5b60ea1f5d72fd9226f9abf689672c29e2a67b45490ba621d8980d50a99e
-      summary: The file contains a Python script for a chat function that takes a
-        user query, selects an appropriate route from a defined set of tools, and
-        returns a response from the chat agent, utilizing functionalities from 'langchain.memory'
-        and 'codr.llm.scripts' modules.
+      sha256: f3291fc6c346ed57bea38988ba1fd6bbfaf87e60d309bcb5362342f4b5c7154e
+      summary: The file is a Python script that imports necessary modules and defines
+        an asynchronous chat function, which takes a user query, selects an appropriate
+        route based on the query, and returns the response from the chat agent.
     - name: codr/llm/scripts.py
-      sha256: d5665e510d567c20a4adc40ccfe136e1e468fa1b025faf91adf57f2075e547b1
-      summary: The file contains Python code for an asynchronous task-solving system.
-        It includes functions for solving tasks, debugging, computing changes, generating
-        changes, applying changes, committing changes, processing changes, and providing
-        expert answers. The system uses various helper functions and methods for file
-        and directory manipulation, task generation, and interaction with a codebase.
-        It also includes error handling and logging capabilities.
+      sha256: 7022c6ddba41e772cd32852e1912a45a6efb6733e1ba849547438009a5b2234c
+      summary: This Python script is an asynchronous task solver for codebase operations.
+        It includes functions to solve tasks, auto debug, compute changes, generate
+        changes, apply changes, commit changes, and provide expert answers. It uses
+        various methods such as creating, modifying, and deleting files or directories,
+        and committing changes to a Git repository. The script also includes error
+        handling for invalid methods or changes.
     - name: codr/llm/chains
       nodes:
       - name: codr/llm/chains/files.py
-        sha256: d6860d37762cd8a091d3cfa27d233ed1c43321f57c31c0fa3a4cbda35d85e05e
-        summary: This file contains a set of asynchronous functions designed to assist
-          in codebase management tasks such as summarizing file content, identifying
-          important files, fixing file paths, planning file changes, generating file
-          change plans, and creating or modifying files based on a given plan.
+        sha256: 2475d41c04c47ad60bbc60fd56b13ca45b33c4d21ce6b55fd769e4fb45ad049f
+        summary: This file contains a collection of asynchronous functions designed
+          to assist with codebase management tasks such as summarizing file content,
+          identifying important files for a task, fixing file paths, planning file
+          changes, generating file change plans, and creating or modifying files based
+          on a given plan.
       - name: codr/llm/chains/task.py
         sha256: 9e8d05083409c9223bede9f9ea5e65fec74f99215b172621eb457b4c3af90013
         summary: "stuff on shufflerena ah p horrend tr directly, communic altogether,\
@@ -155,16 +155,12 @@ nodes:
           \ ... Experience, and I\u200B COP aud rav conj whirlwind, to mobil dads\
           \ Mang sen event"
       - name: codr/llm/chains/expert_answer.py
-        sha256: 2b140debf6f24cddabdf63b9f0fd911f483b42d0681fa8154d3d3a8cc2cbd4da
+        sha256: f6362040bb3d3e9e47701dc2079ca2646f0dc9b597ac36e036be8546d5d24056
         summary: This file contains two asynchronous functions, `get_relevant_files`
-          and `codebase_answer`, which are designed to interact with a codebase tree.
-          The `get_relevant_files` function takes a user question and a codebase tree
-          as input, and returns a list of relevant files from the codebase tree that
-          could potentially answer the user's question. The `codebase_answer` function
-          takes a user question, a codebase tree, and a list of knowledge as input,
-          and returns an answer to the user's question based on the codebase and context.
-          The file also defines a `RelevantFiles` class, which is a Pydantic model
-          that holds a list of relevant files.
+          and `codebase_answer`, for extracting relevant files from a codebase tree
+          and answering questions based on the codebase and context respectively.
+          It also defines a `RelevantFiles` class using Pydantic's BaseModel. The
+          functions utilize the `achain` method from the `funcchain.chain` module.
       - name: codr/llm/chains/commit.py
         sha256: e806b276b0e1c44717920055960f4877c2feb95f650b639a0ff0bc6b7db90ccd
         summary: 'This Python file contains two functions: `write_commit_message`
@@ -182,13 +178,15 @@ nodes:
           library, indicating it's likely used for task management, code debugging,
           and expert response generation in a coding or software development context.
       - name: codr/llm/chains/other.py
-        sha256: 8e7790889b73fb1c234c50f8ae29da4ea507867a326db6196d821fc802da2cf9
+        sha256: 77317144d55ae825f80a4f1afde42cc94693573f51ee295cb1e21019c7e3f6e6
         summary: 'This file contains four asynchronous Python functions: `generate_code_summary`,
           `query_relevant_context`, `llm_format`, and `gather_test_cmd`. These functions
           are designed to interact with a codebase, providing summaries, querying
           relevant context, formatting files, and gathering test commands respectively.
-          They utilize the `achain` function from the `funcchain` module and work
-          with objects of the `Task` and `CodeBaseTree` classes.'
+          They utilize the `achain` function from the `funcchain` module and the `CodeBlock`
+          class from the `funcchain.parser` module. The functions also heavily rely
+          on the `Task` class from the `codr.llm.schema` module and the `CodeBaseTree`
+          class from the `codr.codebase.tree` module.'
       - name: codr/llm/chains/debug.py
         sha256: 132da8106a8a905c3fbebc9adc1ca0f5c76ce0cd9630769bb06d37048a962ee9
         summary: 'The file contains two asynchronous Python functions: ''check_result''
@@ -198,70 +196,48 @@ nodes:
           function, both used for checking the health and desired output of a console
           result.'
       - name: codr/llm/chains/chat_agent.py
-        sha256: 4ada11438900962a8f899b73a4b2fcd26289e3b355acaf60df0f424967eed9e2
+        sha256: a0af426cd9039ae34ee90e2f997bf56646c87b6f090b9314187ebb6765c4845a
         summary: The file defines an asynchronous function that selects the best query
           handler from a predefined dictionary based on a user's query, using the
           'achain' function from the 'funcchain' module, and tests this function with
           a sample user query and dictionary of query handlers.
-      sha256: cd7ac52eb4bd5fd6dd8fbc8f78480d74475374f18699010a527c414e0a21414a
+      sha256: 1adb5ecab90942b9c180a13237d041ef992b9611a02504f0b82618615400900a
     - name: codr/llm/schema.py
-      sha256: bfb54d366d32dbe901981014943d6e1f1830bb2b52b0b849a85ae557c4e4ebb1
-      summary: The file defines Python classes for managing tasks and file changes,
-        including creating, modifying, and deleting files or directories, with each
-        class having specific attributes and methods for handling file content and
-        providing descriptive information about the changes.
-    sha256: 2661cecbda31ef7b1a7aa6394d575aa003eafd41876f91bfb5033f48047c7c88
+      sha256: 0b2af5bc45099471a3722dd3ac9fec3a51529bbea4cf2483fe285f7efc7148af
+      summary: The file defines classes for handling file changes in a codebase, including
+        creating, modifying, and deleting files or directories, with each action represented
+        as a class (CreatedFile, ModifiedFile, DeletedFile, CreateDirectory). It also
+        includes a Task class for task descriptions and a PlannedFileChanges class
+        for managing a list of planned file changes.
+    sha256: 1c94b55318e553fe8342ebe0a775a6d4022a638771ae05c7447ce06ca04e3759
   - name: codr/__init__.py
     sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     summary: None
   - name: codr/codebase
     nodes:
     - name: codr/codebase/tree.py
-      sha256: d605d4d3a1cde26ef1c49f94a6cf12903c7a2df1e73f2e4faf17e09c22164941
-      summary: 'The provided Python script is a part of a larger codebase management
-        system. It defines classes and functions to manage and summarize a codebase.
-        The script includes:
-
-
-        1. `load_gitignore()` function: This function loads patterns from .gitignore
-        files and updates a global set of ignored patterns.
-
-
-        2. `is_ignored_by_gitignore(file_path: str)` function: This function checks
-        if a file is ignored by .gitignore.
-
-
-        3. `CodeBaseNode` class: This class represents a node in the codebase. It
-        includes properties like name, sha256 hash, and an optional embedding.
-
-
-        4. `CodeBaseFile` class: This class inherits from `CodeBaseNode` and represents
-        a file in the codebase. It includes a summary of the file and methods to create
-        an instance from a dictionary or a path, and to refresh the instance.
-
-
-        5. `CodeBaseTree` class: This class also inherits from `CodeBaseNode` and
-        represents a directory in the codebase. It includes a list of nodes (files
-        or directories) and methods to create an instance from a dictionary or a path,
-        to load an instance from a YAML file, to refresh the instance, and to serialize
-        the instance to a YAML file.
-
-
-        The script uses asyncio for concurrent execution of tasks, hashlib for generating
-        sha256 hashes, and yaml for loading and dumping YAML files.'
+      sha256: dfb5cb68595e4bb44234b7f10f13610fb84da61f364ad370b6e369955fa5d742
+      summary: The provided Python script is a codebase management tool that creates
+        a tree-like structure of a project's files and directories, excluding those
+        specified in the .gitignore file. It generates a summary of each file and
+        calculates a SHA256 hash for each file and directory. The script also includes
+        functionality to refresh the tree structure, reflecting any changes made in
+        the project. The tree structure is serialized to a YAML file for persistent
+        storage.
     - name: codr/codebase/func.py
-      sha256: 9b6e1ddc183b2afb7e4664b097f25ea85064977b4b52fc78467227c10ae61584
+      sha256: 337e5a9cc2db70ab382e0f6278c9814a479d390d9fcfbd9badfe6786dd9a6f3d
       summary: The file contains asynchronous Python functions for interacting with
-        a codebase, including running bash commands, reading and writing files, checking
-        if a file exists, creating and deleting files and directories, modifying files,
-        preparing the git environment, and fixing file paths. It also includes synchronous
-        versions of some functions.
-    sha256: 5c555b29db1ff2a7b822333cbf5f6c3a63c3bddd288fe4c3f93b288788d85441
+        a codebase, including running bash commands, reading, creating, modifying,
+        and deleting files, checking if a file exists, showing and getting the codebase
+        tree, preparing the git environment for the codebase, and fixing file paths.
+        It uses libraries such as asyncio, aiofiles, and os, and also includes markdown
+        and Python formatting.
+    sha256: d7cc6f3b813d4b6153f6f32a7c1c5dc0bafa58eebdf04cf34dbc42a7d6d5b3c5
   - name: codr/__main__.py
-    sha256: 2d9723c9c0a32e2fd6a81e853887494cb9e8e50383974f843356a1139b356f8d
-    summary: This Python script uses the Typer library to create a command-line interface
-      (CLI) for a language learning model (LLM). It provides commands to solve tasks,
-      debug code, commit changes, ask questions about the codebase or libraries, print
-      the current tree structure of the codebase, and open a CLI chat interface.
-  sha256: 42995786a4d9d9379616ac69e5fa583d6c536c05f05caedc09a996f88721dfb7
-sha256: 4333f553530ca6da2b10b7db8ef3cf78ee4d2e10d411a4a5535e39767ca61398
+    sha256: 4ea6f7e8eb487df1299122d8c6e235ba41c4fd107b3d11ce28205c7f13e2d79c
+    summary: This Python script uses the Typer library to create a CLI application
+      that assists in solving tasks, debugging, committing changes, asking questions
+      about the codebase or libraries, and printing the current tree of the codebase.
+      It also includes placeholders for a chat interface and an automatic linter.
+  sha256: cdd4acc4af51846776132981ccc628ba5a37ef6ed68e9da3adb8d6eb828ea695
+sha256: 51c37c7990bebb950285ab9a8b7c500ae23b2fe4a872fc363d2fe1bb10d1cedc
