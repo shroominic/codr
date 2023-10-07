@@ -26,7 +26,8 @@ from codr.llm.chains import (
     get_relevant_files,
     codebase_answer,
 )
-from codr.llm.schema import CreatedFile, CreateDirectory, DeletedFile, FileChange, ModifiedFile, PlannedFileChange, Task
+from codr.llm.schema import CreatedFile, CreateDirectory, DeletedFile, FileChange, ModifiedFile, PlannedFileChange, PlannedFileChanges, Task
+# from funcchain.utils import count_tokens
 
 
 async def solve_task(
@@ -86,7 +87,8 @@ async def auto_debug(
 async def compute_changes(task: Task) -> list[FileChange]:
     planned_changes = await plan_file_changes(task, await get_tree())
     log("\nPlanned changes:\n", planned_changes)
-    return await asyncio.gather(
+    # if count_tokens(planned_changes.files) > 32:
+    file_changes = await asyncio.gather(
         *[
             generate_change(
                 task=task,
@@ -95,6 +97,24 @@ async def compute_changes(task: Task) -> list[FileChange]:
             for change in planned_changes.changes
         ]
     )
+    return file_changes
+    # else:
+    #     file_changes = await generate_changes(task, planned_changes)
+    #     log("\nFile changes:\n", file_changes)
+    # return file_changes
+
+async def generate_changes(task: Task, changes: PlannedFileChanges) -> list[FileChange]:
+    """
+    Generate file changes based on planned file changes
+    """
+    # gather file contents of all files of planned changes
+    
+    # merge into big prompt (with context)
+
+    # generate changes based on prompt and output list of changes
+    
+    # return list of changes
+    return []
 
 
 async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
@@ -102,19 +122,30 @@ async def generate_change(task: Task, change: PlannedFileChange) -> FileChange:
     # TODO: plan file changes precise based on context
     tree = await get_tree()
     if change.method == "create":
-        return CreatedFile(relative_path=change.relative_path, content=(await create_file_prompt(change, tree)).code)
+        return CreatedFile(
+            relative_path=change.relative_path,
+            content=(await create_file_prompt(change, tree)).code,
+        )
     if change.method == "mkdir":
-        return CreateDirectory(relative_path=change.relative_path)
+        return CreateDirectory(
+            relative_path=change.relative_path,
+        )
     try:
         change.relative_path = await fix_file_path(change.relative_path)
     except FileNotFoundError:
-        return CreatedFile(relative_path=change.relative_path, content=(await create_file_prompt(change, tree)).code)
+        return CreatedFile(
+            relative_path=change.relative_path,
+            content=(await create_file_prompt(change, tree)).code,
+        )
     if change.method == "modify":
         return ModifiedFile(
-            relative_path=change.relative_path, content=(await modify_file_prompt(task, tree, change)).code
+            relative_path=change.relative_path,
+            content=(await modify_file_prompt(task, tree, change)).code,
         )
     if change.method == "delete":
-        return DeletedFile(relative_path=change.relative_path)
+        return DeletedFile(
+            relative_path=change.relative_path,
+        )
     else:
         raise ValueError(f"Invalid method: {change.method}")
 
@@ -142,7 +173,7 @@ async def commit_changes() -> None:
         )
         for change, msg in commits:
             await bash(f'git commit {change} -m "{msg}"')
-            print("Committed: ", change, msg)
+            print(change, ">", msg)
 
 
 async def process_change(change: str) -> tuple[str, str]:
@@ -150,21 +181,21 @@ async def process_change(change: str) -> tuple[str, str]:
     if len(change_split) > 1:
         if change_split[0] == "modified:":
             file_change = change_split[1].strip()
-            modifications = await bash(f"git diff {file_change}")
+            modifications = await bash(f"git diff --staged {file_change}")
             commit_msg = await write_commit_message(file_change, modifications)
             return file_change, commit_msg
         if change_split[0] == "new":
             file_change = change_split[2].strip()
-            modifications = await bash(f"git diff {file_change}")
-            commit_msg = await write_commit_message(file_change, "")
+            modifications = await bash(f"git diff --staged {file_change}")
+            commit_msg = await write_commit_message(file_change, modifications)
             return file_change, commit_msg
         if change_split[0] == "deleted:":
             file_change = change_split[1].strip()
-            commit_msg = await write_commit_message(file_change, "")
+            commit_msg = await write_commit_message(file_change, "got deleted")
             return file_change, commit_msg
         if change_split[0] == "renamed:":
             file_change = change_split[3].strip()
-            commit_msg = await write_commit_message(file_change, "")
+            commit_msg = await write_commit_message(file_change, "got renamed")
             return file_change, commit_msg
         else:
             raise ValueError(f"Invalid change: {change}")
