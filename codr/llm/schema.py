@@ -38,6 +38,7 @@ class PlannedFileChange(File):
             else "❓"
         )
         return f"{icon} {self.relative_path} ({self.description})"
+    
 
 
 class PlannedFileChanges(BaseModel):
