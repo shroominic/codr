@@ -5,28 +5,38 @@ from funcchain.utils.helpers import log  # type: ignore
 from codr.codebase.func import (
     bash,
     create_directory,
-    read_file,
     create_file,
     delete_file,
     fix_file_path,
     get_tree,
     modify_file,
     prepare_environment,
+    read_file,
 )
 from codr.llm.chains import (
     check_desired_output,
     check_result,
+    codebase_answer,
     create_file_prompt,
     generate_task,
+    get_relevant_files,
     improve_task_description,
     modify_file_prompt,
     plan_file_changes,
     summarize_task_to_name,
     write_commit_message,
-    get_relevant_files,
-    codebase_answer,
 )
-from codr.llm.schema import CreatedFile, CreateDirectory, DeletedFile, FileChange, ModifiedFile, PlannedFileChange, PlannedFileChanges, Task
+from codr.llm.schema import (
+    CreatedFile,
+    CreateDirectory,
+    DeletedFile,
+    FileChange,
+    ModifiedFile,
+    PlannedFileChange,
+    PlannedFileChanges,
+    Task,
+)
+
 # from funcchain.utils import count_tokens
 
 
@@ -34,18 +44,18 @@ async def solve_task(
     task_description: str,
     debug_cmd: str | None = None,
 ) -> None:
-    task_name = await summarize_task_to_name(task_description)
-    log(task_name)
+    # task_name = await summarize_task_to_name(task_description)
+    # log(task_name)
     task = Task(
-        name=task_name,
+        name="task_name",
         description=task_description,
     )
 
-    tree = await get_tree()
+    # tree = await get_tree()
 
     # May result in more halluzinations
-    task.description = await improve_task_description(task, tree)
-    log("Improved task: ", task)
+    # task.description = await improve_task_description(task, tree)
+    # log("Improved task: ", task)
 
     changes = (
         await asyncio.gather(
@@ -103,16 +113,17 @@ async def compute_changes(task: Task) -> list[FileChange]:
     #     log("\nFile changes:\n", file_changes)
     # return file_changes
 
+
 async def generate_changes(task: Task, changes: PlannedFileChanges) -> list[FileChange]:
     """
     Generate file changes based on planned file changes
     """
     # gather file contents of all files of planned changes
-    
+
     # merge into big prompt (with context)
 
     # generate changes based on prompt and output list of changes
-    
+
     # return list of changes
     return []
 
@@ -165,7 +176,9 @@ async def apply_changes(changes: list[FileChange]) -> None:
             raise ValueError(f"Invalid change: {change}")
 
 
-async def commit_changes() -> None:
+async def commit_changes(stage: bool, auto_push: bool) -> None:
+    if stage:
+        await bash("git add .")
     git_status = (await bash("git status")).split("Changes not staged for commit:")[0]
     if "Changes to be committed" in git_status:
         commits = await asyncio.gather(
@@ -174,6 +187,8 @@ async def commit_changes() -> None:
         for change, msg in commits:
             await bash(f'git commit {change} -m "{msg}"')
             print(change, ">", msg)
+        if auto_push:
+            await bash("git push")
 
 
 async def process_change(change: str) -> tuple[str, str]:
