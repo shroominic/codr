@@ -3,9 +3,9 @@ import fnmatch
 import hashlib
 import os
 from pathlib import Path
-from typing import Union, Any
+from typing import Any, Union
 
-import yaml
+import yaml  # type: ignore
 from langchain.pydantic_v1 import BaseModel
 
 IGNORED: set[str] = {
@@ -91,8 +91,7 @@ class CodeBaseFile(CodeBaseNode):
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
             summary = await summarize_file(content) if content else "None"
-        except Exception as e:
-            print(f"Failed to summarize file {path}: {e.__class__.__name__}: {e.args[0]}")
+        except Exception:
             summary = "N/A"
             content_hash = "error"
         return cls(
@@ -188,12 +187,10 @@ class CodeBaseTree(CodeBaseNode):
         ]
 
         # delete nodes not in codebase anymore
-        deleted_nodes = [
-            node
-            for node in self.nodes
-            if node.path
-            not in [file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())]
+        ignored_nodes = [
+            file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())
         ]
+        deleted_nodes = [node for node in self.nodes if node.path not in ignored_nodes]
 
         # update self.nodes
         self.nodes = [node for node in self.nodes if node not in deleted_nodes]
