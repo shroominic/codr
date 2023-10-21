@@ -1,5 +1,15 @@
 name: .
 nodes:
+- name: docs
+  nodes:
+  - name: docs/codebase_documentation.md
+    sha256: 7bf7c0b9a8b5313b48a13e6522a20459ada5e8ab9d9b63f4077fdc388bf0e46c
+    summary: The file is a comprehensive documentation of the "codr" project's codebase,
+      detailing the purpose and functionality of each file and directory, from root
+      to subdirectories, including configuration files, test scripts, solution and
+      example scripts for various tasks, main project code, and scripts for codebase
+      interaction and management.
+  sha256: e63754dd0a741705178ef140731d8be59ab4ca47b1d3d114d6f627a060c826ab
 - name: .pre-commit-config.yaml
   sha256: dd2b6f65facfd866feab5e84a35b293fb11dec8c0eafdd304e78434fbebca955
   summary: The file outlines configuration for pre-commit hooks from various repositories,
@@ -89,13 +99,12 @@ nodes:
     sha256: 1bc49ce71e2d4bde1347dc941aa3675575f191efeed38c506927290c46e540a8
   sha256: c0a2f66dcc2f2ed63f7877b7411c8ec911ba761c6d284f119e5302f04ff3d912
 - name: README.md
-  sha256: a0b2dcf272fc2790c55ccf91b8b74c76d6b13e8be98352427ad4c8378f8a65db
-  summary: '''Codr'' is a Python-based coding assistant that uses GPT models for code
-    interaction, prompt generation, and output parsing, manages tokens, automates
-    tasks like debugging and committing changes, and handles file operations, organized
-    into ''funcchain'', ''codr'', and ''codebase'' modules, with detailed documentation,
-    a CLI for task execution, and an open invitation for contributions with adherence
-    to pre-commit hooks configuration.'
+  sha256: f5bbe843ee94caede8cda34b8a93d5aaa6c993ef62280e037a7e827bedf64ba7
+  summary: '''Codr'' is a Python-based coding assistant that uses GPT models to automate
+    tasks like debugging, committing changes, testing, and file management, with features
+    including prompt generation, output parsing, and token management, organized into
+    three modules: ''funcchain'', ''codr'', and ''codebase'', and offers a CLI for
+    task execution.'
 - name: .gitignore
   sha256: c7eb77dc58361491b4dc4a63de87d5cc0884242aebf1028fa432be19a4626026
   summary: 'The file contains Python cache files, environment variables, a lock file
@@ -130,13 +139,15 @@ nodes:
         an asynchronous chat function, which takes a user query, selects an appropriate
         route based on the query, and returns the response from the chat agent.
     - name: codr/llm/scripts.py
-      sha256: 7022c6ddba41e772cd32852e1912a45a6efb6733e1ba849547438009a5b2234c
-      summary: This Python script is an asynchronous task solver for codebase operations.
-        It includes functions to solve tasks, auto debug, compute changes, generate
-        changes, apply changes, commit changes, and provide expert answers. It uses
-        various methods such as creating, modifying, and deleting files or directories,
-        and committing changes to a Git repository. The script also includes error
-        handling for invalid methods or changes.
+      sha256: c2dc144a556acc91eac5aa48cda6f83bab61163f7b98aff6b24e60b1ecb35355
+      summary: This Python file is an asynchronous task solver for codebase operations.
+        It includes functions to solve tasks, debug, compute changes, generate changes,
+        apply changes, and commit changes to a Git repository. It also has an expert
+        answer function to provide answers based on the codebase. The tasks involve
+        creating, modifying, and deleting files or directories, and the changes are
+        planned and applied accordingly. The debugging function checks the output
+        against a goal, and if not met, generates a new task to solve. The commit
+        function processes Git changes and commits them with appropriate messages.
     - name: codr/llm/chains
       nodes:
       - name: codr/llm/chains/files.py
@@ -209,21 +220,51 @@ nodes:
         as a class (CreatedFile, ModifiedFile, DeletedFile, CreateDirectory). It also
         includes a Task class for task descriptions and a PlannedFileChanges class
         for managing a list of planned file changes.
-    sha256: 1c94b55318e553fe8342ebe0a775a6d4022a638771ae05c7447ce06ca04e3759
+    sha256: 22b9c67fd371f8a7e49f663ce8a5dc3802bd7f1376818424ca9adab44472822e
   - name: codr/__init__.py
     sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     summary: None
   - name: codr/codebase
     nodes:
     - name: codr/codebase/tree.py
-      sha256: dfb5cb68595e4bb44234b7f10f13610fb84da61f364ad370b6e369955fa5d742
-      summary: The provided Python script is a codebase management tool that creates
-        a tree-like structure of a project's files and directories, excluding those
-        specified in the .gitignore file. It generates a summary of each file and
-        calculates a SHA256 hash for each file and directory. The script also includes
-        functionality to refresh the tree structure, reflecting any changes made in
-        the project. The tree structure is serialized to a YAML file for persistent
-        storage.
+      sha256: f368051f77186e18364721d65b98d71c56070e5816fbfaf2261bfda9be0342d9
+      summary: 'The provided Python script is a part of a larger codebase management
+        system. It defines classes and functions to manage, summarize, and serialize
+        a codebase. The script includes the following key components:
+
+
+        1. `IGNORED` set: A set of file and directory names that should be ignored
+        during the codebase analysis.
+
+
+        2. `load_gitignore` function: This function reads the .gitignore file and
+        adds the patterns to the `IGNORED` set.
+
+
+        3. `is_ignored_by_gitignore` function: This function checks if a file or directory
+        should be ignored based on the `IGNORED` set.
+
+
+        4. `CodeBaseNode` class: This is a base class for representing a node in the
+        codebase. It includes properties like name, sha256 hash, and an optional embedding.
+
+
+        5. `CodeBaseFile` class: This class represents a file in the codebase. It
+        extends `CodeBaseNode` and includes a summary of the file. It also includes
+        methods to create an instance from a dictionary or a path, and to refresh
+        the instance based on the current state of the file.
+
+
+        6. `CodeBaseTree` class: This class represents a directory in the codebase.
+        It extends `CodeBaseNode` and includes a list of nodes (files or directories).
+        It includes methods to create an instance from a dictionary or a path, to
+        refresh the instance based on the current state of the directory, and to serialize
+        the instance to a YAML file.
+
+
+        The script uses asyncio for concurrent execution of tasks, hashlib for generating
+        sha256 hashes, and yaml for serializing objects. It also uses the pathlib
+        and os libraries for file and directory operations.'
     - name: codr/codebase/func.py
       sha256: 337e5a9cc2db70ab382e0f6278c9814a479d390d9fcfbd9badfe6786dd9a6f3d
       summary: The file contains asynchronous Python functions for interacting with
@@ -232,12 +273,12 @@ nodes:
         tree, preparing the git environment for the codebase, and fixing file paths.
         It uses libraries such as asyncio, aiofiles, and os, and also includes markdown
         and Python formatting.
-    sha256: d7cc6f3b813d4b6153f6f32a7c1c5dc0bafa58eebdf04cf34dbc42a7d6d5b3c5
+    sha256: 744a217c786fe506f581cd0e44bbcf9847dd03bc6fa66d0c7004c8efa0be3968
   - name: codr/__main__.py
     sha256: 4ea6f7e8eb487df1299122d8c6e235ba41c4fd107b3d11ce28205c7f13e2d79c
     summary: This Python script uses the Typer library to create a CLI application
       that assists in solving tasks, debugging, committing changes, asking questions
       about the codebase or libraries, and printing the current tree of the codebase.
       It also includes placeholders for a chat interface and an automatic linter.
-  sha256: cdd4acc4af51846776132981ccc628ba5a37ef6ed68e9da3adb8d6eb828ea695
-sha256: 51c37c7990bebb950285ab9a8b7c500ae23b2fe4a872fc363d2fe1bb10d1cedc
+  sha256: 1404fc8cca0c20751503bce04041f50a3eed91dec4ebaa225014e9e71256e8bd
+sha256: 3e42642f33c4eb0db7dbb952e6d8fbb244ad0951f4e46c9804dde7867986b05c
