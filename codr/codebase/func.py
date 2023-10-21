@@ -144,7 +144,7 @@ async def prepare_environment(task: Task) -> None:
     if getenv("AUTO_COMMIT", "false").lower() == "true":
         from codr.llm.scripts import commit_changes
 
-        await commit_changes()
+        await commit_changes(True, False)  # TODO: make this configurable
 
     if getenv("AUTO_STASH", "false").lower() == "true":
         git_status = await bash("git status")
