@@ -1,4 +1,4 @@
-from typing import Union, Any
+from typing import Any, Union
 
 from langchain.pydantic_v1 import BaseModel, Field
 
@@ -38,7 +38,6 @@ class PlannedFileChange(File):
             else "❓"
         )
         return f"{icon} {self.relative_path} ({self.description})"
-    
 
 
 class PlannedFileChanges(BaseModel):
