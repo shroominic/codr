@@ -1,5 +1,4 @@
 from funcchain.chain import achain
-
 from langchain.pydantic_v1 import BaseModel, Field
 
 from codr.codebase.tree import CodeBaseTree
