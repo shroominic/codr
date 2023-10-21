@@ -6,7 +6,7 @@ from funcchain import settings
 from funcchain.utils.model_defaults import create_long_llm
 from rich import print
 
-from codr.llm.scripts import auto_debug, commit_changes, solve_task, expert_answer
+from codr.llm.scripts import auto_debug, commit_changes, expert_answer, solve_task
 from codr.llm.templates import solve_task_system_instruction
 
 app = typer.Typer()
@@ -42,11 +42,16 @@ def debug(
 
 
 @app.command()
-def commit() -> None:
+def commit(
+    stage: Annotated[
+        bool, typer.Option("--stage", "-s", help="Stage all changes to commit everything changed.")
+    ] = False,
+    push: Annotated[bool, typer.Option("--push", "-p", help="Push everything after commiting.")] = False,
+) -> None:
     """
     Write commit messages and commit changes.
     """
-    asyncio.run(commit_changes())
+    asyncio.run(commit_changes(stage, push))
 
 
 @app.command()
@@ -85,7 +90,6 @@ def auto_linter() -> None:
     Automatically run a linter on the codebase and fix issues.
     Also include mypy and flake8.
     """
-    
 
 
 if __name__ == "__main__":
