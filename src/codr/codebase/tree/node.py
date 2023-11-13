@@ -21,6 +21,6 @@ class CodeBaseNode(BaseModel, ABC):
     @abstractmethod
     async def refresh(self) -> "CodeBaseNode":
         ...
-    
+
     def __str__(self, indent: int = 0) -> str:
         return " " * indent + f"Node: {self.path.name}"

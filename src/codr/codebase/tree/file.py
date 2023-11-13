@@ -21,14 +21,15 @@ class CodeBaseFile(CodeBaseNode):
     async def from_path(cls, path: Path) -> "CodeBaseFile":
         try:
             from ...llm.chains.files import summarize_file
+
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
             summary = await summarize_file(content) if content else "None"
-        
+
         except Exception:
             summary = "N/A"
             content_hash = "error"
-        
+
         return cls(
             path=path,
             sha256=content_hash,

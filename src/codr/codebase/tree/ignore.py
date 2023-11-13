@@ -35,6 +35,7 @@ def load_gitignore() -> None:
                     pattern = pattern.removesuffix("/")
                     IGNORED.add(pattern)
 
+
 load_gitignore()
 
 
