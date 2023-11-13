@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Union
 
 import yaml  # type: ignore
-from langchain.pydantic_v1 import BaseModel
+from pydantic.v1 import BaseModel
 
 IGNORED: set[str] = {
     ".context",
@@ -85,7 +85,7 @@ class CodeBaseFile(CodeBaseNode):
 
     @classmethod
     async def from_path(cls, path: Path) -> "CodeBaseFile":
-        from codr.llm.chains.files import summarize_file
+        from ..llm.chains.files import summarize_file
 
         try:
             content = path.read_text()
