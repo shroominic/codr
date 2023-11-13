@@ -3,16 +3,15 @@ from typing import Annotated, Optional
 
 import typer
 from funcchain import settings
-from funcchain.utils.model_defaults import create_long_llm
 from rich import print
 
-from codr.llm.scripts import auto_debug, commit_changes, expert_answer, solve_task
-from codr.llm.templates import solve_task_system_instruction
+from .llm.scripts import auto_debug, commit_changes, expert_answer, solve_task
+from .llm.templates import solve_task_system_instruction
 
 app = typer.Typer()
 
 settings.DEFAULT_SYSTEM_PROMPT = solve_task_system_instruction
-settings.LLM = create_long_llm()
+settings.MODEL_NAME = "gpt-4-1106-preview"
 
 
 @app.command()
@@ -69,7 +68,7 @@ def tree() -> None:
     """
     Print the current tree.
     """
-    from codr.codebase.tree import CodeBaseTree
+    from .codebase.tree import CodeBaseTree
 
     tree = asyncio.run(CodeBaseTree.load())
     print(tree.__str__())
@@ -80,7 +79,7 @@ def chat() -> None:
     """
     Open CLI Chat Interface
     """
-    # from codr.llm.chat import chat
+    # from .llm.chat import chat
 
     # asyncio.run(chat())
 
