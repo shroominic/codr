@@ -1,5 +1,5 @@
-from codr.llm.chains.commit import *
-from codr.llm.chains.debug import *
-from codr.llm.chains.expert_answer import *
-from codr.llm.chains.files import *
-from codr.llm.chains.task import *
+from .commit import *  # noqa
+from .debug import *  # noqa
+from .expert_answer import *  # noqa
+from .files import *  # noqa
+from .task import *  # noqa
