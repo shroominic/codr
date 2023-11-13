@@ -38,7 +38,9 @@ class PlannedFileChange(File):
 
 
 class PlannedFileChanges(BaseModel):
-    changes: list[PlannedFileChange] = Field(..., description="List of file changes to make")
+    changes: list[PlannedFileChange] = Field(
+        ..., description="List of file changes to make"
+    )
 
     def __iter__(self) -> Any:
         return iter(self.changes)

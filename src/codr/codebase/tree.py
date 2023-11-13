@@ -49,7 +49,8 @@ def is_ignored_by_gitignore(file_path: str) -> bool:
     Checks if a file is ignored by .gitignore
     """
     return any(
-        fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern)
+        fnmatch.fnmatch(file_path, pattern)
+        or fnmatch.fnmatch(os.path.basename(file_path), pattern)
         for pattern in IGNORED
     )
 
@@ -112,7 +113,9 @@ class CodeBaseFile(CodeBaseNode):
 
     def __str__(self, indent: int = 0) -> str:
         return (
-            " " * indent + f"<file {self.path.name}>" + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
+            " " * indent
+            + f"<file {self.path.name}>"
+            + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
         )
 
 
@@ -128,7 +131,9 @@ class CodeBaseTree(CodeBaseNode):
         path = data.pop("name")
         nodes_data = data.pop("nodes")
         nodes = [
-            CodeBaseFile.from_dict(node_data) if "summary" in node_data else CodeBaseTree.from_dict(node_data)
+            CodeBaseFile.from_dict(node_data)
+            if "summary" in node_data
+            else CodeBaseTree.from_dict(node_data)
             for node_data in nodes_data
         ]
         return cls(path, nodes=nodes, **data)
@@ -148,7 +153,9 @@ class CodeBaseTree(CodeBaseNode):
     @classmethod
     async def from_path(cls, path: Path) -> "CodeBaseTree":
         tasks = [
-            CodeBaseFile.from_path(file_path) if file_path.is_file() else cls.from_path(file_path)
+            CodeBaseFile.from_path(file_path)
+            if file_path.is_file()
+            else cls.from_path(file_path)
             for file_path in path.iterdir()
             if not is_ignored_by_gitignore(file_path.as_posix())
         ]
@@ -156,7 +163,9 @@ class CodeBaseTree(CodeBaseNode):
             input(f"Found {len(tasks)} files in {path}. Press enter to continue...")
         nodes: list["CodeBaseNode"] = await asyncio.gather(*tasks)
 
-        folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in nodes)).encode()).hexdigest()
+        folder_hash = hashlib.sha256(
+            ("".join(str(node.sha256) for node in nodes)).encode()
+        ).hexdigest()
 
         tree = cls(
             path=path,
@@ -174,31 +183,46 @@ class CodeBaseTree(CodeBaseNode):
         # gather new nodes from codebase not in self.nodes
         node_paths = [node.path for node in self.nodes]
         new_node_tasks = [
-            CodeBaseFile.from_path(file_path) if file_path.is_file() else CodeBaseTree.from_path(file_path)
+            CodeBaseFile.from_path(file_path)
+            if file_path.is_file()
+            else CodeBaseTree.from_path(file_path)
             for file_path in self.path.iterdir()
-            if not is_ignored_by_gitignore(file_path.as_posix()) and file_path not in node_paths
+            if not is_ignored_by_gitignore(file_path.as_posix())
+            and file_path not in node_paths
         ]
         # check node hash and update if necessary
         node_updates = [
             node
             for node in self.nodes
             if node.path
-            in [file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())]
+            in [
+                file_path
+                for file_path in self.path.iterdir()
+                if not is_ignored_by_gitignore(file_path.as_posix())
+            ]
         ]
 
         # delete nodes not in codebase anymore
         ignored_nodes = [
-            file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())
+            file_path
+            for file_path in self.path.iterdir()
+            if not is_ignored_by_gitignore(file_path.as_posix())
         ]
         deleted_nodes = [node for node in self.nodes if node.path not in ignored_nodes]
 
         # update self.nodes
         self.nodes = [node for node in self.nodes if node not in deleted_nodes]
         self.nodes = [node for node in self.nodes if node not in node_updates]
-        self.nodes.extend(await asyncio.gather(*new_node_tasks, *[node.refresh() for node in node_updates]))
+        self.nodes.extend(
+            await asyncio.gather(
+                *new_node_tasks, *[node.refresh() for node in node_updates]
+            )
+        )
 
         # update self.sha256
-        folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in self.nodes)).encode()).hexdigest()
+        folder_hash = hashlib.sha256(
+            ("".join(str(node.sha256) for node in self.nodes)).encode()
+        ).hexdigest()
 
         if self.sha256 != folder_hash:
             self.sha256 = folder_hash

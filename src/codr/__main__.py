@@ -17,7 +17,9 @@ settings.MODEL_NAME = "gpt-4-1106-preview"
 @app.command()
 def solve(
     task: Annotated[str, typer.Argument(help="Description of the task to solve.")],
-    debug_cmd: Annotated[Optional[str], typer.Option(help="Command to debug the task.")] = None,
+    debug_cmd: Annotated[
+        Optional[str], typer.Option(help="Command to debug the task.")
+    ] = None,
 ) -> None:
     """
     Input a task description and the llm agent will try to solve it.
@@ -28,8 +30,12 @@ def solve(
 @app.command()
 def debug(
     command: Annotated[str, typer.Argument(help="Command to startup your app.")],
-    goal: Annotated[Optional[str], typer.Option(help="Desired output of the program.")] = None,
-    focus: Annotated[Optional[str], typer.Option(help="Focus on a specific file.")] = None,
+    goal: Annotated[
+        Optional[str], typer.Option(help="Desired output of the program.")
+    ] = None,
+    focus: Annotated[
+        Optional[str], typer.Option(help="Focus on a specific file.")
+    ] = None,
     loop: Annotated[bool, typer.Option(help="Loop the debug process.")] = True,
 ) -> None:
     """
@@ -43,9 +49,14 @@ def debug(
 @app.command()
 def commit(
     stage: Annotated[
-        bool, typer.Option("--stage", "-s", help="Stage all changes to commit everything changed.")
+        bool,
+        typer.Option(
+            "--stage", "-s", help="Stage all changes to commit everything changed."
+        ),
     ] = False,
-    push: Annotated[bool, typer.Option("--push", "-p", help="Push everything after commiting.")] = False,
+    push: Annotated[
+        bool, typer.Option("--push", "-p", help="Push everything after commiting.")
+    ] = False,
 ) -> None:
     """
     Write commit messages and commit changes.

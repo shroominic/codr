@@ -30,7 +30,9 @@ async def fix_filename(relative_file_path: str, codebase_tree: CodeBaseTree) -> 
     return await achain()
 
 
-async def plan_file_changes(task: Task, codebase_tree: CodeBaseTree) -> PlannedFileChanges:
+async def plan_file_changes(
+    task: Task, codebase_tree: CodeBaseTree
+) -> PlannedFileChanges:
     """
     Which of these files from tree need to be modified to solve task?
     Answer with a list of file changes inside a JSON array.
@@ -44,7 +46,9 @@ async def plan_file_changes(task: Task, codebase_tree: CodeBaseTree) -> PlannedF
     return await achain()
 
 
-async def generate_file_change(file_name: str, abstract_plan: str, codebase_tree: CodeBaseTree) -> str:
+async def generate_file_change(
+    file_name: str, abstract_plan: str, codebase_tree: CodeBaseTree
+) -> str:
     """
     Generate a precise plan for file change.
     Answer with a compressed summary of knowledge describing what to change.
@@ -52,7 +56,9 @@ async def generate_file_change(file_name: str, abstract_plan: str, codebase_tree
     return await achain()
 
 
-async def create_file_prompt(change: PlannedFileChange, codebase_tree: CodeBaseTree) -> CodeBlock:
+async def create_file_prompt(
+    change: PlannedFileChange, codebase_tree: CodeBaseTree
+) -> CodeBlock:
     """
     PLAN:
     {change_description}
@@ -69,7 +75,9 @@ async def create_file_prompt(change: PlannedFileChange, codebase_tree: CodeBaseT
     )
 
 
-async def modify_file_prompt(main_task: Task, codebase_tree: CodeBaseTree, change: PlannedFileChange) -> CodeBlock:
+async def modify_file_prompt(
+    main_task: Task, codebase_tree: CodeBaseTree, change: PlannedFileChange
+) -> CodeBlock:
     """
     PLAN:
     {change_description}

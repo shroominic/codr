@@ -21,6 +21,8 @@ async def summarize_commit_message(commit_message: str) -> str:
 
     return await achain(
         parser=LambdaOutputParser(
-            _parse=lambda t: t if is_emoji(t.split()[0]) else raiser(ValueError("Start with an emoji.")),
+            _parse=lambda t: t
+            if is_emoji(t.split()[0])
+            else raiser(ValueError("Start with an emoji.")),
         )
     )

@@ -101,7 +101,9 @@ async def create_file(relative_path: str, content: str) -> None:
         if not await bash("which prettier") == "":
             await bash(f"prettier --write {relative_path}")
             return
-        print("Prettier is not installed. Please install it with `npm install -g prettier`")
+        print(
+            "Prettier is not installed. Please install it with `npm install -g prettier`"
+        )
 
     # Python Formatting
     if relative_path.endswith(".py"):
@@ -157,7 +159,9 @@ async def prepare_environment(task: Task) -> None:
 
     # checkout to new created branch with task name
     if getenv("CHECKOUT_BRANCH", "false").lower() == "true":
-        task_name = task.name.replace(" ", "_") + "_" + datetime.now().strftime("%Y%m%d%H%M%S")
+        task_name = (
+            task.name.replace(" ", "_") + "_" + datetime.now().strftime("%Y%m%d%H%M%S")
+        )
         checkout_result = await bash(f"git checkout -b {task_name}")
         if "Switched to a new branch" not in checkout_result:
             raise Exception(f"Failed to checkout to new branch: {checkout_result}")
@@ -166,7 +170,9 @@ async def prepare_environment(task: Task) -> None:
         await bash("git stash apply")
 
 
-async def fix_file_path(relative_path: str, codebase_tree: CodeBaseTree | None = None) -> str:
+async def fix_file_path(
+    relative_path: str, codebase_tree: CodeBaseTree | None = None
+) -> str:
     """Fix file name to absolute path"""
     tree = codebase_tree or await get_tree()
     file_name = relative_path.split("/")[-1]
