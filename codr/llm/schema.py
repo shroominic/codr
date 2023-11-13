@@ -1,14 +1,11 @@
 from typing import Any, Union
 
-from langchain.pydantic_v1 import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 
 
 class Task(BaseModel):
     name: str
     description: str
-
-    def __str__(self) -> str:
-        return self.description
 
 
 class File(BaseModel):
@@ -21,7 +18,7 @@ class PlannedFileChange(File):
 
     @property
     def content(self) -> str:
-        from codr.codebase.func import read_file_sync
+        from ..codebase.func import read_file_sync
 
         return read_file_sync(self.relative_path)
 
