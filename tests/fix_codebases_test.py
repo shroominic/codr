@@ -5,7 +5,7 @@ from asyncio import subprocess
 
 async def prepare_environments(example_path: str) -> None:
     await subprocess.create_subprocess_shell(
-        "python3 -m venv venv && source venv/bin/activate &&pip install -r requirements.txt",
+        "python3 -m venv .venv && source venv/bin/activate &&pip install -r requirements.txt",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         cwd="playgrounds/" + example_path,
