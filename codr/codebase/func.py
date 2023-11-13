@@ -7,8 +7,8 @@ from typing import AsyncGenerator
 
 import aiofiles  # type: ignore
 
-from codr.codebase.tree import CodeBaseTree
-from codr.llm.schema import Task
+from ..llm.schema import Task
+from .tree import CodeBaseTree
 
 
 async def _bash_gen(*commands: str) -> AsyncGenerator[bytes, None]:
@@ -142,7 +142,7 @@ async def prepare_environment(task: Task) -> None:
 
     # if there are open changes stash them
     if getenv("AUTO_COMMIT", "false").lower() == "true":
-        from codr.llm.scripts import commit_changes
+        from ..llm.scripts import commit_changes
 
         await commit_changes(True, False)  # TODO: make this configurable
 
@@ -166,9 +166,9 @@ async def prepare_environment(task: Task) -> None:
         await bash("git stash apply")
 
 
-async def fix_file_path(relative_path: str, tree: CodeBaseTree | None = None) -> str:
+async def fix_file_path(relative_path: str, codebase_tree: CodeBaseTree | None = None) -> str:
     """Fix file name to absolute path"""
-    tree = tree or await get_tree()
+    tree = codebase_tree or await get_tree()
     file_name = relative_path.split("/")[-1]
     files = [file for file in tree.files if file.name.split("/")[-1] == file_name]
 
