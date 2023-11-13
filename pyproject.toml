@@ -15,16 +15,15 @@ aiofiles = "^23"
 pydantic-settings = "^2"
 emoji = "^2"
 rich = "^13.5"
-funcchain = "^0.0.9"
+funcchain = ">=0.1"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.3"
 mypy = "^0.991"
 black = "^22.12"
 isort = "^5.11"
-autoflake = "^2"
-flake8 = "^6"
 pytest = "^7.2"
+ruff = "^0.1.1"
 
 [tool.poetry.scripts]
 codr = 'codr.__main__:app'
@@ -48,4 +47,4 @@ max-line-length = 120
 [tool.mypy]
 ignore_missing_imports = true
 disallow_untyped_defs = true
-exclude = "tests/codebases/examples/*"
+exclude = "tests/codebases/*"
