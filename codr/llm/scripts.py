@@ -1,8 +1,8 @@
 import asyncio
 
-from funcchain.utils.helpers import log  # type: ignore
+from funcchain.utils.helpers import log
 
-from codr.codebase.func import (
+from ..codebase.func import (
     bash,
     create_directory,
     create_file,
@@ -13,20 +13,18 @@ from codr.codebase.func import (
     prepare_environment,
     read_file,
 )
-from codr.llm.chains import (
+from .chains import (
     check_desired_output,
     check_result,
     codebase_answer,
     create_file_prompt,
     generate_task,
     get_relevant_files,
-    improve_task_description,
     modify_file_prompt,
     plan_file_changes,
-    summarize_task_to_name,
     write_commit_message,
 )
-from codr.llm.schema import (
+from .schema import (
     CreatedFile,
     CreateDirectory,
     DeletedFile,
