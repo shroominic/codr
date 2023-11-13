@@ -1,6 +1,6 @@
 from langchain.memory import ChatMessageHistory
 
-# from codr.llm.scripts import auto_debug, commit_changes, expert_answer, solve_task
+# from .scripts import auto_debug, commit_changes, expert_answer, solve_task
 
 HISTORY = ChatMessageHistory()
 
