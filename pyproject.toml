@@ -1,48 +1,42 @@
-[tool.poetry]
+[project]
 name = "codr"
 version = "0.0.1"
-authors = ["Shroominic <contact@shroominic.com>"]
 description = "Codr is an ai tool for faster coding."
-
-[tool.poetry.dependencies]
-python = "^3.10"
-langchain = "*"
-python-dotenv = "*"
-typer = "^0.9"
-tiktoken = "^0.4"
-pyyaml = "^6"
-aiofiles = "^23"
-pydantic-settings = "^2"
-emoji = "^2"
-rich = "^13.5"
-funcchain = ">=0.1"
-
-[tool.poetry.dev-dependencies]
-pre-commit = "^3.3"
-mypy = "^0.991"
-black = "^22.12"
-isort = "^5.11"
-pytest = "^7.2"
-ruff = "^0.1.1"
-
-[tool.poetry.scripts]
-codr = 'codr.__main__:app'
-
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-line_length = 120
+authors = [
+    { name = "Shroominic", email = "contact@shroominic.com" }
+]
+dependencies = [
+    "funcchain>=0.1",
+    "python-dotenv",
+    "typer>=0.9",
+    "tiktoken>=0.4",
+    "pyyaml>=6",
+    "aiofiles>=23",
+    "pydantic-settings>=2",
+    "emoji>=2",
+    "rich>=13.5",
+]
+readme = "README.md"
+requires-python = ">=3.11"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.black]
-line-length = 120
+[project.scripts]
+codr = 'codr.__main__:app'
 
-[tool.flake8]
-max-line-length = 120
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pre-commit>=3.3",
+    "ruff>=0.1.5",
+    "mypy>=0.991",
+    "pytest>=7.2"
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.mypy]
 ignore_missing_imports = true
