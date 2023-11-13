@@ -1,5 +1,5 @@
 from funcchain import achain
-from langchain.pydantic_v1 import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 
 
 class QueryHandler(BaseModel):
@@ -8,12 +8,6 @@ class QueryHandler(BaseModel):
 
 async def select_query_handler(user_query: str, query_handlers: dict) -> QueryHandler:
     """
-    USER QUERY:
-    {user_query}
-
-    QUERY HANDLERS:
-    {query_handlers}
-
     Select a query handler that fits best for the user query.
     """
     return await achain()
