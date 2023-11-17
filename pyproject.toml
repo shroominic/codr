@@ -6,15 +6,11 @@ authors = [
     { name = "Shroominic", email = "contact@shroominic.com" }
 ]
 dependencies = [
-    "funcchain>=0.1",
-    "python-dotenv",
     "typer>=0.9",
-    "tiktoken>=0.4",
     "pyyaml>=6",
     "aiofiles>=23",
-    "pydantic-settings>=2",
     "emoji>=2",
-    "rich>=13.5",
+    "funcchain>=0.1.6",
 ]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,14 +20,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-codr = 'codr.__main__:app'
+codr = 'src.codr.__main__:app'
 
 [tool.rye]
 managed = true
 dev-dependencies = [
     "pre-commit>=3.3",
     "ruff>=0.1.5",
-    "mypy>=0.991",
+    "mypy>=1.7.0",
     "pytest>=7.2"
 ]
 
