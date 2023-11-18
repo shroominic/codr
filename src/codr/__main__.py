@@ -46,6 +46,13 @@ def debug(
     asyncio.run(auto_debug(command, goal, loop))
 
 
+# better debug
+# select relevant files based on console output
+# give all relevant files in context
+# choose files to edit
+# edit files and iterate over debug process
+
+
 @app.command()
 def commit(
     stage: Annotated[
