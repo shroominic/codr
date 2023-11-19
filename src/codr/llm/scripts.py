@@ -1,6 +1,8 @@
 import asyncio
 
-from funcchain.utils.helpers import log
+from typing import Any
+from funcchain import settings
+from rich import print
 
 from ..codebase.func import (
     bash,
@@ -36,6 +38,11 @@ from .schema import (
 )
 
 # from funcchain.utils import count_tokens
+
+
+def log(*text: Any) -> None:
+    if settings.DEBUG:
+        print(*text)
 
 
 async def solve_task(
