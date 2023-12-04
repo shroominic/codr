@@ -1,0 +1,209 @@
+import asyncio
+from funcchain import achain
+from funcchain.parser import CodeBlock
+
+from ..codebase.tree import CodeBaseTree
+from ..utils import log
+
+from ..codebase.func import (
+    create_directory,
+    create_file,
+    delete_file,
+    fix_file_path,
+    get_tree,
+    modify_file,
+    prepare_environment,
+)
+from ..schema import (
+    CreatedFile,
+    CreateDirectory,
+    DeletedFile,
+    FileChange,
+    ModifiedFile,
+    PlannedFileChange,
+    PlannedFileChanges,
+    Task,
+)
+
+
+async def plan_file_changes(
+    task: Task, codebase_tree: CodeBaseTree
+) -> PlannedFileChanges:
+    """
+    Which of these files from tree need to be modified to solve task?
+    Answer with a list of file changes inside a JSON array.
+    If you need to create a directory, use "mkdir" as method.
+    Each file change consists of a path, method and description.
+    path is a relative path, make sure path is
+    correct and file exists in codebase.
+    method is one of "create", "mkdir", "modify" or "delete".
+    description is a compressed summary of knowledge describing what to change.
+    """
+    return await achain()
+
+
+async def create_file_prompt(
+    change: PlannedFileChange, codebase_tree: CodeBaseTree
+) -> CodeBlock:
+    """
+    PLAN:
+    {change_description}
+
+    FILE:
+    {change_relative_path}
+
+    Create a new file as part of solving task.
+    Reply with the file content.
+    """
+    return await achain(
+        change_relative_path=change.relative_path,
+        change_description=change.description,
+    )
+
+
+async def modify_file_prompt(
+    main_task: Task, codebase_tree: CodeBaseTree, change: PlannedFileChange
+) -> CodeBlock:
+    """
+    PLAN:
+    {change_description}
+
+    FILE:
+    {change_content}
+
+    Modify this file using plan as part of solving main task.
+    Do not change anything not related to plan, this includes formatting or comments.
+    Rewrite entire file including changes, do not leave out any lines.
+    """
+    return await achain(
+        change_description=change.description,
+        change_content=change.content,
+    )
+
+
+async def solve_task(
+    task_description: str,
+    debug_cmd: str | None = None,
+) -> None:
+    # task_name = await summarize_task_to_name(task_description)
+    # log(task_name)
+    task = Task(
+        name="task_name",
+        description=task_description,
+    )
+
+    # tree = await get_tree()
+
+    # May result in more halluzinations
+    # task.description = await improve_task_description(task, tree)
+    # log("Improved task: ", task)
+
+    changes = (
+        await asyncio.gather(
+            compute_changes(task),
+            prepare_environment(task),
+        )
+    )[0]
+
+    log("Changes: ", changes)
+    input("Press enter to apply changes.")
+
+    await apply_changes(changes)
+
+    if debug_cmd:
+        from .debug import auto_debug
+
+        # command = gather_run_command(task)
+        await auto_debug(debug_cmd, task.description, loop=True)
+
+
+async def compute_changes(
+    task: Task,
+) -> list[FileChange]:
+    planned_changes = await plan_file_changes(task, await get_tree())
+    log("\nPlanned changes:\n", planned_changes)
+    # if count_tokens(planned_changes.files) > 32:
+    file_changes = await asyncio.gather(
+        *[
+            generate_change(
+                task=task,
+                change=change,
+            )
+            for change in planned_changes.changes
+        ]
+    )
+    return file_changes
+    # else:
+    #     file_changes = await generate_changes(task, planned_changes)
+    #     log("\nFile changes:\n", file_changes)
+    # return file_changes
+
+
+async def generate_change(
+    task: Task,
+    change: PlannedFileChange,
+) -> FileChange:
+    # TODO: collect relevant context
+    # TODO: plan file changes precise based on context
+    tree = await get_tree()
+    if change.method == "create":
+        return CreatedFile(
+            relative_path=change.relative_path,
+            content=(await create_file_prompt(change, tree)).code,
+        )
+    if change.method == "mkdir":
+        return CreateDirectory(
+            relative_path=change.relative_path,
+        )
+    try:
+        change.relative_path = await fix_file_path(change.relative_path)
+    except FileNotFoundError:
+        return CreatedFile(
+            relative_path=change.relative_path,
+            content=(await create_file_prompt(change, tree)).code,
+        )
+    if change.method == "modify":
+        return ModifiedFile(
+            relative_path=change.relative_path,
+            content=(await modify_file_prompt(task, tree, change)).code,
+        )
+    if change.method == "delete":
+        return DeletedFile(
+            relative_path=change.relative_path,
+        )
+    else:
+        raise ValueError(f"Invalid method: {change.method}")
+
+
+async def apply_changes(
+    changes: list[FileChange],
+) -> None:
+    for change in changes:
+        log("Applying change: ", change)
+        if isinstance(change, CreateDirectory):
+            await create_directory(change.relative_path)
+        elif isinstance(change, CreatedFile):
+            await create_file(change.relative_path, change.content)
+        elif isinstance(change, ModifiedFile):
+            await modify_file(change.relative_path, change.content)
+        elif isinstance(change, DeletedFile):
+            await delete_file(change.relative_path)
+        else:
+            raise ValueError(f"Invalid change: {change}")
+
+
+async def generate_changes(
+    task: Task,
+    changes: PlannedFileChanges,
+) -> list[FileChange]:
+    """
+    Generate file changes based on planned file changes
+    """
+    # gather file contents of all files of planned changes
+
+    # merge into big prompt (with context)
+
+    # generate changes based on prompt and output list of changes
+
+    # return list of changes
+    return []
