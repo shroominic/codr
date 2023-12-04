@@ -7,7 +7,7 @@ from typing import AsyncGenerator
 
 import aiofiles  # type: ignore
 
-from ..llm.schema import Task
+from ..schema import Task
 from .tree import CodeBaseTree
 
 
@@ -144,7 +144,7 @@ async def prepare_environment(task: Task) -> None:
 
     # if there are open changes stash them
     if getenv("AUTO_COMMIT", "false").lower() == "true":
-        from ..llm.scripts import commit_changes
+        from ..commands import commit_changes
 
         await commit_changes(True, False)  # TODO: make this configurable
 
