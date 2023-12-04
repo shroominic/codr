@@ -20,7 +20,7 @@ class CodeBaseFile(CodeBaseNode):
     @classmethod
     async def from_path(cls, path: Path) -> "CodeBaseFile":
         try:
-            from ...llm.chains.files import summarize_file
+            from ..._deprecated.files import summarize_file
 
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
