@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Union
 from abc import ABC, abstractmethod
 
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel
 
 
 class CodeBaseNode(BaseModel, ABC):
