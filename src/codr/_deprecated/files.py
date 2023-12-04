@@ -8,8 +8,8 @@ async def summarize_file(content: str) -> str:
     """
     Summarize file content.
     Try to describe file in a way that a programmer can understand it without reading code.
-    Make it fit in one line but don't be afraid to use multiple sentences.
-    Do not use filler words and create a really dense piece of information.
+    Keep it really short but put all the important information.
+    Do not use markdown formatting just write plain text.
     """
     return await achain()
 
