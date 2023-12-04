@@ -9,3 +9,4 @@ __pycache__
 funcchain
 .context
 tests/codebases
+.venv
