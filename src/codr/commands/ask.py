@@ -19,8 +19,9 @@ async def get_relevant_files(
 ) -> RelevantFiles:
     """
     Which files are most relevant to answer the user question?
-    Extract all relevant relative file paths from the codebase tree.
-    Create a list containing relevant_files as strings. If no files are relevant, return an empty list.
+    Extract max 7 relevant relative file paths from the codebase tree.
+    Create a list containing relevant_files as strings.
+    If no files are relevant, return an empty list.
     """
     return await achain()
 
@@ -32,6 +33,8 @@ async def codebase_answer(
 ) -> str:
     """
     Answer the question based on the codebase and context.
+    Format your answer in a way that is easy to read inside a terminal.
+    You can utilize python rich format features.
     """
     return await achain()
 
@@ -42,7 +45,7 @@ async def expert_answer(question: str) -> str:
     knowledge: list[str] = []
 
     paths = (await get_relevant_files(question, tree)).relevant_files
-    print("Relevant files: ", paths)
+    print("👀 reading files:", paths)
     for path in paths:
         knowledge.append(await read_file(path))
 
