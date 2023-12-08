@@ -4,7 +4,9 @@ from ..codebase.tree import CodeBaseTree
 from ..schema import Task
 
 
-async def summarize_file(content: str) -> str:
+async def summarize_file(
+    content: str,
+) -> str:
     """
     Summarize file content.
     Try to describe file in a way that a programmer can understand it without reading code.
@@ -14,14 +16,20 @@ async def summarize_file(content: str) -> str:
     return await achain()
 
 
-async def search_important_files(task: Task, codebase_tree: CodeBaseTree) -> list[str]:
+async def search_important_files(
+    task: Task,
+    codebase_tree: CodeBaseTree,
+) -> list[str]:
     """
     Which of these files are important to understand and solve task?
     """
     return await achain()
 
 
-async def fix_filename(relative_file_path: str, codebase_tree: CodeBaseTree) -> str:
+async def fix_filename(
+    relative_file_path: str,
+    codebase_tree: CodeBaseTree,
+) -> str:
     """
     Fix RELATIVE_FILE_PATH to match
     valid relative file path from CodeBaseTree.
@@ -30,7 +38,9 @@ async def fix_filename(relative_file_path: str, codebase_tree: CodeBaseTree) -> 
 
 
 async def generate_file_change(
-    file_name: str, abstract_plan: str, codebase_tree: CodeBaseTree
+    file_name: str,
+    abstract_plan: str,
+    codebase_tree: CodeBaseTree,
 ) -> str:
     """
     Generate a precise plan for file change.
