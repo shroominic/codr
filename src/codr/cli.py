@@ -38,7 +38,7 @@ def debug(
     """
     if focus:
         print("Focus on: ", focus, " (not implemented yet)")
-    asyncio.run(auto_debug(command, goal, loop))
+    asyncio.run(auto_debug(command, goal or "healthy console output", loop))
 
 
 @app.command()
