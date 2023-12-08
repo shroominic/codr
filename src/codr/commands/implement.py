@@ -27,7 +27,8 @@ from ..schema import (
 
 
 async def plan_file_changes(
-    task: Task, codebase_tree: CodeBaseTree
+    task: Task,
+    codebase_tree: CodeBaseTree,
 ) -> PlannedFileChanges:
     """
     Which of these files from tree need to be modified to solve task?
@@ -43,7 +44,8 @@ async def plan_file_changes(
 
 
 async def create_file_prompt(
-    change: PlannedFileChange, codebase_tree: CodeBaseTree
+    change: PlannedFileChange,
+    codebase_tree: CodeBaseTree,
 ) -> CodeBlock:
     """
     PLAN:
@@ -62,7 +64,9 @@ async def create_file_prompt(
 
 
 async def modify_file_prompt(
-    main_task: Task, codebase_tree: CodeBaseTree, change: PlannedFileChange
+    main_task: Task,
+    codebase_tree: CodeBaseTree,
+    change: PlannedFileChange,
 ) -> CodeBlock:
     """
     PLAN:
@@ -88,7 +92,6 @@ async def solve_task(
     # task_name = await summarize_task_to_name(task_description)
     # log(task_name)
     task = Task(
-        name="task_name",
         description=task_description,
     )
 
@@ -106,7 +109,7 @@ async def solve_task(
     )[0]
 
     log("Changes: ", changes)
-    input("Press enter to apply changes.")
+    input("Press enter to apply changes, CTRL+C to abort")
 
     await apply_changes(changes)
 
