@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Any, Union
 
 import yaml  # type: ignore
-from pydantic import BaseModel
+from funcchain import achain
+from pydantic import BaseModel, Field
 
 IGNORED: set[str] = {
     ".context",
@@ -27,6 +28,22 @@ IGNORED: set[str] = {
     "*.pyc",
     "Cargo.lock",
 }
+
+
+class FileSummary(BaseModel):
+    purpose: str = Field(description="One sentence summary of the purpose of the file.")
+    definitions: list[str] = Field(
+        description="List of definitions in the file and their purpose."
+    )
+
+
+async def summarize_file(
+    file_content: str,
+) -> FileSummary:
+    """
+    Create an abstract representation of the file content.
+    """
+    return await achain()
 
 
 def load_gitignore() -> None:
@@ -88,13 +105,13 @@ class CodeBaseFile(CodeBaseNode):
 
     @classmethod
     async def from_path(cls, path: Path) -> "CodeBaseFile":
-        from .._deprecated.files import summarize_file
-
         try:
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
-            summary = await summarize_file(content) if content else "None"
-        except Exception:
+            abstract = await summarize_file(content)
+            summary = abstract.__str__()
+        except Exception as e:
+            print(e)
             summary = "N/A"
             content_hash = "error"
         return cls(
