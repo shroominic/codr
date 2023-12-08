@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class Task(BaseModel):
-    name: str
+    name: str | None = Field(default=None, description="Task Name")
     description: str
 
 
