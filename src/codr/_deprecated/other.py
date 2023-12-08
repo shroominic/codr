@@ -5,7 +5,10 @@ from ..codebase.tree import CodeBaseTree
 from ..schema import Task
 
 
-async def generate_code_summary(task: Task, codebase_tree: CodeBaseTree) -> str:
+async def generate_code_summary(
+    task: Task,
+    codebase_tree: CodeBaseTree,
+) -> str:
     """
     Summarize codebase, answer with a compressed piece of knowledge.
     What technologies and frameworks are used? What is general structure?
@@ -34,7 +37,9 @@ async def query_relevant_context(
     return await achain()
 
 
-async def llm_format(file: str) -> CodeBlock:
+async def llm_format(
+    file: str,
+) -> CodeBlock:
     """
     Rewrite following file to match proper formatting.
     Do not change code or contents, only appearance.
@@ -43,7 +48,9 @@ async def llm_format(file: str) -> CodeBlock:
     return await achain()
 
 
-async def gather_test_cmd(codebase_tree: CodeBaseTree) -> CodeBlock:
+async def gather_test_cmd(
+    codebase_tree: CodeBaseTree,
+) -> CodeBlock:
     """
     Gather command to test codebase.
     There might be a script to run tests,
