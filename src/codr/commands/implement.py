@@ -4,7 +4,7 @@ from funcchain.parser import CodeBlock
 
 from ..codebase.tree import CodeBaseTree
 from ..utils import log
-
+from ..ui import show_yes_no_select
 from ..codebase.func import (
     create_directory,
     create_file,
@@ -31,6 +31,12 @@ async def plan_file_changes(
     codebase_tree: CodeBaseTree,
 ) -> PlannedFileChanges:
     """
+    CODEBASE_TREE:
+    {codebase_tree}
+
+    TASK:
+    {task}
+
     Which of these files from tree need to be modified to solve task?
     Answer with a list of file changes inside a JSON array.
     If you need to create a directory, use "mkdir" as method.
@@ -53,6 +59,9 @@ async def create_file_prompt(
 
     FILE:
     {change_relative_path}
+
+    CODEBASE_TREE:
+    {codebase_tree}
 
     Create a new file as part of solving task.
     Reply with the file content.
@@ -101,19 +110,24 @@ async def solve_task(
     # task.description = await improve_task_description(task, tree)
     # log("Improved task: ", task)
 
-    changes = (
-        await asyncio.gather(
-            compute_changes(task),
-            prepare_environment(task),
-        )
-    )[0]
+    changes, _ = await asyncio.gather(
+        compute_changes(task),
+        prepare_environment(task),
+    )
 
-    log("Changes: ", changes)
-    input("Press enter to apply changes, CTRL+C to abort")
+    for change in changes:
+        if isinstance(change, ModifiedFile):
+            change.print_diff()
+        else:
+            log(change)
+
+    if not await show_yes_no_select("Do you want to apply these changes?"):
+        exit(0)
 
     await apply_changes(changes)
 
     if debug_cmd:
+        print("DEBUGGING from debug_cmd:", debug_cmd)
         from .debug import auto_debug
 
         # command = gather_run_command(task)
@@ -182,7 +196,6 @@ async def apply_changes(
     changes: list[FileChange],
 ) -> None:
     for change in changes:
-        log("Applying change: ", change)
         if isinstance(change, CreateDirectory):
             await create_directory(change.relative_path)
         elif isinstance(change, CreatedFile):
