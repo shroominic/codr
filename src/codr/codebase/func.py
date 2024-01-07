@@ -28,6 +28,22 @@ async def _bash_gen(*commands: str) -> AsyncGenerator[bytes, None]:
         yield stderr
 
 
+async def stream_bash(command: str) -> AsyncGenerator[str, None]:
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+    if process.stdout:
+        async for line in process.stdout:
+            yield line.decode().strip()
+
+    if process.stderr:
+        async for err in process.stderr:
+            yield err.decode().strip()
+
+
 async def bash(*commands: str) -> str:
     """
     Run a bash command
@@ -159,6 +175,8 @@ async def prepare_environment(task: Task) -> None:
 
     # checkout to new created branch with task name
     if getenv("CHECKOUT_BRANCH", "false").lower() == "true":
+        if not task.name:
+            task.name = "codr_task"
         task_name = (
             task.name.replace(" ", "_") + "_" + datetime.now().strftime("%Y%m%d%H%M%S")
         )
