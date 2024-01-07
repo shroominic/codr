@@ -10,7 +10,7 @@ app = typer.Typer()
 
 
 @app.command()
-def solve(
+def implement(
     task: Annotated[str, typer.Argument(help="Description of the task to solve.")],
     debug_cmd: Annotated[
         Optional[str], typer.Option(help="Command to debug the task.")
