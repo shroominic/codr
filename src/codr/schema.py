@@ -57,8 +57,29 @@ class CreateDirectory(File):
     pass
 
 
+def diff(content: str, relative_path: str) -> str:
+    from .codebase.func import read_file_sync
+
+    old_content = read_file_sync(relative_path)
+    from difflib import unified_diff
+
+    return "\n".join(unified_diff(old_content.splitlines(), content.splitlines()))
+
+
 class ModifiedFile(File):
     content: str = Field(..., description="New File Content")
+
+    def print_diff(self) -> None:
+        for line in diff(
+            self.content,
+            self.relative_path,
+        ).splitlines():
+            if line.startswith("+"):
+                print(f"\033[92m{line}\033[0m")
+            elif line.startswith("-"):
+                print(f"\033[91m{line}\033[0m")
+            else:
+                print(f"{line}")
 
 
 class DeletedFile(File):
