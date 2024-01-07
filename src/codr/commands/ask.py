@@ -5,7 +5,7 @@ from funcchain import achain
 from ..codebase.func import (
     get_tree,
     read_file,
-    file_exists,
+    #    file_exists,
 )
 from ..codebase.tree import CodeBaseTree
 
@@ -17,9 +17,9 @@ class RelevantFiles(BaseModel):
     def check_relevant_files(cls, v: list[str]) -> list[str]:
         if len(v) > 7:
             raise ValueError("Too many files")
-        for path in v:
-            if not file_exists(path):
-                raise ValueError(f"FilePath does not exist in Codebase: {path}")
+        # for path in v:
+        #     if not await file_exists(path):
+        #         raise ValueError(f"FilePath does not exist in Codebase: {path}")
         return v
 
 
@@ -42,6 +42,12 @@ async def codebase_answer(
     relevant_files: list[str] = ["N/A"],
 ) -> str:
     """
+    CODEBASE_TREE:
+    {codebase_tree}
+
+    RELEVANT_FILES:
+    {relevant_files}
+
     Answer the question based on the codebase tree and relevant files.
     Format your answer in a way that is easy to read inside a terminal.
     You can utilize python rich format features.
