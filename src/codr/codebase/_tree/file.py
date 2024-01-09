@@ -48,7 +48,5 @@ class CodeBaseFile(CodeBaseNode):
 
     def __str__(self, indent: int = 0) -> str:
         return (
-            " " * indent
-            + f"<file {self.path.name}>"
-            + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
+            " " * indent + f"<file {self.path.name}>" + f": [green]{self.summary}[/green] </endfile {self.path.name}>"
         )

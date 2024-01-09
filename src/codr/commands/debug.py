@@ -1,12 +1,12 @@
 import asyncio
-from typing import Any
 from datetime import datetime, timedelta
-from pydantic import BaseModel, Field
+from typing import Any
+
 from funcchain import achain
-from ..utils import log
+from pydantic import BaseModel, Field
 
 from ..codebase.func import stream_bash
-
+from ..utils import log
 
 # better debug
 # select relevant files based on console output
@@ -20,9 +20,7 @@ from ..codebase.func import stream_bash
 class ConsoleOutputAnalysis(BaseModel):
     """Analyzis of the console output to determine if the result is healthy or not."""
 
-    observation: str = Field(
-        description="Short of what can be observed in the console output."
-    )
+    observation: str = Field(description="Short of what can be observed in the console output.")
     health: bool = Field(description="Is the console output healthy?")
     accuracy: int = Field(description="1-10 accuracy of the health check.")
 
@@ -53,9 +51,7 @@ async def check_desired_output(
 class DetermineLoading(BaseModel):
     """Analyzis of the console output to determine if the result is still loading."""
 
-    observation: str = Field(
-        description="Short description of what can be observed in the console output."
-    )
+    observation: str = Field(description="Short description of what can be observed in the console output.")
     loading: bool = Field(description="Is the console output still loading?")
     accuracy: int = Field(description="1-10 accuracy of the loading check.")
 
@@ -80,16 +76,10 @@ async def check_loading(
 class DebugTask(BaseModel):
     """Task to fix the codebase to produce a healthy console output."""
 
-    observation: str = Field(
-        description="Short of what can be observed in the console output."
-    )
+    observation: str = Field(description="Short of what can be observed in the console output.")
     goal: str = Field(description="Short of what the console output should be.")
-    problem_files: list[str] = Field(
-        description="Files mentioned in the console output that are not healthy."
-    )
-    task_description: str = Field(
-        description="Detailed, precise plan on how to fix the problem."
-    )
+    problem_files: list[str] = Field(description="Files mentioned in the console output that are not healthy.")
+    task_description: str = Field(description="Detailed, precise plan on how to fix the problem.")
 
 
 async def generate_task(
@@ -109,12 +99,7 @@ async def auto_debug(
 ) -> None:
     result = await analyze_output(command, goal)
 
-    if (
-        goal
-        and await check_desired_output(result, goal)
-        or not goal
-        and await check_result(result)
-    ):
+    if goal and await check_desired_output(result, goal) or not goal and await check_result(result):
         return log("DEBUG SUCCESSFUL")
 
     debug_task = await generate_task(result, goal)

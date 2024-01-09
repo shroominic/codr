@@ -1,7 +1,6 @@
-import os
 import fnmatch
+import os
 from pathlib import Path
-
 
 IGNORED: set[str] = {
     ".context",
@@ -44,7 +43,6 @@ def is_ignored_by_gitignore(file_path: str) -> bool:
     Checks if a file is ignored by .gitignore
     """
     return any(
-        fnmatch.fnmatch(file_path, pattern)
-        or fnmatch.fnmatch(os.path.basename(file_path), pattern)
+        fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern)
         for pattern in IGNORED
     )

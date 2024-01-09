@@ -1,10 +1,8 @@
 import asyncio
+
 from funcchain import achain
 from funcchain.parser import CodeBlock
 
-from ..codebase.tree import CodeBaseTree
-from ..utils import log
-from ..ui import show_yes_no_select
 from ..codebase.func import (
     create_directory,
     create_file,
@@ -14,6 +12,7 @@ from ..codebase.func import (
     modify_file,
     prepare_environment,
 )
+from ..codebase.tree import CodeBaseTree
 from ..schema import (
     CreatedFile,
     CreateDirectory,
@@ -24,6 +23,8 @@ from ..schema import (
     PlannedFileChanges,
     Task,
 )
+from ..ui import show_yes_no_select
+from ..utils import log
 
 
 async def plan_file_changes(

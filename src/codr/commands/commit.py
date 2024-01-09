@@ -1,8 +1,7 @@
 import asyncio
 
-from rich import print
-
 from funcchain import achain
+from rich import print
 
 from ..codebase.func import bash
 
@@ -25,11 +24,7 @@ async def commit_changes(stage: bool, auto_push: bool) -> None:
     git_status = (await bash("git status")).split("Changes not staged for commit:")[0]
     if "Changes to be committed" in git_status:
         commits = await asyncio.gather(
-            *[
-                process_change(change)
-                for change in git_status.split("\n")
-                if change.startswith("\t")
-            ]
+            *[process_change(change) for change in git_status.split("\n") if change.startswith("\t")]
         )
         for change, msg in commits:
             await bash(f'git commit {change} -m "{msg}"')

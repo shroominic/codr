@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 import typer
 from rich import print
 
-from .commands import commit_changes, auto_debug, expert_answer, solve_task
+from .commands import auto_debug, commit_changes, expert_answer, solve_task
 
 app = typer.Typer()
 
@@ -12,9 +12,7 @@ app = typer.Typer()
 @app.command()
 def implement(
     task: Annotated[str, typer.Argument(help="Description of the task to solve.")],
-    debug_cmd: Annotated[
-        Optional[str], typer.Option(help="Command to debug the task.")
-    ] = None,
+    debug_cmd: Annotated[Optional[str], typer.Option(help="Command to debug the task.")] = None,
 ) -> None:
     """
     Input a task description and the llm agent will try to solve it.
@@ -25,12 +23,8 @@ def implement(
 @app.command()
 def debug(
     command: Annotated[str, typer.Argument(help="Command to startup your app.")],
-    goal: Annotated[
-        Optional[str], typer.Option(help="Desired output of the program.")
-    ] = None,
-    focus: Annotated[
-        Optional[str], typer.Option(help="Focus on a specific file.")
-    ] = None,
+    goal: Annotated[Optional[str], typer.Option(help="Desired output of the program.")] = None,
+    focus: Annotated[Optional[str], typer.Option(help="Focus on a specific file.")] = None,
     loop: Annotated[bool, typer.Option(help="Loop the debug process.")] = True,
 ) -> None:
     """
@@ -45,13 +39,9 @@ def debug(
 def commit(
     stage: Annotated[
         bool,
-        typer.Option(
-            "--stage", "-s", help="Stage all changes to commit everything changed."
-        ),
+        typer.Option("--stage", "-s", help="Stage all changes to commit everything changed."),
     ] = False,
-    push: Annotated[
-        bool, typer.Option("--push", "-p", help="Push everything after commiting.")
-    ] = False,
+    push: Annotated[bool, typer.Option("--push", "-p", help="Push everything after commiting.")] = False,
 ) -> None:
     """
     Write commit messages and commit changes.
