@@ -24,7 +24,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-codr = 'src.codr.__main__:app'
+codr = 'codr.__main__:app'
+chatr = 'codr.chat:chat'
 
 [tool.rye]
 managed = true
@@ -38,7 +39,14 @@ dev-dependencies = [
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/codr"]
+
 [tool.mypy]
 ignore_missing_imports = true
 disallow_untyped_defs = true
 exclude = "tests/codebases/*"
+
+[tool.ruff]
+select = ["E", "F", "I"]
+line-length = 120
