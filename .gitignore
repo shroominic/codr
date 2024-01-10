@@ -10,3 +10,4 @@ funcchain
 .context
 tests/codebases
 .venv
+.python-version
