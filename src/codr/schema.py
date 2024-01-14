@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Literal, Union
 
 from pydantic import BaseModel, Field
 
@@ -9,12 +9,12 @@ class Task(BaseModel):
 
 
 class File(BaseModel):
-    relative_path: str = Field(..., description="Relative File Path")
+    relative_path: str = Field(description="Relative File Path")
 
 
 class PlannedFileChange(File):
-    method: str = Field(..., description="StringEnum (create, modify, mkdir, delete)")
-    description: str = Field(..., description="AbstractDescription (what to change)")
+    method: Literal["create", "modify", "mkdir", "delete"] = Field(description="Method enum of action to apply.")
+    description: str = Field(description="AbstractDescription (what to change)")
 
     @property
     def content(self) -> str:
@@ -38,7 +38,7 @@ class PlannedFileChange(File):
 
 
 class PlannedFileChanges(BaseModel):
-    changes: list[PlannedFileChange] = Field(..., description="List of file changes to make")
+    changes: list[PlannedFileChange] = Field(description="List of file changes to make")
 
     def __iter__(self) -> Any:
         return iter(self.changes)
@@ -48,7 +48,7 @@ class PlannedFileChanges(BaseModel):
 
 
 class CreatedFile(File):
-    content: str = Field(..., description="New File Content")
+    content: str = Field(description="New File Content")
 
 
 class CreateDirectory(File):
@@ -65,7 +65,7 @@ def diff(content: str, relative_path: str) -> str:
 
 
 class ModifiedFile(File):
-    content: str = Field(..., description="New File Content")
+    content: str = Field(description="New File Content")
 
     def print_diff(self) -> None:
         for line in diff(
