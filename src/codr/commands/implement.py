@@ -1,7 +1,7 @@
 import asyncio
 
 from funcchain import achain
-from funcchain.parser import CodeBlock
+from funcchain.syntax import CodeBlock
 
 from ..codebase.func import (
     create_directory,
