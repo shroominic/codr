@@ -14,7 +14,7 @@ class File(BaseModel):
 
 class PlannedFileChange(File):
     method: Literal["create", "modify", "mkdir", "delete"] = Field(description="Method enum of action to apply.")
-    description: str = Field(description="AbstractDescription (what to change)")
+    description: str = Field(description="AbstractDescription (plan on what to change)")
 
     @property
     def content(self) -> str:
