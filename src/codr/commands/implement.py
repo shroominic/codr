@@ -32,20 +32,11 @@ async def plan_file_changes(
     codebase_tree: CodeBaseTree,
 ) -> PlannedFileChanges:
     """
-    CODEBASE_TREE:
-    {codebase_tree}
-
-    TASK:
-    {task}
-
     Which of these files from tree need to be modified to solve task?
     Answer with a list of file changes inside a JSON array.
     If you need to create a directory, use "mkdir" as method.
     Each file change consists of a path, method and description.
-    path is a relative path, make sure path is
-    correct and file exists in codebase.
-    method is one of "create", "mkdir", "modify" or "delete".
-    description is a compressed summary of knowledge describing what to change.
+    Path is a relative path, make sure path is correct and file exists in codebase.
     """
     return await achain()
 
@@ -64,7 +55,7 @@ async def create_file_prompt(
     CODEBASE_TREE:
     {codebase_tree}
 
-    Create a new file as part of solving task.
+    Create a new file as part of solving the task.
     Reply with the file content.
     """
     return await achain(
