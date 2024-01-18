@@ -1,5 +1,5 @@
-from funcchain.chain import achain
-from funcchain.parser import CodeBlock
+from funcchain import achain
+from funcchain.syntax import CodeBlock
 
 from ..codebase.tree import CodeBaseTree
 from ..schema import Task
