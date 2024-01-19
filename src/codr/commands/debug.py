@@ -4,9 +4,9 @@ from typing import Any
 
 from funcchain import achain
 from pydantic import BaseModel, Field
+from rich import print
 
 from ..codebase.func import stream_bash
-from ..utils import log
 
 # better debug
 # select relevant files based on console output
@@ -100,11 +100,11 @@ async def auto_debug(
     result = await analyze_output(command, goal)
 
     if goal and await check_desired_output(result, goal) or not goal and await check_result(result):
-        return log("DEBUG SUCCESSFUL")
+        return print("DEBUG SUCCESSFUL")
 
     debug_task = await generate_task(result, goal)
     description = debug_task.task_description
-    log("DEBUG TASK:", debug_task)
+    print("DEBUG TASK:", debug_task)
 
     from .implement import solve_task
 
