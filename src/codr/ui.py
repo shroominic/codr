@@ -2,9 +2,7 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
 
-async def show_yes_no_select(
-    question: str,
-) -> bool:
+async def show_yes_no_select(question: str) -> bool:
     """
     Show cli select for yes or no
     """

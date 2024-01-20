@@ -1,0 +1,3 @@
+"""
+AutoCodr CLI
+"""
