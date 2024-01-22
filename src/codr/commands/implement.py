@@ -2,6 +2,7 @@ import asyncio
 
 from funcchain import achain
 from funcchain.syntax import CodeBlock
+from rich import print
 
 from ..codebase.func import (
     create_directory,
@@ -24,7 +25,6 @@ from ..schema import (
     Task,
 )
 from ..ui import show_yes_no_select
-from ..utils import log
 
 
 async def plan_file_changes(
@@ -111,7 +111,7 @@ async def solve_task(
         if isinstance(change, ModifiedFile):
             change.print_diff()
         else:
-            log(change)
+            print(change)
 
     if not await show_yes_no_select("Do you want to apply these changes?"):
         exit(0)
@@ -130,7 +130,7 @@ async def compute_changes(
     task: Task,
 ) -> list[FileChange]:
     planned_changes = await plan_file_changes(task, await get_tree())
-    log("\nPlanned changes:\n", planned_changes)
+    print("\nPlanned changes:\n", planned_changes)
     # if count_tokens(planned_changes.files) > 32:
     file_changes = await asyncio.gather(
         *[
