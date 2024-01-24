@@ -1,8 +1,7 @@
 import sys
 from enum import Enum
 
-from funcchain import chain
-from pydantic import BaseModel
+from funcchain.syntax.components import RouterChat
 
 
 class CLICommand(str, Enum):
@@ -14,15 +13,30 @@ class CLICommand(str, Enum):
     ASK = "ask"
 
 
-class CLISelector(BaseModel):
-    selection: CLICommand
-
-
-def router(user_request: str) -> CLISelector:
-    """
-    Select the appropriate cli command/action based on what the user wants.
-    """
-    return chain()
+router = RouterChat(
+    routes={
+        "implement": {
+            "handler": None,
+            "description": "Select this if the user wants you to implement a feature.",
+        },
+        "debug": {
+            "handler": None,
+            "description": "Select this if the user wants you to debug the codebase.",
+        },
+        "commit": {
+            "handler": None,
+            "description": "Select if the user wants to commit changes.",
+        },
+        "ask": {
+            "handler": None,
+            "description": "Select if the user asks a question.",
+        },
+        "exit": {
+            "handler": None,
+            "description": "Select if the user wants to exit the chat.",
+        },
+    }
+)
 
 
 def chat() -> None:
