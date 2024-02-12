@@ -2,15 +2,13 @@
 name = "codr"
 version = "0.0.1"
 description = "Codr is an ai tool for faster coding."
-authors = [
-    { name = "Shroominic", email = "contact@shroominic.com" }
-]
+authors = [{ name = "Shroominic", email = "contact@shroominic.com" }]
 dependencies = [
     "typer>=0.9",
     "pyyaml>=6",
     "aiofiles>=23",
     "emoji>=2",
-    "funcchain==0.2.0a4",
+    "funcchain>=0.2.2",
     "inquirerpy>=0.3.4",
     "fastapi>=0.104.1",
     "uvicorn>=0.24.0.post1",
@@ -33,7 +31,7 @@ dev-dependencies = [
     "pre-commit>=3.3",
     "ruff>=0.1.5",
     "mypy>=1.7.0",
-    "pytest>=7.2"
+    "pytest>=7.2",
 ]
 
 [tool.hatch.metadata]
@@ -48,5 +46,7 @@ disallow_untyped_defs = true
 exclude = "tests/codebases/*"
 
 [tool.ruff]
-select = ["E", "F", "I"]
 line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
