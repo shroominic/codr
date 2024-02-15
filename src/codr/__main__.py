@@ -1,9 +1,9 @@
 from funcchain import settings
 
-from .cli import app
-
-settings.llm = "gpt-4-1106-preview"
+settings.llm = "gpt-4-turbo-preview"
 
 
 if __name__ == "__main__":
+    from .cli import app
+
     app()
