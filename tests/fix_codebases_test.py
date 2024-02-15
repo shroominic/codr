@@ -26,14 +26,10 @@ async def fix_codebases() -> None:
     os.system("cp -r examples/ playgrounds/")
 
     fix_examples = [
-        example
-        for example in os.listdir("examples")
-        if os.path.isdir(example) and example.startswith("fix_")
+        example for example in os.listdir("examples") if os.path.isdir(example) and example.startswith("fix_")
     ]
 
-    await asyncio.gather(
-        prepare_environments(example_path) for example_path in fix_examples
-    )
+    await asyncio.gather(prepare_environments(example_path) for example_path in fix_examples)
 
 
 def test_fix_codebases() -> None:
