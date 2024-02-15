@@ -56,7 +56,7 @@ def ask(
     """
     Ask a question about the codebase or relevant libraries.
     """
-    print(asyncio.run(expert_answer(question)))
+    asyncio.run(expert_answer(question))
 
 
 @app.command()
