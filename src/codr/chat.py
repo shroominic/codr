@@ -1,38 +1,29 @@
 import sys
-from enum import Enum
 
 from funcchain.syntax.components import RouterChat
-
-
-class CLICommand(str, Enum):
-    EXIT = "exit"
-    CHAT = "chat"
-    IMPLEMENT = "implement"
-    DEBUG = "debug"
-    COMMIT = "commit"
-    ASK = "ask"
-
+from funcchain.syntax.components.handler import create_chat_handler
+from langchain_core.messages import HumanMessage
 
 router = RouterChat(
     routes={
         "implement": {
-            "handler": None,
+            "handler": create_chat_handler(),
             "description": "Select this if the user wants you to implement a feature.",
         },
         "debug": {
-            "handler": None,
+            "handler": create_chat_handler(),
             "description": "Select this if the user wants you to debug the codebase.",
         },
         "commit": {
-            "handler": None,
+            "handler": create_chat_handler(),
             "description": "Select if the user wants to commit changes.",
         },
         "ask": {
-            "handler": None,
+            "handler": create_chat_handler(),
             "description": "Select if the user asks a question.",
         },
         "exit": {
-            "handler": None,
+            "handler": create_chat_handler(),
             "description": "Select if the user wants to exit the chat.",
         },
     }
@@ -42,25 +33,9 @@ router = RouterChat(
 def chat() -> None:
     cli_input = " ".join(sys.argv[1:])
 
-    route = router(cli_input)
+    result = router.invoke(input=HumanMessage(content=cli_input))
 
-    print(route)
-
-    match route.selection:
-        case CLICommand.CHAT:
-            print("Chatting")
-        case CLICommand.DEBUG:
-            print("Debugging")
-        case CLICommand.COMMIT:
-            print("Commiting")
-        case CLICommand.ASK:
-            print("Asking")
-        case CLICommand.EXIT:
-            print("Exiting")
-        case CLICommand.IMPLEMENT:
-            print("Implementing")
-        case _:
-            print("Unknown command")
+    print(result)
 
 
 if __name__ == "__main__":
