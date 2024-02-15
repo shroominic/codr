@@ -21,7 +21,7 @@ docstring-parser==0.15
 emoji==2.10.1
 fastapi==0.109.2
 filelock==3.13.1
-funcchain==0.2.2
+funcchain @ file:///Users/fungus/dev/funcchain
 h11==0.14.0
 httpcore==1.0.2
 httpx==0.26.0
