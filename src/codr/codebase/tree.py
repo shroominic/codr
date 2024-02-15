@@ -151,9 +151,9 @@ class CodeBaseTree(CodeBaseNode):
         return cls(path, nodes=nodes, **data)
 
     @classmethod
-    async def load(cls) -> "CodeBaseTree":
-        if Path(".context/tree.yaml").exists():
-            with open(".context/tree.yaml", "r") as f:
+    async def load(cls, path: str = ".context/tree.yaml") -> "CodeBaseTree":
+        if Path(path).exists():
+            with open(path, "r") as f:
                 data = yaml.safe_load(f)
                 if not data:
                     return await cls.new()
