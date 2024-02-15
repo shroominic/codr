@@ -3,11 +3,11 @@ import os
 from datetime import datetime
 from os import getenv
 from pathlib import Path
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator
 
 import aiofiles  # type: ignore
 
-from ..schema import Task
+from ..schemas import Task
 from .tree import CodeBaseTree
 
 
@@ -80,14 +80,14 @@ def read_file_sync(relative_path: str) -> str:
             return "```\n" + f.read() + "\n```"
 
 
-async def show_tree() -> str:
+async def show_tree(*_: Any) -> str:
     """
     Show the codebase tree
     """
     return (await CodeBaseTree.load()).show()
 
 
-async def get_tree() -> CodeBaseTree:
+async def get_tree(*_: Any) -> CodeBaseTree:
     """
     Get the codebase tree
     """
