@@ -1,7 +1,7 @@
 from funcchain import achain
 
-from ...shared.schemas import Task
 from ..codebase.tree import CodeBaseTree
+from ..schemas import Task
 
 
 async def improve_task_description(
