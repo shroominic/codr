@@ -40,7 +40,7 @@ def codebase_answer(
     return chain()
 
 
-async def codebase_rag(question: str) -> str:
+async def expert_answer(question: str) -> str:
     answer = ""
     async for chunk in codebase_answer.astream({"question": question}):
         answer += chunk
@@ -48,7 +48,3 @@ async def codebase_rag(question: str) -> str:
         print(Markdown(answer))
 
     return answer
-
-
-async def expert_answer(question: str) -> str:
-    return await codebase_rag(question)
