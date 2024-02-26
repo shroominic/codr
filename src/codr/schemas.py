@@ -18,7 +18,7 @@ class PlannedFileChange(File):
 
     @property
     def content(self) -> str:
-        from ..codr.codebase.func import read_file_sync
+        from .codebase.func import read_file_sync
 
         return read_file_sync(self.relative_path)
 
