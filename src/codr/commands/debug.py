@@ -1,12 +1,14 @@
 import asyncio
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Annotated, Any
 
-from funcchain import achain
+from funcchain import achain, chain, runnable
+from funcchain.syntax.params import Depends
 from pydantic import BaseModel, Field
 from rich import print
 
-from ..codebase.func import stream_bash
+from ..codebase.func import get_tree, stream_bash
+from ..codebase.tree import CodeBaseTree
 
 # better debug
 # select relevant files based on console output
@@ -28,22 +30,16 @@ class ConsoleOutputAnalysis(BaseModel):
         return self.health
 
 
-async def check_result(
-    console_output: str,
-) -> ConsoleOutputAnalysis:
-    """
-    Analyze the console output and determine if the result is healthy or not.
-    """
-    return await achain()
-
-
 async def check_desired_output(
     console_output: str,
     desired_output_description: str,
 ) -> ConsoleOutputAnalysis:
     """
     Analyze the console output and determine if the result is healthy or not.
-    The user gave a description of the desired output to give you an idea of what healthy means.
+    {% if desired_output_description != "healthy console output" %}
+    The user gave a description of the desired output to give you an idea of what healthy means:
+    {{ desired_output_description }}
+    {% endif %}
     """
     return await achain()
 
@@ -82,14 +78,16 @@ class DebugTask(BaseModel):
     task_description: str = Field(description="Detailed, precise plan on how to fix the problem.")
 
 
-async def generate_task(
+@runnable
+def generate_task(
     console_output: str,
     goal: str,
+    codebase_tree: Annotated[CodeBaseTree, Depends(get_tree)],
 ) -> DebugTask:
     """
     Generate a task to fix the codebase to produce a healthy console output.
     """
-    return await achain()
+    return chain()
 
 
 async def auto_debug(
@@ -99,10 +97,10 @@ async def auto_debug(
 ) -> None:
     result = await analyze_output(command, goal)
 
-    if goal and await check_desired_output(result, goal) or not goal and await check_result(result):
+    if await check_desired_output(result, goal):
         return print("DEBUG SUCCESSFUL")
 
-    debug_task = await generate_task(result, goal)
+    debug_task = await generate_task.ainvoke({"console_output": result, "goal": goal})
     description = debug_task.task_description
     print("DEBUG TASK:", debug_task)
 
@@ -140,5 +138,6 @@ async def analyze_output(command: str, goal: str) -> str:
     while True:
         await asyncio.sleep(interval)
         if datetime.now() - live_data["last_batch_time"] > timedelta(seconds=5):
+            # todo add cropping of console log stack
             if not await check_loading(live_data["stack"]):
                 return live_data["stack"]
