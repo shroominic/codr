@@ -11,8 +11,14 @@ app = typer.Typer()
 
 @app.command()
 def implement(
-    task: Annotated[str, typer.Argument(help="Description of the task to solve.")],
-    debug_cmd: Annotated[Optional[str], typer.Option(help="Command to debug the task.")] = None,
+    task: Annotated[
+        str,
+        typer.Argument(help="Description of the task to solve."),
+    ],
+    debug_cmd: Annotated[
+        Optional[str],
+        typer.Option(help="Command to debug the task."),
+    ] = None,
 ) -> None:
     """
     Input a task description and the llm agent will try to solve it.
@@ -22,10 +28,22 @@ def implement(
 
 @app.command()
 def debug(
-    command: Annotated[str, typer.Argument(help="Command to startup your app.")],
-    goal: Annotated[Optional[str], typer.Option(help="Desired output of the program.")] = None,
-    focus: Annotated[Optional[str], typer.Option(help="Focus on a specific file.")] = None,
-    loop: Annotated[bool, typer.Option(help="Loop the debug process.")] = True,
+    command: Annotated[
+        str,
+        typer.Argument(help="Command to startup your app."),
+    ],
+    goal: Annotated[
+        Optional[str],
+        typer.Option(help="Desired output of the program."),
+    ] = None,
+    focus: Annotated[
+        Optional[str],
+        typer.Option(help="Focus on a specific file."),
+    ] = None,
+    loop: Annotated[
+        bool,
+        typer.Option(help="Loop the debug process."),
+    ] = True,
 ) -> None:
     """
     Automatically debug with the llm agent.
@@ -41,13 +59,19 @@ def commit(
         bool,
         typer.Option("--stage", "-s", help="Stage all changes to commit everything changed."),
     ] = False,
-    push: Annotated[bool, typer.Option("--push", "-p", help="Push everything after commiting.")] = False,
-    group: Annotated[bool, typer.Option("--group", "-g", help="Group changes into smaller commits.")] = False,
+    push: Annotated[
+        bool,
+        typer.Option("--push", "-p", help="Push everything after commiting."),
+    ] = False,
+    no_group: Annotated[
+        bool,
+        typer.Option("--no-group", "-n", help="Commit every file individually."),
+    ] = False,
 ) -> None:
     """
     Write commit messages and commit changes.
     """
-    asyncio.run(commit_changes(stage, push, group))
+    asyncio.run(commit_changes(stage, push, no_group))
 
 
 @app.command()
