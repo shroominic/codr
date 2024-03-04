@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, AsyncGenerator
 import aiofiles  # type: ignore
 from pydantic import BaseModel
 
-from ...shared.schemas import Task
+from ..schemas import Task
 from .tree import CodeBaseTree
 
 if TYPE_CHECKING:
