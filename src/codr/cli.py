@@ -46,6 +46,7 @@ def commit(
     """
     Write commit messages and commit changes.
     """
+    print("CLI Call: Committing changes.")
     asyncio.run(commit_changes(stage, push))
 
 
@@ -57,17 +58,6 @@ def ask(
     Ask a question about the codebase or relevant libraries.
     """
     asyncio.run(expert_answer(question))
-
-
-@app.command()
-def tree() -> None:
-    """
-    Print the current tree.
-    """
-    from .codebase.tree import CodeBaseTree
-
-    tree = asyncio.run(CodeBaseTree.load())
-    print(tree.__str__())
 
 
 @app.command()
