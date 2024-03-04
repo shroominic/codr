@@ -1,8 +1,8 @@
 from funcchain import achain
 from funcchain.syntax import CodeBlock
 
-from ...shared.schemas import Task
 from ..codebase.tree import CodeBaseTree
+from ..schemas import Task
 
 
 async def generate_code_summary(
