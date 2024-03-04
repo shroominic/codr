@@ -1,69 +1,50 @@
-from funcchain import achain
-from pydantic import BaseModel, field_validator
+from asyncio import gather
+from typing import Annotated
+
+from funcchain import chain, runnable
+from funcchain.syntax.params import Depends
 from rich import print
+from rich.markdown import Markdown
 
-from ..codebase.func import (
-    get_tree,
-    read_file,
-)
-
-#    file_exists,
+from ..codebase.func import get_tree, read_file
 from ..codebase.tree import CodeBaseTree
 
 
-class RelevantFiles(BaseModel):
-    relevant_files: list[str]
-
-    @field_validator("relevant_files")
-    def check_relevant_files(cls, v: list[str]) -> list[str]:
-        if len(v) > 7:
-            raise ValueError("Too many files")
-        # for path in v:
-        #     if not await file_exists(path):
-        #         raise ValueError(f"FilePath does not exist in Codebase: {path}")
-        return v
+async def aload_files(paths: list[str]) -> list[str]:
+    return await gather(*[read_file(path) for path in paths])
 
 
-async def get_relevant_files(
-    user_question: str,
-    codebase_tree: CodeBaseTree,
-) -> RelevantFiles:
+@runnable
+def get_relevant_files(
+    question: str,
+    codebase_tree: Annotated[CodeBaseTree, Depends(get_tree)],
+) -> list[str]:
     """
     Which files are most relevant to answer the user question?
-    return ONLY the relevant relative paths, produce the MINIMUM neccesary up to a MAXIMUM OF 7.
-    Create a list containing relevant_files as strings.
-    If no files are relevant, return an empty list.
+    Return a list of strings with ONLY the relevant relative paths,
+    Do not include unrelated files and keep the list short.
+    If no files are relevant, respond with an empty list.
     """
-    return await achain()
+    return chain()
 
 
-async def codebase_answer(
+@runnable
+def codebase_answer(
     question: str,
-    codebase_tree: CodeBaseTree,
-    relevant_files: list[str] = ["N/A"],
+    codebase_tree: Annotated[CodeBaseTree, Depends(get_tree)],
+    relevant_files: Annotated[str, Depends(get_relevant_files | aload_files | str)],
 ) -> str:
     """
-    CODEBASE_TREE:
-    {codebase_tree}
-
-    RELEVANT_FILES:
-    {relevant_files}
-
     Answer the question based on the codebase tree and relevant files.
-    Format your answer in a way that is easy to read inside a terminal.
-    You can utilize python rich format features.
     """
-    return await achain()
+    return chain()
 
 
 async def expert_answer(question: str) -> str:
-    # classify: check if question requires expert answer
-    tree = await get_tree()
-    knowledge: list[str] = []
+    answer = ""
+    async for chunk in codebase_answer.astream({"question": question}):
+        answer += chunk
+        print("\033c", end="\n")
+        print(Markdown(answer))
 
-    paths = (await get_relevant_files(question, tree)).relevant_files
-    print("👀 reading files:", paths)
-    for path in paths:
-        knowledge.append(await read_file(path))
-
-    return await codebase_answer(question, tree, knowledge)
+    return answer
