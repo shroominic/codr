@@ -94,7 +94,7 @@ async def write_commits(git_changes: str) -> list[GitCommit]:
     return await achain()
 
 
-async def commit_changes(stage: bool, auto_push: bool, group: bool) -> None:
+async def commit_changes(stage: bool, auto_push: bool, no_group: bool) -> None:
     if stage:
         await bash("git add .")
 
@@ -102,18 +102,17 @@ async def commit_changes(stage: bool, auto_push: bool, group: bool) -> None:
     if "Changes to be committed" in git_status:
         git_status_lines = [c for c in git_status.split("\n") if c.startswith("\t")]
 
-        if group:
-            git_changes = await parse_changes(git_status_lines)
-            for commit in await write_commits(str(git_changes)):
-                print(str(commit))
-                await bash(f'git commit {" ".join(commit.changes)} -m "{commit.emoji} {commit.message}"')
-
-        else:
+        if no_group:
             commit_tasks = [aio.create_task(write_commit(c)) for c in git_status_lines]
             for task in aio.as_completed(commit_tasks):
                 commit = await task
                 print(str(commit))
                 await bash(f'git commit {commit.changes[0]} -m "{commit.emoji} {commit.message}"')
+        else:
+            git_changes = await parse_changes(git_status_lines)
+            for commit in await write_commits(str(git_changes)):
+                print(str(commit))
+                await bash(f'git commit {" ".join(commit.changes)} -m "{commit.emoji} {commit.message}"')
 
         if auto_push:
             await bash("git push")
