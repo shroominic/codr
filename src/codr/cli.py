@@ -42,12 +42,12 @@ def commit(
         typer.Option("--stage", "-s", help="Stage all changes to commit everything changed."),
     ] = False,
     push: Annotated[bool, typer.Option("--push", "-p", help="Push everything after commiting.")] = False,
+    group: Annotated[bool, typer.Option("--group", "-g", help="Group changes into smaller commits.")] = False,
 ) -> None:
     """
     Write commit messages and commit changes.
     """
-    print("CLI Call: Committing changes.")
-    asyncio.run(commit_changes(stage, push))
+    asyncio.run(commit_changes(stage, push, group))
 
 
 @app.command()
