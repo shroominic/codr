@@ -95,8 +95,7 @@ async def write_commits(git_changes: str) -> list[GitCommit]:
 
 
 async def commit_changes(stage: bool, auto_push: bool, no_group: bool) -> None:
-    if stage:
-        await bash("git add .")
+    await bash("git add .") if stage else None
 
     git_status = (await bash("git status")).split("Changes not staged for commit:")[0]
     if "Changes to be committed" in git_status:
@@ -116,3 +115,5 @@ async def commit_changes(stage: bool, auto_push: bool, no_group: bool) -> None:
 
         if auto_push:
             await bash("git push")
+    else:
+        print("No changes to commit.\nUse --stage or -s to stage all open changes.")
