@@ -14,7 +14,7 @@ from ..codebase.func import (
     prepare_environment,
 )
 from ..codebase.tree import CodeBaseTree
-from ..schema import (
+from ..schemas import (
     CreatedFile,
     CreateDirectory,
     DeletedFile,
