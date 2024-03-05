@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 import typer
 from rich import print
 
-from .commands import auto_debug, commit_changes, expert_answer, solve_task
+from .commands import auto_debug, commit_changes, execute_shell, expert_answer, solve_task
 
 app = typer.Typer()
 
@@ -72,6 +72,20 @@ def commit(
     Write commit messages and commit changes.
     """
     asyncio.run(commit_changes(stage, push, no_group))
+
+
+@app.command()
+def shell(
+    instruction: Annotated[str, typer.Argument(help="Instruction to execute.")],
+    auto_execute: Annotated[
+        bool,
+        typer.Option("--auto", "-a", help="Automatically execute the command without asking."),
+    ] = False,
+) -> None:
+    """
+    Write a shell command to fulfill the instruction.
+    """
+    asyncio.run(execute_shell(instruction, auto_execute))
 
 
 @app.command()
