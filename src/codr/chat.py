@@ -103,7 +103,7 @@ def dynamic_request(instruction: str) -> None:
         case Implement(task=task, debug_cmd=debug_cmd):
             cli.implement(task, debug_cmd)
 
-        case Debug(command, goal, focus, loop):
+        case Debug(command=command, goal=goal, focus=focus, loop=loop):
             cli.debug(command, goal, focus, loop)
 
         case Commit(stage=stage, push=push, no_group=no_group):
@@ -112,13 +112,13 @@ def dynamic_request(instruction: str) -> None:
         case Shell(instruction=instr):
             cli.shell(instr)
 
-        case AskCodebase(question):
+        case AskCodebase(question=question):
             cli.ask(question)
 
-        case Help(question, command):
+        case Help(question=question, command=command):
             print("no help sry")
 
-        case Unexpected(error_message):
+        case Unexpected(error_message=error_message):
             print("ERROR:", error_message)
 
 
