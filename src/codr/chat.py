@@ -1,8 +1,10 @@
 import sys
 
-from funcchain import achain
+from funcchain import chain
 from pydantic import BaseModel, Field
 from rich import print
+
+from . import cli
 
 
 class Implement(BaseModel):
@@ -11,7 +13,7 @@ class Implement(BaseModel):
     optionally including a command for debugging purposes.
     """
 
-    task: str = Field(..., description="Description of the task to solve.")
+    task: str = Field(description="Description of the task to solve.")
     debug_cmd: str | None = Field(None, description="Command to debug the task.")
 
 
@@ -21,8 +23,8 @@ class Debug(BaseModel):
     allowing specification of the startup command, desired output, focus file, and whether to loop the debug process.
     """
 
-    command: str = Field(..., description="Command to startup your app.")
-    goal: str | None = Field(None, description="Desired output of the program.")
+    command: str = Field(description="Command to startup your app. (set 'undefined' if specific command is not known)")
+    goal: str = Field(description="Description of the goal state to check if debugging succeeded.")
     focus: str | None = Field(None, description="Focus on a specific file.")
     loop: bool = Field(True, description="Loop the debug process. (default: True)")
 
@@ -42,8 +44,8 @@ class Shell(BaseModel):
     Call this if the instruction is about doing that involves running terminal commands.
     """
 
-    instruction: str = Field(..., description="Instruction to execute.")
-    auto_execute: bool = Field(False, description="Automatically execute the command without asking.")
+    instruction: str = Field(description="Instruction in english explaining what to do and the goal.")
+    # auto_execute: bool = Field(False, description="False unless the instruction tells specifically.")
 
 
 class AskCodebase(BaseModel):
@@ -84,38 +86,40 @@ class CasualChatting(BaseModel):
     message: str = Field(..., description="Message to chat with the bot.")
 
 
-async def handle_dynamic_request(
+def handle_dynamic_request(
     instruction: str,
 ) -> Implement | Debug | Commit | Shell | AskCodebase | Help | Unexpected:
     """
     The instruction is user input given to a CLI which does not match the required schema.
     Convert it into a valid request so it can be executed correctly.
     """
-    return await achain()
+    return chain()
 
 
 def dynamic_request(instruction: str) -> None:
-    import asyncio
+    action = handle_dynamic_request(instruction)
 
-    action = asyncio.run(handle_dynamic_request(instruction))
+    match action:
+        case Implement(task=task, debug_cmd=debug_cmd):
+            cli.implement(task, debug_cmd)
 
-    print(action)
+        case Debug(command, goal, focus, loop):
+            cli.debug(command, goal, focus, loop)
 
-    match action.__class__.__name__:
-        case "Implement":
-            print("Implement action")
-        case "Debug":
-            print("Debug action")
-        case "Commit":
-            print("Commit action")
-        case "Shell":
-            print("Shell action")
-        case "AskCodebase":
-            print("AskCodebase action")
-        case "Help":
-            print("Help action")
-        case "Unexpected":
-            print("Unexpected action")
+        case Commit(stage=stage, push=push, no_group=no_group):
+            cli.commit(stage, push, no_group)
+
+        case Shell(instruction=instr):
+            cli.shell(instr)
+
+        case AskCodebase(question):
+            cli.ask(question)
+
+        case Help(question, command):
+            print("no help sry")
+
+        case Unexpected(error_message):
+            print("ERROR:", error_message)
 
 
 if __name__ == "__main__":
