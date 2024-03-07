@@ -2,9 +2,12 @@ import asyncio
 from typing import Annotated, Optional
 
 import typer
+from funcchain import settings
 from rich import print
 
 from .commands import auto_debug, commit_changes, execute_shell, expert_answer, solve_task
+
+settings.llm = "gpt-4-turbo-preview"
 
 app = typer.Typer()
 
