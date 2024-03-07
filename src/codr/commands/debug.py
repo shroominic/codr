@@ -5,7 +5,6 @@ from typing import Annotated, Any
 from funcchain import achain, chain, runnable
 from funcchain.syntax.params import Depends
 from pydantic import BaseModel, Field
-from rich import print
 
 from ..codebase.func import get_tree, stream_bash
 from ..codebase.tree import CodeBaseTree
