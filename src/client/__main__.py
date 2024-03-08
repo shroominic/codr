@@ -1,4 +1,6 @@
-from .cli import app
+import asyncio
+
+from .wsconnect import main
 
 if __name__ == "__main__":
-    app()
+    asyncio.run(main())
