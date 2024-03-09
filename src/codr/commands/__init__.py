@@ -1,13 +1,13 @@
-from .ask import expert_answer
-from .commit import commit_changes
-from .debug import auto_debug
-from .implement import solve_task
-from .shell import execute_shell
+from .ask import exec_ask
+from .commit import exec_commit
+from .debug import exec_debug
+from .implement import exec_implement
+from .shell import exec_shell
 
 __all__ = [
-    "commit_changes",
-    "expert_answer",
-    "auto_debug",
-    "solve_task",
-    "execute_shell",
+    "exec_commit",
+    "exec_ask",
+    "exec_debug",
+    "exec_implement",
+    "exec_shell",
 ]
