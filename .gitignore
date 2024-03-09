@@ -12,3 +12,4 @@ tests/codebases
 .venv
 .python-version
 tree.yaml
+codrvenv
