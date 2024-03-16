@@ -103,7 +103,7 @@ async def file_exists(relative_path: str) -> bool:
 
 async def create_file(relative_path: str, content: str) -> None:
     """
-    Create a file in the Codebase. If the directory does not exist, create it.
+    Create a file in the codebase. If the directory does not exist, create it.
     """
     dir_name = os.path.dirname(relative_path)
     if dir_name != "" and not os.path.exists(dir_name):
@@ -185,9 +185,9 @@ async def prepare_environment(task: Task) -> None:
         await bash("git stash apply")
 
 
-async def fix_file_path(relative_path: str, Codebase_tree: CodebaseTree | None = None) -> str:
+async def fix_file_path(relative_path: str, codebase_tree: CodebaseTree | None = None) -> str:
     """Fix file name to absolute path"""
-    tree = Codebase_tree or await get_tree()
+    tree = codebase_tree or await get_tree()
     file_name = relative_path.split("/")[-1]
     files = [file for file in tree.files if file.name.split("/")[-1] == file_name]
 
