@@ -6,10 +6,9 @@ from funcchain import achain, chain, runnable
 from funcchain.schema.types import UniversalChatModel as LLM
 from funcchain.syntax.params import Depends
 from pydantic import BaseModel, Field
-
-from ..shared.codebase.core import Codebase
-from ..shared.codebase.tree import CodebaseTree
-from ..shared.schemas import Debug, Implement
+from shared.codebase.core import Codebase
+from shared.codebase.tree import CodebaseTree
+from shared.schemas import Debug, Implement
 
 # better debug
 # select relevant files based on console output
@@ -20,7 +19,7 @@ from ..shared.schemas import Debug, Implement
 # map funcchain that checks file for debug analysis over all files in Codebase
 
 
-async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
+async def exec_debug(codebase: Codebase, llm: LLM, input: Debug) -> None:
     """commit command wrapper"""
 
     class ConsoleOutputAnalysis(BaseModel):
@@ -44,7 +43,7 @@ async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
         {{ desired_output_description }}
         {% endif %}
         """
-        return await achain(settings_override={"llm": llm})
+        return await achain(llm=llm)
 
     class DetermineLoading(BaseModel):
         """Analyzis of the console output to determine if the result is still loading."""
@@ -67,7 +66,7 @@ async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
         But if the console output is listening for something like a uvicorn worker
         -> it is not loading.
         """
-        return await achain()
+        return await achain(llm=llm)
 
     class DebugTask(BaseModel):
         """Task to fix the Codebase to produce a healthy console output."""
@@ -77,11 +76,11 @@ async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
         problem_files: list[str] = Field(description="Files mentioned in the console output that are not healthy.")
         task_description: str = Field(description="Detailed, precise plan on how to fix the problem.")
 
-    @runnable
+    @runnable(llm=llm)
     def generate_task(
-        console_output: str,
         goal: str,
-        Codebase_tree: Annotated[CodebaseTree, Depends(Codebase.tree.load())],
+        console_output: str,
+        codebase_tree: Annotated[CodebaseTree, Depends(codebase.tree.load)],
     ) -> DebugTask:
         """
         Generate a task to fix the Codebase to produce a healthy console output.
@@ -104,7 +103,7 @@ async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
 
         from .implement import exec_implement
 
-        await exec_implement(Codebase, llm, Implement(task=description, debug_cmd=command))
+        await exec_implement(codebase, llm, Implement(task=description, debug_cmd=command))
 
         if loop:
             print("DEBUGGING LOOP:", command)
@@ -125,7 +124,7 @@ async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
             data: dict[str, Any],
         ) -> None:
             print("👀 watching console output")
-            async for batch in Codebase.stream_shell(command):  # type: ignore
+            async for batch in codebase.stream_shell(command):  # type: ignore
                 print("\033[91m", batch, "\033[0m")
                 data["last_batch_time"] = datetime.now()
                 data["stack"] += batch
@@ -138,3 +137,5 @@ async def exec_debug(Codebase: Codebase, llm: LLM, input: Debug) -> None:
                 # todo add cropping of console log stack
                 if not await check_loading(live_data["stack"]):
                     return live_data["stack"]
+
+    await auto_debug(input.command, input.goal, input.loop)
