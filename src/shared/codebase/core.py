@@ -12,7 +12,7 @@ class Codebase(ABC):
     # EXTENSIONS
 
     @property
-    def tree(self) -> type[CodebaseTree]:
+    def tree(self) -> CodebaseTree:
         return CodebaseTree
 
     @property
@@ -62,4 +62,4 @@ class Codebase(ABC):
         await self.shell(f"mv {path} {new_path}")
 
     async def fix_file_path(self, path: str) -> str:
-        return "todo"
+        return path
