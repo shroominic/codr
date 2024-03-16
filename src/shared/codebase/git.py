@@ -5,8 +5,8 @@ if TYPE_CHECKING:
 
 
 class CodebaseGit:
-    def __init__(self, Codebase: "Codebase"):
-        self.codebase = Codebase
+    def __init__(self, codebase: "Codebase"):
+        self.codebase = codebase
 
     async def prepare_environment(self, task: str) -> None:
         pass
