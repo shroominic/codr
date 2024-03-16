@@ -2,19 +2,21 @@ import asyncio
 from typing import AsyncIterator
 
 from funcchain.schema.types import UniversalChatModel as LLM
+from shared.codebase.core import Codebase
+from shared.schemas import CodebaseIOResult, Data
 from websockets import WebSocketClientProtocol
-
-from .shared.codebase.interface import CodebaseInterface
-from .shared.schemas import CodebaseIOResult, Data
 
 # todo have a local running script that checks all incoming shell commands for security reasons
 # let the user see set his own model optional local model
 
 
-class CodebaseClient(CodebaseInterface):
+class CodebaseClient(Codebase):
     def __init__(self, websocket: WebSocketClientProtocol, llm: LLM) -> None:
         self.websocket = websocket
         self.llm: LLM = llm
+
+    async def shell(self, cmd: str) -> str:
+        return "todo"
 
     async def stream_shell(self, cmd: str) -> AsyncIterator[CodebaseIOResult]:  # type: ignore
         process = await asyncio.create_subprocess_shell(

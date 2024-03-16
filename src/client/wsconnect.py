@@ -2,8 +2,8 @@ import asyncio
 
 import websockets as ws
 from pydantic import ValidationError
+from shared.schemas import WSMessage
 
-from .shared.schemas import WSMessage
 from .typing_stream import type_stream
 
 
