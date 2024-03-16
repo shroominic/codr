@@ -1,4 +1,5 @@
 from .ask import exec_ask
+from .chat import dynamic_request
 from .commit import exec_commit
 from .debug import exec_debug
 from .implement import exec_implement
@@ -10,4 +11,5 @@ __all__ = [
     "exec_debug",
     "exec_implement",
     "exec_shell",
+    "dynamic_request",
 ]

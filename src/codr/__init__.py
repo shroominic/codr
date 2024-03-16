@@ -1,13 +1,13 @@
 from funcchain.schema.types import UniversalChatModel as LLM
+from shared.codebase.core import Codebase
+from shared.schemas.actions import AskCodebase, Commit, Debug, Implement, Shell
 
 from . import commands
-from .shared.codebase.core import Codebase
-from .shared.schemas.actions import AskCodebase, Commit, Debug, Implement, Shell
 
 
 class Codr:
-    def __init__(self, Codebase: Codebase, llm: LLM) -> None:
-        self.codebase = Codebase
+    def __init__(self, codebase: Codebase, llm: LLM) -> None:
+        self.codebase = codebase
         self.llm = llm
 
     async def implement(self, task: str, debug_cmd: str | None = None) -> None:
@@ -44,3 +44,18 @@ class Codr:
             self.llm,
             AskCodebase(question=question),
         )
+
+    async def chat(self, instruction: str = "") -> None:
+        if instruction:
+            await commands.dynamic_request(
+                self.codebase,
+                self.llm,
+                instruction,
+            )
+        else:
+            instruction = input("\nInstruction:\n> ")
+            await commands.dynamic_request(
+                self.codebase,
+                self.llm,
+                instruction,
+            )

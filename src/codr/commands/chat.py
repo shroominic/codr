@@ -1,7 +1,7 @@
 from funcchain import chain
-
-from ..core import Codr
-from ..shared.schemas.actions import (
+from funcchain.schema.types import UniversalChatModel as LLM
+from shared.codebase.core import Codebase
+from shared.schemas.actions import (
     Action,
     AskCodebase,
     Commit,
@@ -11,6 +11,8 @@ from ..shared.schemas.actions import (
     Shell,
     Unexpected,
 )
+
+from .. import commands
 
 
 def handle_dynamic_request(
@@ -23,25 +25,28 @@ def handle_dynamic_request(
     return chain()
 
 
-async def dynamic_request(codr: Codr, instruction: str) -> None:
+async def dynamic_request(codebase: Codebase, llm: LLM, instruction: str) -> None:
     match action := handle_dynamic_request(instruction):
         case Implement():
-            await codr.implement(action)
+            await commands.exec_implement(codebase, llm, action)
 
         case Debug():
-            await codr.debug(action)
+            await commands.exec_debug(codebase, llm, action)
 
         case Commit():
-            await codr.commit(action)
+            await commands.exec_commit(codebase, llm, action)
 
         case Shell():
-            await codr.shell(action)
+            await commands.exec_shell(codebase, llm, action)
 
         case AskCodebase():
-            await codr.ask(action)
+            await commands.exec_ask(codebase, llm, action)
 
         case Help():
-            await codr.help(action)
+            print("Help is not implemented yet.\n", action)
 
         case Unexpected():
-            await codr.unexpected(action)
+            print("Unexpected instruction:\n", action.error_message)
+
+        case _:
+            raise ValueError(f"Unhandled action: {action}")
