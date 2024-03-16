@@ -1,14 +1,14 @@
 import asyncio
+from typing import Annotated
 
-from funcchain import achain
+from funcchain import Depends, chain, runnable
 from funcchain.schema.types import UniversalChatModel as LLM
 from funcchain.syntax import CodeBlock
 from rich import print
-
-from ..shared.codebase.clientio import show_yes_no_select
-from ..shared.codebase.core import Codebase
-from ..shared.codebase.tree import CodebaseTree
-from ..shared.schemas import (
+from shared.codebase.clientio import show_yes_no_select
+from shared.codebase.core import Codebase
+from shared.codebase.tree import CodebaseTree
+from shared.schemas import (
     CreatedFile,
     CreateDirectory,
     Debug,
@@ -22,77 +22,56 @@ from ..shared.schemas import (
 )
 
 
-async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None:
+async def exec_implement(codebase: Codebase, llm: LLM, input: Implement) -> None:
     """implement command wrapper"""
 
-    async def plan_file_changes(
-        task: Task,
-        Codebase_tree: CodebaseTree,
+    @runnable(llm=llm)
+    def plan_file_changes(
+        goal: Task,
+        codebase_tree: Annotated[CodebaseTree, Depends(codebase.tree.load)],
     ) -> PlannedFileChanges:
         """
         Which of these files from tree need to be modified to solve task?
         Answer with a list of file changes inside a JSON array.
         If you need to create a directory, use "mkdir" as method.
         Each file change consists of a path, method and description.
-        Path is a relative path, make sure path is correct and file exists in Codebase.
+        Path is a relative path, make sure path is correct and file exists in codebase.
         """
-        return await achain(settings_override={"llm": llm})
+        return chain()
 
-    async def create_file_prompt(
+    @runnable(llm=llm)
+    def create_file_prompt(
         change: PlannedFileChange,
-        Codebase_tree: CodebaseTree,
+        codebase_tree: Annotated[CodebaseTree, Depends(codebase.tree.load)],
     ) -> CodeBlock:
         """
-        PLAN:
-        {change_description}
-
-        FILE:
-        {change_relative_path}
-
-        Codebase_TREE:
-        {Codebase_tree}
-
         Create a new file as part of solving the task.
-        Reply with the file content.
+        Reply with the complete file content.
         """
-        return await achain(
-            change_relative_path=change.relative_path,
-            change_description=change.description,
-            settings_override={"llm": llm},
-        )
+        return chain()
 
-    async def modify_file_prompt(
-        main_task: Task,
-        Codebase_tree: CodebaseTree,
+    @runnable(llm=llm)
+    def modify_file_prompt(
+        task: Task,
         change: PlannedFileChange,
+        codebase_tree: Annotated[CodebaseTree, Depends(codebase.tree.load)],
     ) -> CodeBlock:
         """
-        PLAN:
-        {change_description}
-
-        FILE:
-        {change_content}
-
         Modify this file using plan as part of solving main task.
-        Do not change anything not related to plan, this includes formatting or comments.
+        Do not change anything not related to goal/task, this includes formatting or comments.
+        ONLY change what is described in the task.
         Rewrite entire file including changes, do not leave out any lines.
         """
-        return await achain(
-            change_description=change.description,
-            change_content=change.content,
-            settings_override={"llm": llm},
-        )
+        return chain()
 
     async def solve_task(
-        Codebase: Codebase,
+        codebase: Codebase,
         task_description: str,
         debug_cmd: str | None = None,
     ) -> None:
         # task_name = await summarize_task_to_name(task_description)
         # log(task_name)
-        task = Task(
-            description=task_description,
-        )
+        task = Task(description=task_description)
 
         # tree = await get_tree()
 
@@ -101,8 +80,8 @@ async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None
         # log("Improved task: ", task)
 
         changes, _ = await asyncio.gather(
-            compute_changes(Codebase, task),
-            Codebase.git.prepare_environment(task.description),
+            compute_changes(codebase, task),
+            codebase.git.prepare_environment(task.description),
         )
 
         for change in changes:
@@ -122,7 +101,7 @@ async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None
 
             # command = gather_run_command(task)
             await exec_debug(
-                Codebase,
+                codebase,
                 llm,
                 Debug(
                     command=debug_cmd,
@@ -130,16 +109,16 @@ async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None
             )
 
     async def compute_changes(
-        Codebase: Codebase,
+        codebase: Codebase,
         task: Task,
     ) -> list[FileChange]:
-        planned_changes = await plan_file_changes(task, await Codebase.tree.load())
+        planned_changes = await plan_file_changes.ainvoke({"goal": task})
         print("\nPlanned changes:\n", planned_changes)
         # if count_tokens(planned_changes.files) > 32:
         file_changes = await asyncio.gather(
             *[
                 generate_change(
-                    Codebase=Codebase,
+                    codebase=codebase,
                     task=task,
                     change=change,
                 )
@@ -153,33 +132,32 @@ async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None
         # return file_changes
 
     async def generate_change(
-        Codebase: Codebase,
+        codebase: Codebase,
         task: Task,
         change: PlannedFileChange,
     ) -> FileChange:
         # TODO: collect relevant context
         # TODO: plan file changes precise based on context
-        tree = await Codebase.tree.load()
         if change.method == "create":
             return CreatedFile(
                 relative_path=change.relative_path,
-                content=(await create_file_prompt(change, tree)).code,
+                content=(await create_file_prompt.ainvoke({"change": change})).code,
             )
         if change.method == "mkdir":
-            return CreateDirectory(
-                relative_path=change.relative_path,
-            )
+            return CreateDirectory(relative_path=change.relative_path)
         try:
-            change.relative_path = await Codebase.fix_file_path(change.relative_path)
+            change.relative_path = await codebase.fix_file_path(
+                change.relative_path,
+            )
         except FileNotFoundError:
             return CreatedFile(
                 relative_path=change.relative_path,
-                content=(await create_file_prompt(change, tree)).code,
+                content=(await create_file_prompt.ainvoke({"change": change})).code,
             )
         if change.method == "modify":
             return ModifiedFile(
                 relative_path=change.relative_path,
-                content=(await modify_file_prompt(task, tree, change)).code,
+                content=(await modify_file_prompt.ainvoke({"task": task, "change": change})).code,
             )
         if change.method == "delete":
             return DeletedFile(
@@ -193,13 +171,13 @@ async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None
     ) -> None:
         for change in changes:
             if isinstance(change, CreateDirectory):
-                await Codebase.create_dir(change.relative_path)
+                await codebase.create_dir(change.relative_path)
             elif isinstance(change, CreatedFile):
-                await Codebase.create_file(change.relative_path, change.content)
+                await codebase.create_file(change.relative_path, change.content)
             elif isinstance(change, ModifiedFile):
-                await Codebase.write_file(change.relative_path, change.content)
+                await codebase.write_file(change.relative_path, change.content)
             elif isinstance(change, DeletedFile):
-                await Codebase.delete_file(change.relative_path)
+                await codebase.delete_file(change.relative_path)
             else:
                 raise ValueError(f"Invalid change: {change}")
 
@@ -219,4 +197,4 @@ async def exec_implement(Codebase: Codebase, llm: LLM, input: Implement) -> None
         # return list of changes
         return []
 
-    await solve_task(Codebase, input.task, input.debug_cmd)
+    await solve_task(codebase, input.task, input.debug_cmd)
