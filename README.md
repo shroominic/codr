@@ -23,7 +23,7 @@ The 'codr' project is organized into three main modules: 'funcchain', 'codr', an
 
 ## Documentation
 
-For a comprehensive understanding of the project, its modules, and usage, refer to the detailed documentation in the [docs](./docs) directory. The documentation provides a self-contained guide to the 'codr' project, making it accessible and understandable even to a developer with limited access to the Codebase.
+For a comprehensive understanding of the project, its modules, and usage, refer to the detailed documentation in the [docs](./docs) directory. The documentation provides a self-contained guide to the 'codr' project, making it accessible and understandable even to a developer with limited access to the codebase.
 
 ## Installation and Setup
 
