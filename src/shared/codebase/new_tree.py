@@ -7,5 +7,5 @@ from .core import Codebase
 class CodebaseTree(ABC):
     @abstractmethod
     @classmethod
-    def load(cls, Codebase: Codebase) -> Self:
+    def load(cls, codebase: Codebase) -> Self:
         pass
