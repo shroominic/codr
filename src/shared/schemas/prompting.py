@@ -1,6 +1,6 @@
 from typing import Any, Literal, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Task(BaseModel):
@@ -9,12 +9,21 @@ class Task(BaseModel):
 
 
 class File(BaseModel):
-    relative_path: str = Field(description="Relative File Path")
+    relative_path: str = Field(description="Relative File Path, must start with ./ and exist in codebase")
+
+    @field_validator("relative_path")
+    @classmethod
+    def validate_relative_path(cls, v: str) -> str:
+        if not v.startswith("./"):
+            raise ValueError("Relative Path must start with ./")
+        # if not in_codebase(v):
+        #     raise ValueError("File must exist in codebase")
+        return v
 
 
 class PlannedFileChange(File):
     method: Literal["create", "modify", "mkdir", "delete"] = Field(description="Method enum of action to apply.")
-    description: str = Field(description="AbstractDescription (plan on what to change)")
+    description: str = Field(description="AbstractDescription (plan on what to change) make sure to be extra precise.")
 
     @property
     def content(self) -> str:

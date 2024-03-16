@@ -27,7 +27,7 @@ class Debug(BaseModel):
 
 class Commit(BaseModel):
     """
-    Choose this model when the instruction is about committing changes to the Codebase.
+    Choose this model when the instruction is about committing changes to the codebase.
     """
 
     stage: bool = Field(default=False, description="Stage all changes to commit everything changed. (default: False)")
@@ -41,19 +41,16 @@ class Shell(BaseModel):
     """
 
     instruction: str = Field(description="Instruction in english explaining what to do and the goal.")
-    auto_execute: bool = Field(
-        default=False, description="False unless the instruction tells explicitly to auto execute."
-    )
 
 
 class AskCodebase(BaseModel):
     """
-    Represents a request to inquire about the Codebase.
+    Represents a request to inquire about the codebase.
     Choose this when the instruction asks a question regarding the Codebase
     or coding related information.
     """
 
-    question: str = Field(description="Question to ask about the Codebase.")
+    question: str = Field(description="Question to ask about the codebase.")
 
 
 class Help(BaseModel):
