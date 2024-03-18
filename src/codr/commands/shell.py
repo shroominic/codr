@@ -4,9 +4,9 @@ from typing import Annotated, Any, Literal
 from funcchain import achain
 from funcchain.schema.types import UniversalChatModel as LLM
 from funcchain.syntax.params import Depends
-from InquirerPy import inquirer
 from pydantic import BaseModel, Field
 from rich import print
+from shared.codebase.clientio import show_yes_no_select
 from shared.codebase.core import Codebase
 from shared.schemas import Shell
 
@@ -56,32 +56,31 @@ async def exec_shell(codebase: Codebase, llm: LLM, input: Shell) -> None:
         return await achain(settings_override={"llm": llm})
 
     async def handle_execution(command: str) -> None:
-        output = ""
-        async for chunk in codebase.stream_shell(command):
-            output += chunk
-            print(f"[red]{chunk}[/red]")
+        print(f"> [green]{command}[/green]")
+        # todo replace with client interface to ask for confirmation
+        if await show_yes_no_select("Execute command?"):
+            output = ""
+            async for chunk in codebase.stream_shell(command):
+                output += chunk
+                print(f"[red]{chunk}[/red]")
 
-        if await analyze_output(command, output) == "healthy":
-            print("[green]Command executed successfully[/green]")
+            if await analyze_output(command, output) == "healthy":
+                print("[green]Command executed successfully[/green]")
 
-        elif await analyze_output(command, output) == "unknown":
-            print("[yellow]Command executed, but the output is unclear[/yellow]")
+            elif await analyze_output(command, output) == "unknown":
+                print("[yellow]Command executed, but the output is unclear[/yellow]")
 
+            else:
+                new_cmd = await fix_command(command, output)
+                print(new_cmd)
+                print(f"[yellow]Command failed, trying to fix it with: {new_cmd.command}[/yellow]")
+                await handle_execution(new_cmd.command)
         else:
-            new_cmd = await fix_command(command, output)
-            print(new_cmd)
-            print(f"[yellow]Command failed, trying to fix it with: {new_cmd.command}[/yellow]")
-            await handle_execution(new_cmd.command)
+            print("[yellow]Command not executed[/yellow]")
 
     async def shell(instruction: str) -> None:
-        # todo replace with client interface to ask for confirmation
-        ask_exec = inquirer.select("Execute command?", choices=["yes", "no"])
         # add auto execute option loading from config
         for command in await write_shell_command(instruction):
-            print(f"> [green]{command}[/green]")
-            if (await ask_exec.execute_async()) == "yes":  # type: ignore
-                await handle_execution(command)
-            else:
-                print("[yellow]Command not executed[/yellow]")
+            await handle_execution(command)
 
     await shell(input.instruction)
