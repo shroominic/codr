@@ -1,18 +1,24 @@
 import asyncio
+import sys
 from typing import Annotated, Optional
 
 import typer
+from codr import Codr
 from funcchain import settings
-from rich import print
 
-from .commands import auto_debug, commit_changes, execute_shell, expert_answer, solve_task
+from .codebase_local import LocalCodebase
 
 settings.llm = "gpt-4-turbo-preview"
 
-app = typer.Typer()
+cli = typer.Typer()
+
+codr = Codr(
+    codebase=LocalCodebase(),
+    llm="gpt-4-turbo-preview",
+)
 
 
-@app.command()
+@cli.command()
 def implement(
     task: Annotated[
         str,
@@ -26,19 +32,19 @@ def implement(
     """
     Input a task description and the llm agent will try to solve it.
     """
-    asyncio.run(solve_task(task, debug_cmd))
+    asyncio.run(codr.implement(task=task, debug_cmd=debug_cmd))
 
 
-@app.command()
+@cli.command()
 def debug(
     command: Annotated[
         str,
         typer.Argument(help="Command to startup your app."),
     ],
     goal: Annotated[
-        Optional[str],
+        str,
         typer.Option(help="Desired output of the program."),
-    ] = None,
+    ] = "healthy console ouput",
     focus: Annotated[
         Optional[str],
         typer.Option(help="Focus on a specific file."),
@@ -51,12 +57,10 @@ def debug(
     """
     Automatically debug with the llm agent.
     """
-    if focus:
-        print("Focus on: ", focus, " (not implemented yet)")
-    asyncio.run(auto_debug(command, goal or "healthy console output", loop))
+    asyncio.run(codr.debug(command, goal, focus, loop))
 
 
-@app.command()
+@cli.command()
 def commit(
     stage: Annotated[
         bool,
@@ -74,10 +78,10 @@ def commit(
     """
     Write commit messages and commit changes.
     """
-    asyncio.run(commit_changes(stage, push, no_group))
+    asyncio.run(codr.commit(stage, push, no_group))
 
 
-@app.command()
+@cli.command()
 def shell(
     instruction: Annotated[str, typer.Argument(help="Instruction to execute.")],
     auto_execute: Annotated[
@@ -88,31 +92,50 @@ def shell(
     """
     Write a shell command to fulfill the instruction.
     """
-    asyncio.run(execute_shell(instruction, auto_execute))
+    asyncio.run(codr.shell(instruction, auto_execute))
 
 
-@app.command()
+@cli.command()
 def ask(
     question: Annotated[str, typer.Argument(help="Question to ask.")],
 ) -> None:
     """
-    Ask a question about the codebase or relevant libraries.
+    Ask a question about the Codebase or relevant libraries.
     """
-    asyncio.run(expert_answer(question))
+    asyncio.run(codr.ask(question))
 
 
-@app.command()
-def chat() -> None:
+@cli.command()
+def chat(instruction: Annotated[str, typer.Argument(help="Instruction to execute.")] = "") -> None:
     """
     Open CLI Chat Interface
     """
-    # from .llm.chat import chat
-
-    # asyncio.run(chat())
+    asyncio.run(codr.chat(instruction))
 
 
 def auto_linter() -> None:
     """
-    Automatically run a linter on the codebase and fix issues.
+    Automatically run a linter on the Codebase and fix issues.
     Also include mypy and flake8.
     """
+
+
+def main() -> None:
+    args = [arg for arg in sys.argv[1:]]
+    cmds = [c.callback.__name__ for c in cli.registered_commands if c.callback]
+    cmds.extend(["--help", "--install-completion", "--show-completion"])
+
+    # > codr
+    if len(args) == 0:
+        return asyncio.run(codr.chat())
+
+    # > codr <command>
+    if len(args) > 0 and args[0] in cmds:
+        return cli()
+
+    # > codr <instruction>
+    return asyncio.run(codr.chat(" ".join(args)))
+
+
+if __name__ == "__main__":
+    main()

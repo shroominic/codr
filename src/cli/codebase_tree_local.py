@@ -71,7 +71,7 @@ def is_ignored_by_gitignore(file_path: str) -> bool:
     )
 
 
-class CodeBaseNode(BaseModel):
+class CodebaseNode(BaseModel):
     name: str
     sha256: str
     embedding: list[float] | None = None
@@ -88,7 +88,7 @@ class CodeBaseNode(BaseModel):
         return " " * indent + f"Node: {self.path.name}"
 
 
-class CodeBaseFile(CodeBaseNode):
+class CodebaseFile(CodebaseNode):
     summary: str
 
     def __init__(self, path: Path | str, **data: Any) -> None:
@@ -96,12 +96,12 @@ class CodeBaseFile(CodeBaseNode):
         super().__init__(**data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "CodeBaseFile":
+    def from_dict(cls, data: dict) -> "CodebaseFile":
         path = data.pop("name")
         return cls(path, **data)
 
     @classmethod
-    async def from_path(cls, path: Path) -> "CodeBaseFile":
+    async def from_path(cls, path: Path) -> "CodebaseFile":
         try:
             content = path.read_text()
             content_hash = hashlib.sha256(content.encode()).hexdigest()
@@ -117,14 +117,14 @@ class CodeBaseFile(CodeBaseNode):
             summary=summary,
         )
 
-    async def refresh(self) -> "CodeBaseFile":
+    async def refresh(self) -> "CodebaseFile":
         try:
             content = self.path.read_text()
         except UnicodeDecodeError:
             content = "N/A"
         content_hash = hashlib.sha256(content.encode()).hexdigest()
         if self.sha256 != content_hash:
-            return await CodeBaseFile.from_path(self.path)
+            return await CodebaseFile.from_path(self.path)
         return self
 
     def __str__(self, indent: int = 0) -> str:
@@ -133,25 +133,26 @@ class CodeBaseFile(CodeBaseNode):
         )
 
 
-class CodeBaseTree(CodeBaseNode):
-    nodes: list[Union["CodeBaseFile", "CodeBaseTree"]] = []
+class LocalCodebaseTree(CodebaseNode):
+    nodes: list[Union["CodebaseFile", "LocalCodebaseTree"]] = []
 
     def __init__(self, path: Path | str, **data: Any) -> None:
         data["name"] = Path(path).as_posix()
         super().__init__(**data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "CodeBaseTree":
+    def from_dict(cls, data: dict) -> "LocalCodebaseTree":
         path = data.pop("name")
         nodes_data = data.pop("nodes")
         nodes = [
-            CodeBaseFile.from_dict(node_data) if "summary" in node_data else CodeBaseTree.from_dict(node_data)
+            CodebaseFile.from_dict(node_data) if "summary" in node_data else LocalCodebaseTree.from_dict(node_data)
             for node_data in nodes_data
         ]
         return cls(path, nodes=nodes, **data)
 
     @classmethod
-    async def load(cls, path: str = ".context/tree.yaml") -> "CodeBaseTree":
+    async def load(cls, *_: Any, path: str = ".context/tree.yaml") -> "LocalCodebaseTree":
+        print("TODO: show loading bar with 3/40 files scanned and say 'analyzing codebase ...'")
         if Path(path).exists():
             with open(path, "r") as f:
                 data = yaml.safe_load(f)
@@ -163,15 +164,15 @@ class CodeBaseTree(CodeBaseNode):
             return await cls.new()
 
     @classmethod
-    async def from_path(cls, path: Path) -> "CodeBaseTree":
+    async def from_path(cls, path: Path) -> "LocalCodebaseTree":
         tasks = [
-            CodeBaseFile.from_path(file_path) if file_path.is_file() else cls.from_path(file_path)
+            CodebaseFile.from_path(file_path) if file_path.is_file() else cls.from_path(file_path)
             for file_path in path.iterdir()
             if not is_ignored_by_gitignore(file_path.as_posix())
         ]
         if len(tasks) > 50:
             input(f"Found {len(tasks)} files in {path}. Press enter to continue...")
-        nodes: list["CodeBaseNode"] = await asyncio.gather(*tasks)
+        nodes: list["CodebaseNode"] = await asyncio.gather(*tasks)
 
         folder_hash = hashlib.sha256(("".join(str(node.sha256) for node in nodes)).encode()).hexdigest()
 
@@ -184,14 +185,14 @@ class CodeBaseTree(CodeBaseNode):
         return tree
 
     @classmethod
-    async def new(cls) -> "CodeBaseTree":
+    async def new(cls) -> "LocalCodebaseTree":
         return await cls.from_path(Path("."))
 
-    async def refresh(self) -> "CodeBaseTree":
-        # gather new nodes from codebase not in self.nodes
+    async def refresh(self) -> "LocalCodebaseTree":
+        # gather new nodes from Codebase not in self.nodes
         node_paths = [node.path for node in self.nodes]
         new_node_tasks = [
-            CodeBaseFile.from_path(file_path) if file_path.is_file() else CodeBaseTree.from_path(file_path)
+            CodebaseFile.from_path(file_path) if file_path.is_file() else LocalCodebaseTree.from_path(file_path)
             for file_path in self.path.iterdir()
             if not is_ignored_by_gitignore(file_path.as_posix()) and file_path not in node_paths
         ]
@@ -203,7 +204,7 @@ class CodeBaseTree(CodeBaseNode):
             in [file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())]
         ]
 
-        # delete nodes not in codebase anymore
+        # delete nodes not in Codebase anymore
         ignored_nodes = [
             file_path for file_path in self.path.iterdir() if not is_ignored_by_gitignore(file_path.as_posix())
         ]
@@ -228,10 +229,10 @@ class CodeBaseTree(CodeBaseNode):
         return self
 
     @property
-    def files(self) -> list[CodeBaseFile]:
+    def files(self) -> list[CodebaseFile]:
         files = []
         for node in self.nodes:
-            if isinstance(node, CodeBaseFile):
+            if isinstance(node, CodebaseFile):
                 files.append(node)
             else:
                 files.extend(node.files)
@@ -245,7 +246,7 @@ class CodeBaseTree(CodeBaseNode):
         return folder_str
 
     def __repr__(self) -> str:
-        return f"CodeBaseTree(path={self.path}, files={len(self.files)}, nodes={len(self.nodes)})"
+        return f"LocalCodebaseTree(path={self.path}, files={len(self.files)}, nodes={len(self.nodes)})"
 
     def show(self) -> str:
         return self.__str__()

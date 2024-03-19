@@ -2,8 +2,8 @@ import asyncio
 
 import websockets as ws
 from pydantic import ValidationError
+from shared.schemas import WSMessage
 
-from .shared.schemas import WSMessage
 from .typing_stream import type_stream
 
 
@@ -36,7 +36,7 @@ class Client:
                 match msg.type:
                     case "msg":
                         print(msg.data)
-                    case "codebaseio":
+                    case "Codebaseio":
                         print(f"Codebaseio: {msg.data}")
                     case "error":
                         print(f"Error: {msg.data}")
@@ -52,7 +52,7 @@ class Client:
             self.send_queue.append(f'{{"type": "msg", "data": "{data}"}}')
 
     def send_test_action(self) -> None:
-        self.send('{"type": "action", "data": {"action": "ask", "content": "What is this codebase about?"}}')
+        self.send('{"type": "action", "data": {"action": "ask", "content": "What is this Codebase about?"}}')
 
 
 async def main() -> None:

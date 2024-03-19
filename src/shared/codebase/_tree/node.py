@@ -5,7 +5,7 @@ from typing import Union
 from pydantic import BaseModel
 
 
-class CodeBaseNode(BaseModel, ABC):
+class CodebaseNode(BaseModel, ABC):
     name: str
     sha256: str
     embedding: list[float] | None = None
@@ -19,8 +19,7 @@ class CodeBaseNode(BaseModel, ABC):
         self.name = Path(value).relative_to(Path.cwd()).as_posix()
 
     @abstractmethod
-    async def refresh(self) -> "CodeBaseNode":
-        ...
+    async def refresh(self) -> "CodebaseNode": ...
 
     def __str__(self, indent: int = 0) -> str:
         return " " * indent + f"Node: {self.path.name}"

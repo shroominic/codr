@@ -16,14 +16,14 @@ dependencies = [
     "rich>=13.7.1",
 ]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-codr = 'codr.cli:app'
+codr = 'cli.main:main'
 
 [tool.rye]
 managed = true
@@ -44,7 +44,7 @@ packages = ["src/codr"]
 [tool.mypy]
 disallow_untyped_defs = true
 ignore_missing_imports = true
-exclude = "tests/codebases/*"
+exclude = "tests/Codebases/*"
 
 [tool.ruff]
 line-length = 120

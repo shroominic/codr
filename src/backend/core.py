@@ -1,8 +1,7 @@
 import asyncio
 
 from fastapi import APIRouter, FastAPI, WebSocket
-
-from .shared.schemas import WSMessage
+from shared.schemas import WSMessage
 
 app = FastAPI()
 
@@ -17,7 +16,7 @@ async def websocket_endpoint(
     await websocket.accept()
 
     # llm = LLM(openai_api_key)
-    # codebase = Codebase(websocket, llm)
+    # Codebase = Codebase(websocket, llm)
     # codr = Codr(codebase, llm)
     # session = Session(openai_api_key)  # logging
 
@@ -41,7 +40,7 @@ async def handler(websocket: WebSocket) -> None:
                 print(msg.data)
                 # codr.execute_command(msg.action, msg.data)
 
-            case "codebaseio":
+            case "Codebaseio":
                 print(f"Codebaseio: {msg.data}")
                 # codebase.send_msg(msg.data)
 
@@ -51,7 +50,7 @@ async def handler(websocket: WebSocket) -> None:
 
         #       codr.execute_command(data)
 
-        # if data is a codebase msg, send it to the codebase listener
+        # if data is a Codebase msg, send it to the Codebase listener
         #       codebase.send_msg(data)
 
         # if data is something else, send error msg to client

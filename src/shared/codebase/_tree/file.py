@@ -2,10 +2,10 @@ import hashlib
 from pathlib import Path
 from typing import Any
 
-from .node import CodeBaseNode
+from .node import CodebaseNode
 
 
-class CodeBaseFile(CodeBaseNode):
+class CodebaseFile(CodebaseNode):
     summary: str
 
     def __init__(self, path: Path | str, **data: Any) -> None:
@@ -13,12 +13,12 @@ class CodeBaseFile(CodeBaseNode):
         super().__init__(**data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "CodeBaseFile":
+    def from_dict(cls, data: dict) -> "CodebaseFile":
         path = data.pop("name")
         return cls(path, **data)
 
     @classmethod
-    async def from_path(cls, path: Path) -> "CodeBaseFile":
+    async def from_path(cls, path: Path) -> "CodebaseFile":
         try:
             from ..._deprecated.files import summarize_file
 
@@ -36,14 +36,14 @@ class CodeBaseFile(CodeBaseNode):
             summary=summary,
         )
 
-    async def refresh(self) -> "CodeBaseFile":
+    async def refresh(self) -> "CodebaseFile":
         try:
             content = self.path.read_text()
         except UnicodeDecodeError:
             content = "N/A"
         content_hash = hashlib.sha256(content.encode()).hexdigest()
         if self.sha256 != content_hash:
-            return await CodeBaseFile.from_path(self.path)
+            return await CodebaseFile.from_path(self.path)
         return self
 
     def __str__(self, indent: int = 0) -> str:

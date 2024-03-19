@@ -8,7 +8,7 @@ from typing import Any, AsyncGenerator
 import aiofiles  # type: ignore
 
 from ..schemas import Task
-from .tree import CodeBaseTree
+from .tree import CodebaseTree
 
 
 async def _bash_gen(*commands: str) -> AsyncGenerator[bytes, None]:
@@ -63,7 +63,7 @@ def bash_sync(*commands: str) -> str:
 
 async def read_file(relative_path: str) -> str:
     """
-    Read a file from the codebase
+    Read a file from the Codebase
     """
     async with aiofiles.open(relative_path) as f:
         return await f.read()
@@ -71,7 +71,7 @@ async def read_file(relative_path: str) -> str:
 
 def read_file_sync(relative_path: str) -> str:
     """
-    Read a file from the codebase
+    Read a file from the Codebase
     """
     with open(relative_path) as f:
         if relative_path.endswith(".py"):
@@ -82,16 +82,16 @@ def read_file_sync(relative_path: str) -> str:
 
 async def show_tree(*_: Any) -> str:
     """
-    Show the codebase tree
+    Show the Codebase tree
     """
-    return (await CodeBaseTree.load()).show()
+    return (await CodebaseTree.load()).show()
 
 
-async def get_tree(*_: Any) -> CodeBaseTree:
+async def get_tree(*_: Any) -> CodebaseTree:
     """
-    Get the codebase tree
+    Get the Codebase tree
     """
-    return await CodeBaseTree.load()
+    return await CodebaseTree.load()
 
 
 async def file_exists(relative_path: str) -> bool:
@@ -126,14 +126,14 @@ async def create_file(relative_path: str, content: str) -> None:
 
 async def create_directory(relative_path: str) -> None:
     """
-    Create a directory in the codebase
+    Create a directory in the Codebase
     """
     await bash(f"mkdir {relative_path}")
 
 
 async def modify_file(relative_path: str, content: str) -> None:
     """
-    Replace a file in the codebase
+    Replace a file in the Codebase
     """
     import aiofiles  # type: ignore
 
@@ -144,23 +144,24 @@ async def modify_file(relative_path: str, content: str) -> None:
 
 async def delete_file(relative_path: str) -> str:
     """
-    Delete a file in the codebase
+    Delete a file in the Codebase
     """
     return await bash(f"rm {relative_path}")
 
 
 async def prepare_environment(task: Task) -> None:
     """
-    Prepare the git env for the codebase
+    Prepare the git env for the Codebase
     """
     if not os.path.exists(".git"):
         await bash("git init")
 
+    # todo fix
     # if there are open changes stash them
-    if getenv("AUTO_COMMIT", "false").lower() == "true":
-        from ..commands import commit_changes
+    # if getenv("AUTO_COMMIT", "false").lower() == "true":
+    #     from ..commands import commit_changes
 
-        await commit_changes(True, False, True)  # TODO: make this configurable
+    #     await commit_changes(True, False, True)  # TODO: make this configurable
 
     if getenv("AUTO_STASH", "false").lower() == "true":
         git_status = await bash("git status")
@@ -184,7 +185,7 @@ async def prepare_environment(task: Task) -> None:
         await bash("git stash apply")
 
 
-async def fix_file_path(relative_path: str, codebase_tree: CodeBaseTree | None = None) -> str:
+async def fix_file_path(relative_path: str, codebase_tree: CodebaseTree | None = None) -> str:
     """Fix file name to absolute path"""
     tree = codebase_tree or await get_tree()
     file_name = relative_path.split("/")[-1]
