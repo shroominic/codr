@@ -2,6 +2,7 @@ import asyncio
 from typing import AsyncIterator
 
 from shared.codebase.core import Codebase
+from shared.codebase.tree import CodebaseTree
 from shared.schemas import Data
 
 from .codebase_tree_local import LocalCodebaseTree
@@ -14,8 +15,8 @@ class LocalCodebase(Codebase):
         self.path = path
 
     @property
-    def tree(self) -> LocalCodebaseTree:
-        return LocalCodebaseTree
+    def tree(self) -> type[CodebaseTree]:
+        return LocalCodebaseTree  # type: ignore
 
     async def shell(self, cmd: str) -> str:
         process = await asyncio.create_subprocess_shell(

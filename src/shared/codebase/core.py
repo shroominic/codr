@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator
+from typing import AsyncIterator
 
 from ..codebase.git import CodebaseGit
 from ..schemas import Data
@@ -12,7 +12,7 @@ class Codebase(ABC):
     # EXTENSIONS
 
     @property
-    def tree(self) -> CodebaseTree:
+    def tree(self) -> type[CodebaseTree]:
         return CodebaseTree
 
     @property
@@ -25,7 +25,8 @@ class Codebase(ABC):
     async def shell(self, cmd: str) -> str: ...
 
     @abstractmethod
-    async def stream_shell(self, cmd: str) -> AsyncGenerator[str, None]: ...
+    async def stream_shell(self, cmd: str) -> AsyncIterator[str]:
+        yield ""
 
     # FILE CRUD
 
