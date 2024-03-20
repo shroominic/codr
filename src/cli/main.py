@@ -5,17 +5,13 @@ from typing import Annotated, Optional
 import typer
 from codr import Codr
 from funcchain import settings
-
-from .codebase_local import LocalCodebase
+from shared.codebase.local.codebase import LocalCodebase
 
 settings.llm = "gpt-4-turbo-preview"
 
 cli = typer.Typer()
 
-codr = Codr(
-    codebase=LocalCodebase(),
-    llm="gpt-4-turbo-preview",
-)
+codr = Codr(codebase=LocalCodebase(), llm="gpt-4-turbo-preview")
 
 
 @cli.command()
