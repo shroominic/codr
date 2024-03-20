@@ -1,38 +1,47 @@
 import asyncio
 import os
-from asyncio import subprocess as asp
+
+from utils import shell
 
 
-async def prepare_environments(example_path: str) -> None:
-    await asp.create_subprocess_shell(
-        # todo optimize with uv
-        "python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt",
-        cwd="tests/codebases/playgrounds/" + example_path,
+async def prepare_environments(example: str) -> None:
+    await shell("uv venv", cwd="tests/codebases/playgrounds/" + example)
+
+    if "requirements.txt" in os.listdir(f"tests/codebases/playgrounds/{example}"):
+        print(f"Installing requirements for {example} ...")
+        await shell("uv pip install -r requirements.txt", cwd="tests/codebases/playgrounds/" + example)
+
+
+async def run_debugging(example: str) -> None:
+    await shell(
+        "codr debug '.venv/bin/python main.py'",
+        cwd="tests/codebases/playgrounds/" + example,
+        ignore_stdout=False,
     )
 
 
-async def run_debugging(example_path: str) -> None:
-    await asp.create_subprocess_shell(
-        "codr debug '.venv/bin/python3 main.py'",
-        stdout=asp.PIPE,
-        stderr=asp.PIPE,
-        cwd="tests/codebases/playgrounds/" + example_path,
-    )
-
-
-async def reset_environments(example_path: str) -> None:
-    await asp.create_subprocess_shell("rm -rf playgrounds", cwd="tests/codebases/")
+async def reset_environments() -> None:
+    await shell("rm -rf playgrounds", cwd="tests/codebases/", ignore_stdout=False)
 
 
 async def fix_codebases() -> None:
-    # copy example codebases to new created playgrounds
-    os.system("cp -r examples/ playgrounds/")
+    await shell("cp -r tests/codebases/examples/ tests/codebases/playgrounds/")
 
     fix_examples = [
-        example for example in os.listdir("examples") if os.path.isdir(example) and example.startswith("fix_")
+        example
+        for example in os.listdir("tests/codebases/examples")
+        if os.path.isdir("tests/codebases/examples/" + example) and example.startswith("fix_")
     ]
+    try:
+        # todo optimize async
+        for example in fix_examples:
+            print("Fixing", example)
+            await prepare_environments(example)
+            print("Running debugging for", example)
+            await run_debugging(example)
 
-    await asyncio.gather(prepare_environments(example_path) for example_path in fix_examples)
+    finally:
+        await reset_environments()
 
 
 def test_fix_codebases() -> None:
