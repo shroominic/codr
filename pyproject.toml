@@ -44,7 +44,7 @@ packages = ["src/codr"]
 [tool.mypy]
 disallow_untyped_defs = true
 ignore_missing_imports = true
-exclude = "tests/Codebases/*"
+exclude = "tests/codebases/*"
 
 [tool.ruff]
 line-length = 120
