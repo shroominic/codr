@@ -1,4 +1,3 @@
-
 def factorial(n):
     if n == 0:
         return 1
@@ -11,15 +10,16 @@ def reverse_string(s):
 
 
 if __name__ == "__main__":
+    example = "6"
     try:
-        num = int(input("Enter a number to find its factorial: "))
+        num = int(example)
         if num < 0:
-            print("Please enter a non-negative number.")
+            result = "Please enter a non-negative number."
         else:
-            print(f"The factorial of {num} is {factorial(num)}")
+            result = f"The factorial of {num} is {factorial(num)}"
     except ValueError:
         print("Invalid input. Please enter a number.")
 
-    string_to_reverse = input("Enter a string to reverse: ")
+    string_to_reverse = result
     print(f"The reversed string is: {reverse_string(string_to_reverse)}")
     print(f"The original string was: {string_to_revers}")
