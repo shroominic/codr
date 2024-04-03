@@ -16,7 +16,7 @@ async def exec_commit(codebase: Codebase, llm: LLM, input: Commit) -> None:
     """commit command wrapper"""
 
     class GitChange(BaseModel):
-        file: str = Field(description="Relative path to the file that got changed.")
+        files: list[str] = Field(description="Relative path to the file that got changed.")
         action: Literal["modified", "new", "deleted", "renamed"]
         diff: str | None = None
 
@@ -25,32 +25,35 @@ async def exec_commit(codebase: Codebase, llm: LLM, input: Commit) -> None:
             match change_split[0]:
                 case "modified:":
                     return GitChange(
-                        file=(file_change := change_split[1].strip()),
+                        files=[file_change := change_split[1].strip()],
                         action="modified",
                         diff=await codebase.shell(f"git diff --staged {file_change}"),
                     )
 
                 case "new":
                     return GitChange(
-                        file=(file_change := change_split[2].strip()),
+                        files=[file_change := change_split[2].strip()],
                         action="new",
                         diff=await codebase.shell(f"git diff --staged {file_change}"),
                     )
 
                 case "deleted:":
                     return GitChange(
-                        file=change_split[1].strip(),
+                        files=[change_split[1].strip()],
                         action="deleted",
                     )
 
                 case "renamed:":
-                    return GitChange(file=change_split[3].strip(), action="renamed")
+                    return GitChange(
+                        files=[change_split[1].strip(), change_split[3].strip()],
+                        action="renamed",
+                    )
 
                 case _:
                     raise ValueError(f"Invalid change: {change_split[0]}")
 
         elif len(change_split) == 1:
-            return GitChange(file=change_split[0].strip(), action="new")
+            return GitChange(files=[change_split[0].strip()], action="new")
 
         else:
             raise ValueError(f"Invalid change: {change_split[0]}")
