@@ -52,8 +52,9 @@ async def exec_implement(codebase: Codebase, llm: LLM, input: Implement) -> None
 
     @runnable(llm=llm)
     def modify_file_prompt(
-        task: Task,
-        change: PlannedFileChange,
+        overall_task: Task,
+        planned_file_change: PlannedFileChange,
+        file_content: str,
         codebase_tree: Annotated[CodebaseTree, Depends(codebase.tree.load)],
     ) -> CodeBlock:
         """
@@ -157,7 +158,11 @@ async def exec_implement(codebase: Codebase, llm: LLM, input: Implement) -> None
         if change.method == "modify":
             return ModifiedFile(
                 relative_path=change.relative_path,
-                content=(await modify_file_prompt.ainvoke({"task": task, "change": change})).code,
+                content=(
+                    await modify_file_prompt.ainvoke(
+                        {"overall_task": task, "planned_file_change": change, "file_content": change.content}
+                    )
+                ).code,
             )
         if change.method == "delete":
             return DeletedFile(

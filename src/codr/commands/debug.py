@@ -27,7 +27,6 @@ async def exec_debug(codebase: Codebase, llm: LLM, input: Debug) -> None:
 
         observation: str = Field(description="Short of what can be observed in the console output.")
         health: bool = Field(description="Is the console output healthy?")
-        accuracy: int = Field(description="1-10 accuracy of the health check.")
 
         def __bool__(self) -> bool:
             return self.health
