@@ -34,7 +34,7 @@ emoji==2.10.1
     # via codr
 fastapi==0.110.0
     # via codr
-funcchain==0.3.2
+funcchain==0.3.3
     # via codr
 h11==0.14.0
     # via httpcore

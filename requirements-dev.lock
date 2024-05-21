@@ -40,7 +40,7 @@ fastapi==0.110.0
     # via codr
 filelock==3.13.1
     # via virtualenv
-funcchain==0.3.2
+funcchain==0.3.3
     # via codr
 h11==0.14.0
     # via httpcore
